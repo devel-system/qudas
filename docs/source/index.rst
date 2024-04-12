@@ -42,7 +42,7 @@ scikit learnやpytorchには前処理やモデルのフローを定義する pip
 
    quickstart
    base/index
-   convert/index
+   qudata/index
    pipeline/index
    cli
    references
