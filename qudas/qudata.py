@@ -1,4 +1,6 @@
 from amplify import VariableGenerator, Poly
+import csv
+import json
 from pulp import LpProblem, LpVariable, LpMinimize
 from pyqubo import Binary, Add
 import numpy as np
@@ -17,15 +19,22 @@ class QuData:
         """
 
         if prob is None:
-            self.dtype  = None
             self.prob   = None
 
         elif isinstance(prob, dict):
-            self.dtype = "dict"
             self.prob = prob
 
         else:
             raise TypeError(f"{type(prob)}は対応していない型です。")
+
+    def __add__(self, other):
+        qubo = self.prob.copy()
+        for k, v in other.prob.items():
+            if k in qubo:
+                qubo[k] += v
+            else:
+                qubo[k] = v
+        return qubo
 
     def from_pulp(self, prob: LpProblem):
         """pulpデータを読み込む
@@ -45,7 +54,6 @@ class QuData:
             for var in prob.objective.to_dict():
                 qubo[(var['name'], var['name'])] = var['value']
 
-            self.dtype = "pulp"
             self.prob = qubo
             return self
         else:
@@ -80,7 +88,6 @@ class QuData:
                 else:
                     raise ValueError("dictは3変数以上に対応していません。")
 
-            self.dtype = "amplify"
             self.prob = qubo
             return self
         else:
@@ -100,7 +107,6 @@ class QuData:
         """
         if isinstance(prob, Add):
             qubo = prob.compile().to_qubo()
-            self.dtype = "pyqubo"
             self.prob = qubo[0]
             return self
         else:
@@ -119,14 +125,81 @@ class QuData:
             Qudata: 量子データ
         """
 
-        # 開発中
-        # if isinstance(self.prob, np.ndarray):
-        #     self.dtype = "array"
-        #     self.prob = prob
-        #     return self
-        # else:
-        #     raise TypeError(f"{type(prob)}は対応していない型です。")
-        pass
+        if isinstance(prob, np.ndarray):
+            qubo = {}
+            for i, ai in enumerate(prob):
+                for j, aij in enumerate(ai):
+                    if aij == 0:
+                        continue
+
+                    if (f"q_{j}", f"q_{i}") in qubo:
+                        qubo[(f"q_{j}", f"q_{i}")] += aij
+                    else:
+                        qubo[(f"q_{i}", f"q_{j}")] = aij
+
+            self.prob = qubo
+            return self
+        else:
+            raise TypeError(f"{type(prob)}は対応していない型です。")
+
+    def from_csv(self, path: str, encoding='utf-8-sig'):
+        """csvデータを読み込む
+
+        Args:
+            path (str): ファイルパス文字列
+
+        Raises:
+            Exception: 形式エラー
+
+        Returns:
+            Qudata: 量子データ
+        """
+
+        with open(path, encoding=encoding, newline='') as f:
+            try:
+                qubo = {}
+                csvreader = csv.reader(f)
+                for i, ai in enumerate(csvreader):
+                    for j, aij in enumerate(ai):
+                        if float(aij) == 0:
+                            continue
+
+                        if (f"q_{j}", f"q_{i}") in qubo:
+                            qubo[(f"q_{j}", f"q_{i}")] += float(aij)
+                        else:
+                            qubo[(f"q_{i}", f"q_{j}")] = float(aij)
+
+                self.prob = qubo
+                return self
+
+            except Exception:
+                raise "読み取りエラー"
+
+    def from_json(self, path: str):
+        """jsonデータを読み込む
+
+        Args:
+            path (str): ファイルパス文字列
+
+        Raises:
+            Exception: 形式エラー
+
+        Returns:
+            Qudata: 量子データ
+        """
+
+        with open(path) as f:
+            try:
+                qubo = {}
+                jd = json.load(f)
+                for q in jd["qubo"]:
+                    qubo[(q["key"][0], q["key"][1])] = q["value"]
+
+                self.prob = qubo
+                return self
+
+            except Exception:
+                raise "読み取りエラー"
 
     def to_pulp(self) -> LpProblem:
         """pulp形式に変換
