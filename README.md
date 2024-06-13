@@ -27,7 +27,7 @@ make html
 
 ## 更新方法
 ドキュメントの更新は `make html` のみ。
-パッケージの更新は一番上のディレクトリで `pip install . -U `
+パッケージの更新は一番上のディレクトリで `pip install . -U`
 
 ## テスト
 ファイル名は `test_xxx.py` にする。

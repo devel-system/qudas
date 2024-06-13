@@ -35,6 +35,8 @@ class Pipeline():
 
         # Pipeline
         for i, step in enumerate(middle_steps):
+
+            # Transformer
             if hasattr(step[1], 'transform'):
                 X = step[1].transform(X)
 
@@ -72,9 +74,34 @@ class Pipeline():
                 X, y = last_step[1].next_step(X, y)
                 return self.fit(X, y)
 
+        else:
+
+            # Transformer
+            if hasattr(last_step[1], 'transform'):
+                X = last_step[1].transform(X)
+
+            # Optimizer
+            if hasattr(last_step[1], 'optimize'):
+                self.result[-1] = last_step[1].optimize(X, y).result
+
+            # Estimator
+            if hasattr(last_step[1], 'fit'):
+                self.models[-1] = last_step[1].fit(X, y)
+
         return self
 
     def optimize(self, X=None, y=None):
+        """最適化
+        最後のステップがOptimizer
+
+        Args:
+            X (_type_): _description_
+            y (_type_, optional): _description_. Defaults to None.
+
+        Returns:
+            _type_: _description_
+        """
+
         _, last_step = self._split_steps()
 
         # Pipeline
@@ -120,3 +147,28 @@ class Pipeline():
                 return self.optimize(X, y)
 
         return self.results[-1]
+
+    def predict(self, X):
+        """予測
+        最後のステップがEstimator
+
+        Args:
+            X (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+
+        # Pipeline
+        for step, model in zip(self.steps, self.models):
+
+            # Transformer
+            if hasattr(step[1], 'transform'):
+                X = step[1].transform(X)
+
+            # Estimator
+            if hasattr(model, 'predict'):
+                return model.predict(X)
+
+        else:
+            return Exception("predict関数が定義されていません。")
