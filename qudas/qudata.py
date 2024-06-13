@@ -3,6 +3,7 @@ import csv
 import json
 from pulp import LpProblem, LpVariable, LpMinimize
 from pyqubo import Binary, Add
+import networkx as nx
 import numpy as np
 
 class QuData:
@@ -200,6 +201,32 @@ class QuData:
 
             except Exception:
                 raise "読み取りエラー"
+
+    def from_networkx(self, prob: nx.Graph):
+        """グラフデータを読み込む
+
+        Args:
+            prob (nx.Graph): networkxのグラフデータ
+
+        Raises:
+            TypeError: 形式エラー
+
+        Returns:
+            Qudata: 量子データ
+        """
+
+        if isinstance(prob, nx.Graph):
+            qubo = {}
+            for e in prob.edges():
+                if (f"q_{e[0]}", f"q_{e[1]}") in qubo:
+                    qubo[(f"q_{e[0]}", f"q_{e[1]}")] += 1
+                else:
+                    qubo[(f"q_{e[0]}", f"q_{e[1]}")] = 1
+
+            self.prob = qubo
+            return self
+        else:
+            raise TypeError(f"{type(prob)}は対応していない型です。")
 
     def to_pulp(self) -> LpProblem:
         """pulp形式に変換
