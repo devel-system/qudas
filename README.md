@@ -26,7 +26,7 @@ make html
 ```
 
 ## 更新方法
-ドキュメントの更新は `make html` のみ。
+ドキュメントの更新は `/docs` で `make html` を実行。
 パッケージの更新は一番上のディレクトリで `pip install . -U`
 
 ## テスト
