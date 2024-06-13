@@ -93,3 +93,8 @@ if __name__ == '__main__':
 
     # to_json
     qd6.to_json(name="to-json")
+
+    # to_networkx
+    toG = qd7.to_networkx()
+    # nx.draw_networkx(toG)
+    # plt.show()

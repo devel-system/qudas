@@ -375,3 +375,32 @@ class QuData:
 
         with open(f"{name}.json", 'w') as f:
             json.dump(qubo, f, indent=2)
+
+    def to_networkx(self) -> nx.Graph:
+        """networkx形式に変換
+
+        Raises:
+            ValueError: 次元エラー
+        """
+
+        variables = []
+        for key in self.prob.keys():
+            for k in key:
+                variables.append(k)
+
+        variables = list(set(variables))
+
+        G = nx.Graph()
+        for key, value in self.prob.items():
+
+            # 1変数 or 2変数
+            if len(key) == 2:
+                variable_index_0 = variables.index(key[0])
+                variable_index_1 = variables.index(key[1])
+                G.add_edge(variable_index_0, variable_index_1, value=value)
+
+            # 3変数以上
+            else:
+                raise ValueError("networkxは3変数以上に対応していません。")
+
+        return G
