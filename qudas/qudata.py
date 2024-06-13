@@ -5,6 +5,7 @@ from pulp import LpProblem, LpVariable, LpMinimize
 from pyqubo import Binary, Add
 import networkx as nx
 import numpy as np
+import pandas as pd
 
 class QuData:
     """量子データ"""
@@ -228,6 +229,40 @@ class QuData:
         else:
             raise TypeError(f"{type(prob)}は対応していない型です。")
 
+    def from_pandas(self, prob: pd.DataFrame):
+        """pandasデータを読み込む
+
+        Args:
+            prob (pd.DataFrame): pandasのデータフレーム
+
+        Raises:
+            TypeError: 形式エラー
+
+        Returns:
+            Qudata: 量子データ
+        """
+
+        if isinstance(prob, pd.DataFrame):
+            key1_list = prob.columns.tolist()
+            key2_list = prob.index.tolist()
+
+            qubo = {}
+            for k1 in key1_list:
+                for k2 in key2_list:
+                    if prob[k1][k2] == 0:
+                        continue
+
+                    if (k1, k2) in qubo:
+                        qubo[(k1, k2)] += prob[k1][k2]
+                    else:
+                        qubo[(k1, k2)] = prob[k1][k2]
+
+            self.prob = qubo
+            return self
+
+        else:
+            raise TypeError(f"{type(prob)}は対応していない型です。")
+
     def to_pulp(self) -> LpProblem:
         """pulp形式に変換
 
@@ -381,6 +416,9 @@ class QuData:
 
         Raises:
             ValueError: 次元エラー
+
+        Returns:
+            nx.Graph: networkxのグラフデータ
         """
 
         variables = []
@@ -404,3 +442,24 @@ class QuData:
                 raise ValueError("networkxは3変数以上に対応していません。")
 
         return G
+
+    def to_pandas(self) -> pd.DataFrame:
+        """pandas形式に変換
+
+        Returns:
+            pd.DataFrame: pandasデータ
+        """
+
+        variables = []
+        for key in self.prob.keys():
+            for k in key:
+                variables.append(k)
+
+        variables = list(set(variables))
+
+        array = self.to_array()
+        df = pd.DataFrame(array,
+                          columns=variables,
+                          index=variables)
+
+        return df

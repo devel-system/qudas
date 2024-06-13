@@ -1,5 +1,6 @@
 from amplify import VariableGenerator, Poly
 import numpy as np
+import pandas as pd
 import pulp
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -40,6 +41,13 @@ G.add_edges_from([(0, 1), (1, 2), (0, 2)])
 # nx.draw_networkx(G)
 # plt.show()
 
+##############################
+### pandas
+##############################
+df = pd.DataFrame(array,
+                  columns=['q0', 'q1', 'q2'],
+                  index=['q0', 'q1', 'q2'])
+
 if __name__ == '__main__':
 
     # dict
@@ -76,6 +84,11 @@ if __name__ == '__main__':
     qd7.from_networkx(G)
     print(f"networkx={qd7.prob}")
 
+    # pandas
+    qd8 = QuData()
+    qd8.from_pandas(df)
+    print(f"pandas={qd8.prob}")
+
     # add
     print(f"add={qd1 + qd2}")
 
@@ -98,3 +111,6 @@ if __name__ == '__main__':
     toG = qd7.to_networkx()
     # nx.draw_networkx(toG)
     # plt.show()
+
+    # to_pandas
+    print(qd8.to_pandas())
