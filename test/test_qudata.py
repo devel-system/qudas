@@ -89,9 +89,6 @@ if __name__ == '__main__':
     qd8.from_pandas(df)
     print(f"pandas={qd8.prob}")
 
-    # add
-    print(f"add={qd1 + qd2}")
-
     # to_pulp
     print(qd2.to_pulp())
 
@@ -114,3 +111,12 @@ if __name__ == '__main__':
 
     # to_pandas
     print(qd8.to_pandas())
+
+    # add
+    print(f"add={qd1 + qd2}")
+
+    # sub
+    print(f"sub={qd1 - qd2}")
+
+    # mul
+    print(f"mul={qd1 * qd2}")

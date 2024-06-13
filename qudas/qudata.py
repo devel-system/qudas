@@ -38,6 +38,38 @@ class QuData:
                 qubo[k] = v
         return qubo
 
+    def __sub__(self, other):
+        qubo = self.prob.copy()
+        for k, v in other.prob.items():
+            if k in qubo:
+                qubo[k] -= v
+            else:
+                qubo[k] = -v
+        return qubo
+
+    def __mul__(self, other):
+        qubo = {}
+        for k1, v1 in self.prob.items():
+            for k2, v2 in other.prob.items():
+
+                # keyのリストを作成
+                k = set(k1 + k2)
+                for _k in qubo.keys():
+
+                    # 要素が重複する場合
+                    if k == set(_k):
+                        qubo[_k] += v1 * v2
+                        break
+                else:
+
+                    # 要素を新規作成
+                    if len(k) == 1:
+                        qubo[(list(k)[0], list(k)[0])] = v1 * v2
+                    else:
+                        qubo[tuple(k)] = v1 * v2
+
+        return qubo
+
     def from_pulp(self, prob: LpProblem):
         """pulpデータを読み込む
 
