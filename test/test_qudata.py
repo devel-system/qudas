@@ -87,3 +87,9 @@ if __name__ == '__main__':
 
     # to_array
     print(qd4.to_array())
+
+    # to_csv
+    qd5.to_csv(name="to-csv")
+
+    # to_json
+    qd6.to_json(name="to-json")

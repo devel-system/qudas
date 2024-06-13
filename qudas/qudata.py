@@ -349,3 +349,29 @@ class QuData:
                 raise ValueError("matrixは3変数以上に対応していません。")
 
         return qubo
+
+    def to_csv(self, name="qudata") -> None:
+        """numpy形式に変換
+
+        Raises:
+            ValueError: 次元エラー
+        """
+
+        qubo = self.to_array()
+        with open(f"{name}.csv", 'w') as f:
+            writer = csv.writer(f)
+            writer.writerows(qubo)
+
+    def to_json(self, name="qudata") -> None:
+        """json形式に変換
+
+        Args:
+            name (str, optional): ファイル名. Defaults to "qudata".
+        """
+
+        qubo = []
+        for key, value in self.prob.items():
+            qubo.append({"key": list(key), "value": value})
+
+        with open(f"{name}.json", 'w') as f:
+            json.dump(qubo, f, indent=2)
