@@ -36,7 +36,8 @@ class QuData:
                 qubo[k] += v
             else:
                 qubo[k] = v
-        return qubo
+
+        return QuData(qubo)
 
     def __sub__(self, other):
         qubo = self.prob.copy()
@@ -45,7 +46,8 @@ class QuData:
                 qubo[k] -= v
             else:
                 qubo[k] = -v
-        return qubo
+
+        return QuData(qubo)
 
     def __mul__(self, other):
         qubo = {}
@@ -68,7 +70,17 @@ class QuData:
                     else:
                         qubo[tuple(k)] = v1 * v2
 
-        return qubo
+        return QuData(qubo)
+
+    def __pow__(self, other: int):
+        if isinstance(other, int):
+            qudata = self
+            for _ in range(other):
+                qudata *= qudata
+
+            return qudata
+        else:
+            raise TypeError(f"{type(other)}は対応していない型です。")
 
     def from_pulp(self, prob: LpProblem):
         """pulpデータを読み込む

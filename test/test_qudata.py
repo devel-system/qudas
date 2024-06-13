@@ -113,10 +113,13 @@ if __name__ == '__main__':
     print(qd8.to_pandas())
 
     # add
-    print(f"add={qd1 + qd2}")
+    print(f"add={(qd1 + qd2).prob}")
 
     # sub
-    print(f"sub={qd1 - qd2}")
+    print(f"sub={(qd1 - qd2).prob}")
 
     # mul
-    print(f"mul={qd1 * qd2}")
+    print(f"mul={(qd1 * qd2).prob}")
+
+    # pow
+    print(f"pow={(qd1 ** 2).prob}")
