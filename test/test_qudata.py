@@ -4,6 +4,7 @@ import pandas as pd
 import pulp
 import networkx as nx
 import matplotlib.pyplot as plt
+import dimod
 from qudas.qudata import QuData
 
 ##############################
@@ -48,6 +49,11 @@ df = pd.DataFrame(array,
                   columns=['q0', 'q1', 'q2'],
                   index=['q0', 'q1', 'q2'])
 
+##############################
+### dimod (bqm)
+##############################
+bqm = dimod.BinaryQuadraticModel({'q2': -1}, {('q0', 'q1'): 1}, vartype='BINARY')
+
 if __name__ == '__main__':
 
     # dict
@@ -89,6 +95,11 @@ if __name__ == '__main__':
     qd8.from_pandas(df)
     print(f"pandas={qd8.prob}")
 
+    # dimod (bqm)
+    qd9 = QuData()
+    qd9.from_dimod_bqm(bqm)
+    print(f"dimod-bqm={qd9.prob}")
+
     # to_pulp
     print(qd2.to_pulp())
 
@@ -111,6 +122,9 @@ if __name__ == '__main__':
 
     # to_pandas
     print(qd8.to_pandas())
+
+    # to_dimod-bqm
+    print(qd9.to_dimod_bqm())
 
     # add
     print(f"add={(qd1 + qd2).prob}")

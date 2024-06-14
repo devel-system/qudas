@@ -2,6 +2,7 @@ from amplify import VariableGenerator, Poly
 import csv
 import json
 from pulp import LpProblem, LpVariable, LpMinimize
+import dimod
 from pyqubo import Binary, Add
 import networkx as nx
 import numpy as np
@@ -307,6 +308,33 @@ class QuData:
         else:
             raise TypeError(f"{type(prob)}は対応していない型です。")
 
+    def from_dimod_bqm(self, prob: dimod.BinaryQuadraticModel):
+        """dimodのbqmデータを読み込む
+
+        Args:
+            prob (dimod.BinaryQuadraticModel): dimodのbqmデータ
+
+        Raises:
+            TypeError: 形式エラー
+
+        Returns:
+            Qudata: 量子データ
+        """
+
+        if isinstance(prob, dimod.BinaryQuadraticModel):
+            qubo = dict(prob.quadratic).copy()
+            for k, v in prob.linear.items():
+                if v == 0:
+                    continue
+
+                qubo[(k, k)] = v
+
+            self.prob = qubo
+            return self
+
+        else:
+            raise TypeError(f"{type(prob)}は対応していない型です。")
+
     def to_pulp(self) -> LpProblem:
         """pulp形式に変換
 
@@ -507,3 +535,22 @@ class QuData:
                           index=variables)
 
         return df
+
+    def to_dimod_bqm(self) -> dimod.BinaryQuadraticModel:
+        """dimodのbqm形式に変換
+
+        Returns:
+            dimod.BinaryQuadraticModel: dimodのbqmデータ
+        """
+
+        linear = {}
+        quadratic = {}
+        for k, v in self.prob.items():
+            if k[0] == k[1]:
+                linear[k[0]] = v
+            else:
+                quadratic[(k[0], k[1])] = v
+
+        bqm = dimod.BinaryQuadraticModel(linear, quadratic, vartype='BINARY')
+
+        return bqm
