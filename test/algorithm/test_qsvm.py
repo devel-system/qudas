@@ -126,16 +126,28 @@ if __name__ == '__main__':
     pred = pipe.predict(X=train_data)
 
     # 描画
-    fig = plt.figure(figsize=(5, 5))
-    ax = fig.add_subplot(111)
-    ax.set_aspect('equal')
-    ax.set_title("Predicted data classification")
-    ax.set_ylim(-2, 2)
-    ax.set_xlim(-2, 2)
-    for (x, y), pred_label in zip(test_data, pred):
-        c = 'C0' if pred_label == 0 else 'C3'
-        ax.add_patch(matplotlib.patches.Circle((x, y), radius=.01,
+    fig = plt.figure(figsize=(12, 6))
+    ax1 = fig.add_subplot(121)
+    ax1.set_aspect('equal')
+    ax1.set_title("Train Data")
+    ax1.set_ylim(-2, 2)
+    ax1.set_xlim(-2, 2)
+    for (x, y), train_label in zip(train_data, train_labels):
+        c = 'C0' if train_label == 0 else 'C3'
+        ax1.add_patch(matplotlib.patches.Circle((x, y), radius=.01,
                     fill=True, linestyle='solid', linewidth=4.0,
                     color=c))
-    plt.grid()
+    ax1.grid()
+
+    ax2 = fig.add_subplot(122)
+    ax2.set_aspect('equal')
+    ax2.set_title("Test Data Classification")
+    ax2.set_ylim(-2, 2)
+    ax2.set_xlim(-2, 2)
+    for (x, y), pred_label in zip(test_data, pred):
+        c = 'C0' if pred_label == 0 else 'C3'
+        ax2.add_patch(matplotlib.patches.Circle((x, y), radius=.01,
+                    fill=True, linestyle='solid', linewidth=4.0,
+                    color=c))
+    ax2.grid()
     plt.show()
