@@ -7,6 +7,7 @@ from pyqubo import Binary, Add
 import networkx as nx
 import numpy as np
 import pandas as pd
+import sympy
 
 class QuData:
     """量子データ"""
@@ -335,6 +336,39 @@ class QuData:
         else:
             raise TypeError(f"{type(prob)}は対応していない型です。")
 
+    def from_sympy(self, prob: sympy.core.expr.Expr):
+        """sympyデータを読み込む
+
+        Args:
+            prob (sympy.core.expr.Expr): sympyデータ
+
+        Raises:
+            TypeError: 形式エラー
+
+        Returns:
+            Qudata: 量子データ
+        """
+
+        if isinstance(prob, sympy.core.expr.Expr):
+            qubo = {}
+            for term in prob.as_ordered_terms():
+
+                # 係数と変数を取得
+                v, k = term.as_coeff_mul()
+
+                if len(k) == 1:
+                    variable = term.free_symbols
+                    qubo[(str(list(variable)[0]), str(list(variable)[0]))] = v
+                else:
+                    k = tuple([str(_k) for _k in k])
+                    qubo[k] = v
+
+            self.prob = qubo
+            return self
+
+        else:
+            raise TypeError(f"{type(prob)}は対応していない型です。")
+
     def to_pulp(self) -> LpProblem:
         """pulp形式に変換
 
@@ -554,3 +588,21 @@ class QuData:
         bqm = dimod.BinaryQuadraticModel(linear, quadratic, vartype='BINARY')
 
         return bqm
+
+    def to_sympy(self) -> sympy.core.expr.Expr:
+        """sympy形式に変換
+
+        Returns:
+            sympy.core.expr.Expr: sympyの多項式データ
+        """
+
+        sympy_prob = 0
+        for k, v in self.prob.items():
+            if k[0] == k[1]:
+                sympy_prob += sympy.Symbol(k[0]) * v
+            else:
+                var1 = sympy.Symbol(k[0])
+                var2 = sympy.Symbol(k[1])
+                sympy_prob += var1 * var2 * v
+
+        return sympy_prob

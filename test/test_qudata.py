@@ -5,6 +5,7 @@ import pulp
 import networkx as nx
 import matplotlib.pyplot as plt
 import dimod
+from sympy import Symbol
 from qudas.qudata import QuData
 
 ##############################
@@ -54,6 +55,18 @@ df = pd.DataFrame(array,
 ##############################
 bqm = dimod.BinaryQuadraticModel({'q2': -1}, {('q0', 'q1'): 1}, vartype='BINARY')
 
+##############################
+### sympy
+##############################
+q0_sympy = Symbol('q0')
+q1_sympy = Symbol('q1')
+q2_sympy = Symbol('q2')
+prob_sympy = q0_sympy * q1_sympy - q2_sympy ** 2
+# print(prob.free_symbols)
+
+# terms = prob.as_ordered_terms()
+# print(terms, type(terms[0]), terms[1].free_symbols)
+
 if __name__ == '__main__':
 
     # dict
@@ -100,6 +113,11 @@ if __name__ == '__main__':
     qd9.from_dimod_bqm(bqm)
     print(f"dimod-bqm={qd9.prob}")
 
+    # sympy
+    qd10 = QuData()
+    qd10.from_sympy(prob_sympy)
+    print(f"sympy={qd10.prob}")
+
     # to_pulp
     print(qd2.to_pulp())
 
@@ -125,6 +143,9 @@ if __name__ == '__main__':
 
     # to_dimod-bqm
     print(qd9.to_dimod_bqm())
+
+    # to_sympy
+    print(qd10.to_sympy())
 
     # add
     print(f"add={(qd1 + qd2).prob}")
