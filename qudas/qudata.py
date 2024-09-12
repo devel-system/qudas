@@ -23,7 +23,7 @@ class QuData:
         """
 
         if prob is None:
-            self.prob   = None
+            self.prob = {}
 
         elif isinstance(prob, dict):
             self.prob = prob
@@ -76,10 +76,9 @@ class QuData:
 
     def __pow__(self, other: int):
         if isinstance(other, int):
-            qudata = self
-            for _ in range(other):
-                qudata *= qudata
-
+            qudata = QuData(self.prob)
+            for _ in range(1, other):
+                qudata *= self
             return qudata
         else:
             raise TypeError(f"{type(other)}は対応していない型です。")
@@ -134,7 +133,7 @@ class QuData:
 
                 # 3変数以上
                 else:
-                    raise ValueError("dictは3変数以上に対応していません。")
+                    raise ValueError("3変数以上は対応していません。")
 
             self.prob = qubo
             return self
@@ -203,8 +202,8 @@ class QuData:
             Qudata: 量子データ
         """
 
-        with open(path, encoding=encoding, newline='') as f:
-            try:
+        try:
+            with open(path, encoding=encoding, newline='') as f:
                 qubo = {}
                 csvreader = csv.reader(f)
                 for i, ai in enumerate(csvreader):
@@ -220,8 +219,8 @@ class QuData:
                 self.prob = qubo
                 return self
 
-            except Exception:
-                raise "読み取りエラー"
+        except Exception as e:
+            raise ValueError("読み取りエラー") from e
 
     def from_json(self, path: str):
         """jsonデータを読み込む
@@ -236,8 +235,8 @@ class QuData:
             Qudata: 量子データ
         """
 
-        with open(path) as f:
-            try:
+        try:
+            with open(path) as f:
                 qubo = {}
                 jd = json.load(f)
                 for q in jd["qubo"]:
@@ -246,8 +245,8 @@ class QuData:
                 self.prob = qubo
                 return self
 
-            except Exception:
-                raise "読み取りエラー"
+        except Exception as e:
+            raise ValueError("読み取りエラー") from e
 
     def from_networkx(self, prob: nx.Graph):
         """グラフデータを読み込む
@@ -379,17 +378,8 @@ class QuData:
             LpProblem: 線形計画問題
         """
 
-        variables = []
-        for key in self.prob.keys():
-            for k in key:
-                variables.append(k)
-
-        variables = list(set(variables))
-
-        q = []
-        for name in variables:
-            lp_variable = LpVariable(name, lowBound=0, upBound=1, cat='Binary')
-            q.append(lp_variable)
+        variables = list(set(k for key in self.prob.keys() for k in key))
+        q = [LpVariable(name, lowBound=0, upBound=1, cat='Binary') for name in variables]
 
         qubo = LpProblem('QUBO', LpMinimize)
         for key, value in self.prob.items():
@@ -411,13 +401,8 @@ class QuData:
         Returns:
             Poly: 組み合わせ最適化問題
         """
-        variables = []
-        for key in self.prob.keys():
-            for k in key:
-                variables.append(k)
 
-        variables = list(set(variables))
-
+        variables = list(set(k for key in self.prob.keys() for k in key))
         gen = VariableGenerator()
         q = gen.array("Binary", len(variables))
 
@@ -438,16 +423,9 @@ class QuData:
         Returns:
             Add: 組み合わせ最適化問題
         """
-        variables = []
-        for key in self.prob.keys():
-            for k in key:
-                variables.append(k)
 
-        variables = list(set(variables))
-
-        q = []
-        for variable in variables:
-            q.append(Binary(variable))
+        variables = list(set(k for key in self.prob.keys() for k in key))
+        q = [Binary(variable) for variable in variables]
 
         qubo = 0
         for key, value in self.prob.items():
@@ -469,14 +447,10 @@ class QuData:
         Returns:
             np.ndarray: QUBO行列
         """
-        variables = []
-        for key in self.prob.keys():
-            for k in key:
-                variables.append(k)
 
-        variables = list(set(variables))
-
+        variables = list(set(k for key in self.prob.keys() for k in key))
         qubo = np.zeros((len(variables), len(variables)))
+
         for key, value in self.prob.items():
 
             # 1変数 or 2変数
@@ -492,30 +466,41 @@ class QuData:
         return qubo
 
     def to_csv(self, name="qudata") -> None:
-        """numpy形式に変換
+        """データをCSV形式で保存
+
+        Args:
+            name (str, optional): ファイル名. Defaults to "qudata".
 
         Raises:
-            ValueError: 次元エラー
+            ValueError: 書き出しエラー
         """
 
         qubo = self.to_array()
-        with open(f"{name}.csv", 'w') as f:
-            writer = csv.writer(f)
-            writer.writerows(qubo)
+        try:
+            with open(f"{name}.csv", 'w') as f:
+                writer = csv.writer(f)
+                writer.writerows(qubo)
+        except Exception as e:
+            raise ValueError("書き出しエラー") from e
 
     def to_json(self, name="qudata") -> None:
         """json形式に変換
 
         Args:
             name (str, optional): ファイル名. Defaults to "qudata".
+
+        Raises:
+            ValueError: 書き出しエラー
         """
 
-        qubo = []
-        for key, value in self.prob.items():
-            qubo.append({"key": list(key), "value": value})
+        qubo = [{"key": list(key), "value": value} for key, value in self.prob.items()]
 
-        with open(f"{name}.json", 'w') as f:
-            json.dump(qubo, f, indent=2)
+        try:
+            with open(f"{name}.json", 'w') as f:
+                json.dump(qubo, f, indent=2)
+
+        except Exception as e:
+            raise ValueError("書き出しエラー") from e
 
     def to_networkx(self) -> nx.Graph:
         """networkx形式に変換
@@ -527,14 +512,9 @@ class QuData:
             nx.Graph: networkxのグラフデータ
         """
 
-        variables = []
-        for key in self.prob.keys():
-            for k in key:
-                variables.append(k)
-
-        variables = list(set(variables))
-
+        variables = list(set(k for key in self.prob.keys() for k in key))
         G = nx.Graph()
+
         for key, value in self.prob.items():
 
             # 1変数 or 2変数
@@ -556,19 +536,10 @@ class QuData:
             pd.DataFrame: pandasデータ
         """
 
-        variables = []
-        for key in self.prob.keys():
-            for k in key:
-                variables.append(k)
-
-        variables = list(set(variables))
-
+        variables = list(set(k for key in self.prob.keys() for k in key))
         array = self.to_array()
-        df = pd.DataFrame(array,
-                          columns=variables,
-                          index=variables)
 
-        return df
+        return pd.DataFrame(array, columns=variables, index=variables)
 
     def to_dimod_bqm(self) -> dimod.BinaryQuadraticModel:
         """dimodのbqm形式に変換
@@ -577,17 +548,10 @@ class QuData:
             dimod.BinaryQuadraticModel: dimodのbqmデータ
         """
 
-        linear = {}
-        quadratic = {}
-        for k, v in self.prob.items():
-            if k[0] == k[1]:
-                linear[k[0]] = v
-            else:
-                quadratic[(k[0], k[1])] = v
+        linear = {k[0]: v for k, v in self.prob.items() if k[0] == k[1]}
+        quadratic = {k: v for k, v in self.prob.items() if k[0] != k[1]}
 
-        bqm = dimod.BinaryQuadraticModel(linear, quadratic, vartype='BINARY')
-
-        return bqm
+        return dimod.BinaryQuadraticModel(linear, quadratic, vartype='BINARY')
 
     def to_sympy(self) -> sympy.core.expr.Expr:
         """sympy形式に変換
@@ -596,13 +560,9 @@ class QuData:
             sympy.core.expr.Expr: sympyの多項式データ
         """
 
-        sympy_prob = 0
-        for k, v in self.prob.items():
-            if k[0] == k[1]:
-                sympy_prob += sympy.Symbol(k[0]) * v
-            else:
-                var1 = sympy.Symbol(k[0])
-                var2 = sympy.Symbol(k[1])
-                sympy_prob += var1 * var2 * v
+        sympy_prob = sum(
+            sympy.Symbol(k[0]) * v if k[0] == k[1] else sympy.Symbol(k[0]) * sympy.Symbol(k[1]) * v
+            for k, v in self.prob.items()
+        )
 
         return sympy_prob
