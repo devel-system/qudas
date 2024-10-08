@@ -2,173 +2,219 @@ from typing import Sequence
 
 class Pipeline():
     def __init__(self, steps: Sequence[tuple]) -> None:
-        self.steps      = steps
-        self.models     = [None for i in range(len(steps))]
-        self.results    = [None for i in range(len(steps))]
-        self.params     = None
-
-    def set_grobal_params(self, params) -> None:
-        for step in self.steps:
-            step[1].set_grobal_params(params)
-
-        self.params = params
-
-    def get_grobal_params(self) -> dict:
-        return self.params
-
-    def _split_steps(self):
-        return self.steps[:-1], self.steps[-1]
-
-    def fit(self, X, y=None):
-        """学習
-        再度のステップがEstimator
+        """
+        Pipelineクラスは一連のステップを受け取り、それぞれのステップを順に実行する。
 
         Args:
-            X (_type_): _description_
-            y (_type_, optional): _description_. Defaults to None.
+            steps (list): ステップのリスト。各ステップは (名前, オブジェクト) のタプル形式。
+        """
+        self.steps      = steps
+        self.models = {step_name: None for step_name, _ in steps}
+        self.results = {step_name: None for step_name, _ in steps}
+        self.global_params = {}
+
+    def set_grobal_params(self, params) -> None:
+        """
+        パイプライン全体に適用するグローバルパラメータを設定する。
+
+        Args:
+            params (dict): グローバルパラメータ。
+        """
+        for step in self.steps:
+            if hasattr(step[1], 'set_global_params'):
+                step[1].set_global_params(params)
+        self.global_params = params
+
+    def get_grobal_params(self) -> dict:
+        """
+        パイプライン全体に適用されたグローバルパラメータを取得する。
 
         Returns:
-            _type_: _description_
+            dict: グローバルパラメータ。
+        """
+        return self.global_params
+
+    def _split_steps(self):
+        """
+        ステップを中間ステップと最終ステップに分ける。
+        """
+        return self.steps[:-1], self.steps[-1]
+
+    def _process_transform(self, step, X):
+        """
+        Transformerステップを実行する。
+
+        Args:
+            step: 現在のステップ。
+            X: 入力データ。
+
+        Returns:
+            X: 変換されたデータ。
+        """
+        if hasattr(step[1], 'transform'):
+            return step[1].transform(X)
+        return X
+
+    def _process_fit(self, step, X, y):
+        """
+        Fitステップを実行する。
+
+        Args:
+            step: 現在のステップ。
+            X: 入力データ。
+            y: ターゲットデータ。
+
+        Returns:
+            model: 訓練されたモデル。
+        """
+        if hasattr(step[1], 'fit'):
+            return step[1].fit(X, y)
+        return None
+
+    def _process_optimize(self, step, X, y):
+        """
+        Optimizerステップを実行する。
+
+        Args:
+            step: 現在のステップ。
+            X: 入力データ。
+            y: ターゲットデータ。
+
+        Returns:
+            result: 最適化の結果。
+        """
+        if hasattr(step[1], 'optimize'):
+            return step[1].optimize(X, y)
+        return None
+
+    def fit(self, X, y=None):
+        """
+        各ステップを順に適用してデータを訓練する。
+
+        Args:
+            X: 入力データ。
+            y: ターゲットデータ。
+
+        Returns:
+            self: パイプラインオブジェクト自身。
         """
 
         middle_steps, last_step = self._split_steps()
 
-        # Pipeline
-        for i, step in enumerate(middle_steps):
-
-            # Transformer
+        # middle_stepsで処理
+        for _, step in enumerate(middle_steps):
             if hasattr(step[1], 'transform'):
                 X = step[1].transform(X)
-
-            # Optimizer
             if hasattr(step[1], 'optimize'):
-                self.result[i] = step[1].optimize(X, y).result
-
-            # Estimator
+                self.results[step[0]] = step[1].optimize(X, y).result
             if hasattr(step[1], 'fit'):
-                self.models[i] = step[1].fit(X, y)
+                self.models[step[0]] = step[1].fit(X, y)
 
-        # PipeIterator
-        if hasattr(last_step[1], 'next_step'):
+        # 最後のステップのループ処理
+        loop_num = getattr(last_step[1], 'loop_num', 1)
 
-            # loop回数を取得
-            if hasattr(self, 'loop_num'):
-                self.loop_num -= 1
-            elif isinstance(last_step[1].loop_num, int):
-                self.loop_num = last_step[1].loop_num
-            elif last_step[1].loop_num is None:
-                raise ValueError('loop_numは必須です。')
-            else:
-                raise TypeError('loop_numはint型です。')
-
-            # 終了判定
-            if self.loop_num == 0:
-                return self
-
-            else:
-                # 学習モデルと結果を共有
+        while loop_num > 0:
+            if hasattr(last_step[1], 'next_step'):
                 last_step[1].models = self.models
                 last_step[1].results = self.results
-
-                # 次のステップを実行
                 X, y = last_step[1].next_step(X, y)
-                return self.fit(X, y)
-
-        else:
-
-            # Transformer
-            if hasattr(last_step[1], 'transform'):
-                X = last_step[1].transform(X)
-
-            # Optimizer
-            if hasattr(last_step[1], 'optimize'):
-                self.result[-1] = last_step[1].optimize(X, y).result
-
-            # Estimator
-            if hasattr(last_step[1], 'fit'):
-                self.models[-1] = last_step[1].fit(X, y)
+                loop_num -= 1
+            else:
+                if hasattr(last_step[1], 'transform'):
+                    X = last_step[1].transform(X)
+                if hasattr(last_step[1], 'optimize'):
+                    self.results[last_step[0]] = last_step[1].optimize(X, y).result
+                if hasattr(last_step[1], 'fit'):
+                    self.models[last_step[0]] = last_step[1].fit(X, y)
+                break
 
         return self
 
     def optimize(self, X=None, y=None):
-        """最適化
-        最後のステップがOptimizer
+        """
+        各ステップを順に適用して最適化を実行する。
 
         Args:
-            X (_type_): _description_
-            y (_type_, optional): _description_. Defaults to None.
+            X: 入力データ。
+            y: ターゲットデータ。
 
         Returns:
-            _type_: _description_
+            self: パイプラインオブジェクト自身。
         """
 
-        _, last_step = self._split_steps()
+        middle_steps, last_step = self._split_steps()
 
-        # Pipeline
-        for i, step in enumerate(self.steps):
+        # middle_stepsで処理
+        for i, step in enumerate(middle_steps):
+            # Transformer
             if hasattr(step[1], 'transform'):
                 X = step[1].transform(X)
 
             # Optimizer
             if hasattr(step[1], 'optimize'):
-                self.results[i] = step[1].optimize(X, y).result
-                self.set_grobal_params(step[1].get_grobal_params())
+                self.results[step[0]] = step[1].optimize(X, y).result
+                self.set_global_params(step[1].get_global_params())
 
             # Estimator
             if hasattr(step[1], 'fit'):
-                self.models[i] = step[1].fit(X, y)
-                self.set_grobal_params(step[1].get_grobal_params())
+                self.models[step[0]] = step[1].fit(X, y)
+                self.set_global_params(step[1].get_global_params())
 
-        # PipeIterator
-        if hasattr(last_step[1], 'next_step'):
+        # 最後のステップのループ処理
+        loop_num = getattr(last_step[1], 'loop_num', 1)
 
-            # loop回数を取得
-            if hasattr(self, 'loop_num'):
-                self.loop_num -= 1
-                last_step[1].loop_num -= 1
-            elif isinstance(last_step[1].loop_num, int):
-                self.loop_num = last_step[1].loop_num
-            elif last_step[1].loop_num is None:
-                raise ValueError('loop_numは必須です。')
-            else:
-                raise TypeError('loop_numはint型です。')
-
-            # 終了判定
-            if self.loop_num == 0:
-                return self.results[-2]
-
-            else:
-                # 学習モデルと結果を共有
+        while loop_num > 0:
+            if hasattr(last_step[1], 'next_step'):
                 last_step[1].models = self.models
                 last_step[1].results = self.results
-
-                # 次のステップを実行
                 X, y = last_step[1].next_step(X, y)
-                return self.optimize(X, y)
+                loop_num -= 1
+            else:
+                if hasattr(last_step[1], 'transform'):
+                    X = last_step[1].transform(X)
+                if hasattr(last_step[1], 'optimize'):
+                    self.results[last_step[0]] = last_step[1].optimize(X, y).result
+                if hasattr(last_step[1], 'fit'):
+                    self.models[last_step[0]] = last_step[1].fit(X, y)
+                break
 
-        return self.results[-1]
+        return self.results
 
     def predict(self, X):
-        """予測
-        最後のステップがEstimator
+        """
+        各ステップを順に適用してデータを予測する。
 
         Args:
-            X (_type_): _description_
+            X: 入力データ。
 
         Returns:
-            _type_: _description_
+            X: 予測結果。
         """
 
-        # Pipeline
-        for step, model in zip(self.steps, self.models):
+        try:
+            for step_name, step in self.steps:
+                if hasattr(step[1], 'transform'):
+                    X = self._process_transform(step, X)
+                if hasattr(self.models[step_name], 'predict'):
+                    return self.models[step_name].predict(X)
+            raise RuntimeError("predictメソッドが見つかりませんでした。")
+        except Exception as e:
+            raise RuntimeError(f"予測中にエラーが発生しました: {str(e)}")
 
-            # Transformer
-            if hasattr(step[1], 'transform'):
-                X = step[1].transform(X)
+    def get_results(self):
+        """
+        最適化結果を取得する。
 
-            # Estimator
-            if hasattr(model, 'predict'):
-                return model.predict(X)
+        Returns:
+            dict: 各ステップごとの最適化結果。
+        """
+        return self.results
 
-        else:
-            return Exception("predict関数が定義されていません。")
+    def get_models(self):
+        """
+        学習されたモデルを取得する。
+
+        Returns:
+            dict: 各ステップごとのモデル。
+        """
+        return self.models
