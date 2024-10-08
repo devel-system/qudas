@@ -9,11 +9,11 @@ class Pipeline():
             steps (list): ステップのリスト。各ステップは (名前, オブジェクト) のタプル形式。
         """
         self.steps      = steps
-        self.models = {step_name: None for step_name, _ in steps}
-        self.results = {step_name: None for step_name, _ in steps}
+        self.models     = {step_name: None for step_name, _ in steps}
+        self.results    = {step_name: None for step_name, _ in steps}
         self.global_params = {}
 
-    def set_grobal_params(self, params) -> None:
+    def set_global_params(self, params) -> None:
         """
         パイプライン全体に適用するグローバルパラメータを設定する。
 
@@ -25,7 +25,7 @@ class Pipeline():
                 step[1].set_global_params(params)
         self.global_params = params
 
-    def get_grobal_params(self) -> dict:
+    def get_global_params(self) -> dict:
         """
         パイプライン全体に適用されたグローバルパラメータを取得する。
 
@@ -145,7 +145,7 @@ class Pipeline():
         middle_steps, last_step = self._split_steps()
 
         # middle_stepsで処理
-        for i, step in enumerate(middle_steps):
+        for _, step in enumerate(middle_steps):
             # Transformer
             if hasattr(step[1], 'transform'):
                 X = step[1].transform(X)

@@ -72,14 +72,17 @@ class TorchFMQA(Module, BaseEstimator, TransformerMixin):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self.params = {}
 
-    def set_grobal_params(self, params) -> None:
+    def set_global_params(self, params) -> None:
+        """グローバルパラメータを設定"""
         self.params = params
-        self.v   = self.get_grobal_params()["v"]
-        self.w   = self.get_grobal_params()["w"]
-        self.w0  = self.get_grobal_params()["w0"]
+        self.v   = self.params["v"]
+        self.w   = self.params["w"]
+        self.w0  = self.params["w0"]
 
-    def get_grobal_params(self) -> dict:
+    def get_global_params(self) -> dict:
+        """グローバルパラメータを取得"""
         return self.params
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -96,11 +99,11 @@ class TorchFMQA(Module, BaseEstimator, TransformerMixin):
         out_1 = torch.matmul(x, self.v).pow(2).sum(1)
         out_2 = torch.matmul(x.pow(2), self.v.pow(2)).sum(1)
         out_quadratic = 0.5 * (out_1 - out_2)
-
         out = out_linear + out_quadratic
         return out
 
     def fit(self, X: np.ndarray, y: np.ndarray):
+        """モデルの学習"""
         # イテレーション数
         epochs = 2000
 
@@ -149,7 +152,7 @@ class TorchFMQA(Module, BaseEstimator, TransformerMixin):
 
         # モデルを学習済みパラメータで更新
         self.load_state_dict(best_state)
-        self.set_grobal_params({'v': self.v, 'w': self.w, 'w0': self.w0})
+        self.set_global_params({'v': self.v, 'w': self.w, 'w0': self.w0})
 
         return self
 
@@ -166,10 +169,10 @@ class AnnealFMQA(OptimizerMixin):
         self.token      = token
         self.result     = None
 
-    def set_grobal_params(self, params) -> None:
+    def set_global_params(self, params) -> None:
         self.params = params
 
-    def get_grobal_params(self) -> dict:
+    def get_global_params(self) -> dict:
         return self.params
 
     def optimize(self, X=None, y=None) -> None:
@@ -179,9 +182,9 @@ class AnnealFMQA(OptimizerMixin):
         x = gen.array("Binary", self.d)
 
         # TorchFM からパラメータ v, w, w0 を取得
-        v   = self.get_grobal_params()["v"]
-        w   = self.get_grobal_params()["w"]
-        w0  = self.get_grobal_params()["w0"]
+        v   = self.params["v"]
+        w   = self.params["w"]
+        w0  = self.params["w0"]
 
         # 目的関数を作成
         out_linear = w0 + (x * w).sum()
@@ -224,24 +227,24 @@ class PipeIteration(IteratorMixin):
         self.models     = None
         self.results    = None
 
-    def set_grobal_params(self, params) -> None:
+    def set_global_params(self, params) -> None:
         self.params = params
 
-    def get_grobal_params(self) -> dict:
+    def get_global_params(self) -> dict:
         return self.params
 
     def next_step(self, X, y=None, **iter_params) -> tuple:
 
-        # self.results[1] が重複しないようにする
-        while (self.results[1] == X).all(axis=1).any():
+        # self.results["AnnealFMQA"] が重複しないようにする
+        while (self.results["AnnealFMQA"] == X).all(axis=1).any():
             flip_idx = rng.choice(np.arange(self.d))
-            self.results[1][flip_idx] = 1 - self.results[1][flip_idx]
+            self.results["AnnealFMQA"][flip_idx] = 1 - self.results["AnnealFMQA"][flip_idx]
 
         # 推定された入力ベクトルを用いてブラックボックス関数を評価
-        y_hat = self.blackbox(self.results[1])
+        y_hat = self.blackbox(self.results["AnnealFMQA"])
 
         # 評価した値をデータセットに追加
-        x = np.vstack((X, self.results[1]))
+        x = np.vstack((X, self.results["AnnealFMQA"]))
         y = np.append(y, y_hat)
 
         print(f"FMQA cycle: found y = {y_hat}; current best = {np.min(y)}")
@@ -271,12 +274,12 @@ if __name__ == '__main__':
     # pipeline
     steps = [
         ('TorchFMQA', TorchFMQA()),
-        ('AnnealFMQA', AnnealFMQA(blackbox, d, token="AE/p2lAwBrQpyGlHPKuMgpwbfQiO0OXXg6B")),
+        ('AnnealFMQA', AnnealFMQA(blackbox, d, token="AE/HaqGh1iuFMEennXk10xS1LCgld8D18oC")),
         ('pipeIteration', PipeIteration(blackbox, d, loop_num=N))
     ]
 
     pipe = Pipeline(steps)
-    pipe.set_grobal_params(parameters)
+    pipe.set_global_params(parameters)
 
     # 最適化
     result = pipe.optimize(x, y)
