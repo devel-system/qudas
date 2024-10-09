@@ -31,3 +31,6 @@ make html
 
 ## テスト
 ファイル名は `test_xxx.py` にする。
+
+## ドキュメント
+`qudas/docs/build/html/index.html`
