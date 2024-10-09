@@ -49,6 +49,7 @@ sphinx-apidoc -f -o source ../qudas
 3. ドキュメントをビルド
 ```
 cd docs
+make clean
 make html
 ```
 
