@@ -41,10 +41,8 @@ scikit learnやpytorchには前処理やモデルのフローを定義する pip
    :caption: Contents:
 
    quickstart
-   base/index
    qudata/index
    pipeline/index
-   cli
    references
 
 「本ライブラリは、国立研究開発法人新エネルギー・産業技術総合開発機構（ＮＥＤＯ）の委託業務の結果得られたものです。」
