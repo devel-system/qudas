@@ -1,8 +1,7 @@
 # qudas & pipline
 from sklearn.base import BaseEstimator, TransformerMixin
-from qudas.pipeline.steps.optimizer_mixin import OptimizerMixin
-from qudas.pipeline.steps.iterator_mixin import IteratorMixin
 from qudas.pipeline import Pipeline
+from qudas.pipeline.steps import OptimizerMixin, IteratorMixin
 
 # module
 from amplify import VariableGenerator, Model, FixstarsClient, solve, Poly
@@ -234,7 +233,7 @@ class PipeIteration(IteratorMixin):
     def get_global_params(self) -> dict:
         return self.params
 
-    def next_step(self, X, y=None, **iter_params) -> tuple:
+    def next_params(self, X, y=None, **iter_params) -> tuple:
 
         # self.results["AnnealFMQA"] が重複しないようにする
         while (self.results["AnnealFMQA"] == X).all(axis=1).any():
