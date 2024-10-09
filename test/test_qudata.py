@@ -1,5 +1,5 @@
 import unittest
-from qudas.qudata import QuData
+from qudas.qudata import QuDataInput as QuData
 
 # その他必要なパッケージ
 from amplify import VariableGenerator, Poly
@@ -11,13 +11,29 @@ import matplotlib.pyplot as plt
 import dimod
 from sympy import Symbol
 
+def dicts_are_equal(dict1, dict2):
+    """辞書のキーの順序を無視して等価性を比較する関数"""
+    if len(dict1) != len(dict2):
+        return False
+
+    for (k1, v1) in dict1.items():
+        found = False
+        for (k2, v2) in dict2.items():
+            if set(k1) == set(k2) and v1 == v2:
+                found = True
+                break
+        if not found:
+            return False
+    return True
+
 class TestQudata(unittest.TestCase):
 
     def test_init_with_dict(self):
         """辞書データで初期化する場合のテスト"""
         prob = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0}
         qudata = QuData(prob)
-        self.assertEqual(qudata.prob, prob)
+        self.assertTrue(dicts_are_equal(qudata.prob, prob))
+
 
     def test_init_with_none(self):
         """Noneで初期化する場合のテスト"""
@@ -37,7 +53,7 @@ class TestQudata(unittest.TestCase):
         qudata2 = QuData(prob2)
         result = qudata1 + qudata2
         expected = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0, ('q0', 'q0'): 2, ('q1', 'q1'): -1}
-        self.assertEqual(result.prob, expected)
+        self.assertTrue(dicts_are_equal(result.prob, expected))
 
     def test_sub(self):
         """__sub__メソッドのテスト"""
@@ -47,7 +63,7 @@ class TestQudata(unittest.TestCase):
         qudata2 = QuData(prob2)
         result = qudata1 - qudata2
         expected = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0, ('q0', 'q0'): -2, ('q1', 'q1'): 1}
-        self.assertEqual(result.prob, expected)
+        self.assertTrue(dicts_are_equal(result.prob, expected))
 
     def test_mul(self):
         """__mul__メソッドのテスト"""
@@ -57,7 +73,7 @@ class TestQudata(unittest.TestCase):
         qudata2 = QuData(prob2)
         result = qudata1 * qudata2
         expected = {('q0', 'q1'): 1.0, ('q0', 'q2'): -2.0, ('q1', 'q2'): 1.0}
-        self.assertEqual(result.prob, expected)
+        self.assertTrue(dicts_are_equal(result.prob, expected))
 
     def test_pow(self):
         """__pow__メソッドのテスト"""
@@ -65,7 +81,7 @@ class TestQudata(unittest.TestCase):
         qudata = QuData(prob)
         result = qudata ** 2
         expected = {('q0', 'q1'): 1.0, ('q0', 'q2', 'q1'): -2.0, ('q2', 'q2'): 1.0}
-        self.assertEqual(result.prob, expected)
+        self.assertTrue(dicts_are_equal(result.prob, expected))
 
     def test_pow_invalid_type(self):
         """__pow__で無効な型を渡した場合のテスト"""
@@ -87,7 +103,7 @@ class TestQudata(unittest.TestCase):
         # QuDataオブジェクトを作成し、pulp問題を渡す
         qudata = QuData().from_pulp(problem)
         expected = {('q0', 'q0'): 2, ('q1', 'q1'): -1}
-        self.assertEqual(qudata.prob, expected)
+        self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_pulp_invalid_type(self):
         """from_pulpメソッドで無効な型のデータを渡した場合のテスト"""
@@ -104,7 +120,7 @@ class TestQudata(unittest.TestCase):
         # QuDataオブジェクトを作成し、amplify問題を渡す
         qudata = QuData().from_amplify(objective)
         expected = {('q_0', 'q_1'): 1.0, ('q_2', 'q_2'): -1.0}
-        self.assertEqual(qudata.prob, expected)
+        self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_amplify_invalid_type(self):
         """from_amplifyメソッドで無効な型のデータを渡した場合のテスト"""
@@ -141,7 +157,7 @@ class TestQudata(unittest.TestCase):
         # QuDataオブジェクトを作成し、配列を渡す
         qudata = QuData().from_array(prob)
         expected = {('q_0', 'q_0'): 1, ('q_0', 'q_1'): 1, ('q_1', 'q_1'): 2, ('q_2', 'q_2'): -1}
-        self.assertEqual(qudata.prob, expected)
+        self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_array_invalid_type(self):
         """from_arrayメソッドで無効な型のデータを渡した場合のテスト"""
@@ -152,41 +168,44 @@ class TestQudata(unittest.TestCase):
     def test_from_csv(self):
         """from_csvメソッドのテスト"""
         csv_file_path = './data/qudata.csv'
-        self.qudata.from_csv(csv_file_path)
+        qudata = QuData().from_csv(csv_file_path)
         expected = {('q_0', 'q_0'): 1.0, ('q_0', 'q_2'): 2.0, ('q_1', 'q_1'): -1.0, ('q_2', 'q_1'): 2.0, ('q_2', 'q_2'): 2.0}
-        self.assertEqual(self.qudata.prob, expected)
+        self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_csv_invalid(self):
         """from_csvメソッドで無効な型のデータを渡した場合のテスト"""
         invalid_csv_file_path = './data/invalid_data.csv'
+        qudata = QuData()
         with self.assertRaises(ValueError, msg="読み取りエラー"):
-            self.qudata.from_csv(invalid_csv_file_path)
+            qudata.from_csv(invalid_csv_file_path)
 
     def test_from_json(self):
         """from_jsonメソッドのテスト"""
         json_file_path = './data/qudata.json'
-        self.qudata.from_json(json_file_path)
+        qudata = QuData().from_json(json_file_path)
         expected = {('q0', 'q0'): 1.0, ('q0', 'q1'): 1.0, ('q1', 'q1'): -1.0, ('q2', 'q2'): 2.0}
-        self.assertEqual(self.qudata.prob, expected)
+        self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_json_invalid(self):
         """from_jsonメソッドで無効な型のデータを渡した場合のテスト"""
         invalid_json_file_path = './data/invalid_data.json'
+        qudata = QuData()
         with self.assertRaises(ValueError, msg="読み取りエラー"):
-            self.qudata.from_json(invalid_json_file_path)
+            qudata.from_json(invalid_json_file_path)
 
     def test_from_networkx(self):
         """from_networkxメソッドのテスト"""
         G = nx.Graph()
         G.add_edges_from([(0, 1), (1, 2), (0, 2)])
-        self.qudata.from_networkx(G)
+        qudata = QuData().from_networkx(G)
         expected = {('q_0', 'q_1'): 1, ('q_1', 'q_2'): 1, ('q_0', 'q_2'): 1}
-        self.assertEqual(self.qudata.prob, expected)
+        self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_networkx_invalid(self):
         """from_networkxメソッドで無効な型のデータを渡した場合のテスト"""
+        qudata = QuData()
         with self.assertRaises(TypeError):
-            self.qudata.from_amplify("invalid")  # 無効な型でTypeErrorが発生するか確認
+            qudata.from_amplify("invalid")  # 無効な型でTypeErrorが発生するか確認
 
     def test_from_pandas(self):
         """from_pandasメソッドのテスト"""
@@ -196,26 +215,28 @@ class TestQudata(unittest.TestCase):
             [0, 0, -1],
         ])
         df = pd.DataFrame(array, columns=['q0', 'q1', 'q2'], index=['q0', 'q1', 'q2'])
-        self.qudata.from_pandas(df)
-        expected = {('q_0', 'q_0'): 1, ('q_0', 'q_1'): 1, ('q_1', 'q_1'): 2, ('q_2', 'q_2'): -1}
-        self.assertEqual(self.qudata.prob, expected)
+        qudata = QuData().from_pandas(df)
+        expected = {('q0', 'q0'): 1, ('q0', 'q1'): 1, ('q1', 'q1'): 2, ('q2', 'q2'): -1}
+        self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_pandas_invalid(self):
         """from_pandasメソッドで無効な型のデータを渡した場合のテスト"""
+        qudata = QuData()
         with self.assertRaises(TypeError):
-            self.qudata.from_pandas("invalid")  # 無効な型でTypeErrorが発生するか確認
+            qudata.from_pandas("invalid")  # 無効な型でTypeErrorが発生するか確認
 
     def test_from_dimod_bqm(self):
         """from_dimod_bqmメソッドのテスト"""
         bqm = dimod.BinaryQuadraticModel({'q2': -1}, {('q0', 'q1'): 1}, vartype='BINARY')
-        self.qudata.from_dimod_bqm(bqm)
+        qudata = QuData().from_dimod_bqm(bqm)
         expected = {('q0', 'q1'): 1, ('q2', 'q2'): -1}
-        self.assertEqual(self.qudata.prob, expected)
+        self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_dimod_bqm_invalid(self):
         """from_dimod_bqmメソッドで無効な型のデータを渡した場合のテスト"""
+        qudata = QuData()
         with self.assertRaises(TypeError):
-            self.qudata.from_dimod_bqm("invalid")  # 無効な型でTypeErrorが発生するか確認
+            qudata.from_dimod_bqm("invalid")  # 無効な型でTypeErrorが発生するか確認
 
     def test_from_sympy(self):
         """from_sympyメソッドのテスト"""
@@ -223,14 +244,15 @@ class TestQudata(unittest.TestCase):
         q1_sympy = Symbol('q1')
         q2_sympy = Symbol('q2')
         prob_sympy = q0_sympy * q1_sympy - q2_sympy ** 2
-        self.qudata.from_sympy(prob_sympy)
+        qudata = QuData().from_sympy(prob_sympy)
         expected = {('q0', 'q1'): 1, ('q2', 'q2'): -1}
-        self.assertEqual(self.qudata.prob, expected)
+        self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_sympy_invalid(self):
         """from_sympyメソッドで無効な型のデータを渡した場合のテスト"""
+        qudata = QuData()
         with self.assertRaises(TypeError):
-            self.qudata.from_sympy("invalid")  # 無効な型でTypeErrorが発生するか確認
+            qudata.from_sympy("invalid")  # 無効な型でTypeErrorが発生するか確認
 
 ##############################
 ### pulp
