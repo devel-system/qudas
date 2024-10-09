@@ -2,8 +2,7 @@ Pipeline
 =================================
 pipelineのフローを操作するためのモジュールです。
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-   pipeline
+.. autoclass:: qudas.pipeline.Pipeline
+   :members:
+   :undoc-members:
+   :show-inheritance:

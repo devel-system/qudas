@@ -3,7 +3,10 @@ QuData
 量子データのベースとなるクラスです。
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
-   qudata
+   base
+   input
+   output
+   main
