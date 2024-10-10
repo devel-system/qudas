@@ -374,17 +374,19 @@ class QuDataInput(QuDataBase):
         q = [LpVariable(name, lowBound=0, upBound=1, cat='Binary') for name in variables]
 
         qubo = LpProblem('QUBO', LpMinimize)
+        _qubo = 0
         for key, value in self.prob.items():
 
             # 1変数
             if key[0] == key[1]:
                 variable_index = variables.index(key[0])
-                qubo += q[variable_index] * value
+                _qubo += q[variable_index] * value
 
             # 2変数以上
             else:
                 raise ValueError("pulpは2変数以上に対応していません。")
 
+        qubo += _qubo
         return qubo
 
     def to_amplify(self) -> Poly:
