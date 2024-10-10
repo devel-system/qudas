@@ -46,3 +46,7 @@ html_sidebars = {
     ],
 }
 html_static_path = ['_static']
+
+# コードテーマ
+# pygments_style = 'autumn'
+# pygments_dark_style = 'autumn'
