@@ -4,7 +4,7 @@ import csv
 import json
 from pulp import LpProblem, LpVariable, LpMinimize
 import dimod
-from pyqubo import Binary, Add
+from pyqubo import Binary, Base
 import networkx as nx
 import numpy as np
 import pandas as pd
@@ -132,11 +132,11 @@ class QuDataInput(QuDataBase):
         else:
             raise TypeError(f"{type(prob)}は対応していない型です。")
 
-    def from_pyqubo(self, prob: Add):
+    def from_pyqubo(self, prob: Base):
         """pyquboデータを読み込む
 
         Args:
-            prob (Add): 組み合わせ最適化問題
+            prob (Base): 組み合わせ最適化問題
 
         Raises:
             TypeError: 形式エラー
@@ -144,7 +144,7 @@ class QuDataInput(QuDataBase):
         Returns:
             Qudata: 量子データ
         """
-        if isinstance(prob, Add):
+        if isinstance(prob, Base):
             qubo = prob.compile().to_qubo()
             self.prob = qubo[0]
             return self
@@ -411,11 +411,11 @@ class QuDataInput(QuDataBase):
 
         return qubo
 
-    def to_pyqubo(self) -> Add:
+    def to_pyqubo(self) -> Base:
         """pyqubo形式に変換
 
         Returns:
-            Add: 組み合わせ最適化問題
+            Base: 組み合わせ最適化問題
         """
 
         variables = list(set(k for key in self.prob.keys() for k in key))
