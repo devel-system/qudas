@@ -48,55 +48,62 @@ print(result.prob)  # 出力: {('q0', 'q1'): 1.0, ('q0', 'q2', 'q1'): -2.0}
 ```
 
 ### データ形式の変換
-さまざまな形式のデータを `QuData` オブジェクトに変換することができます。
+さまざまな形式のデータを `QuData` オブジェクトを介して変換することができます。
 
-#### PuLP からの変換
+#### pyqubo から Amplify への変換
 ```python
-import pulp
+from pyqubo import Binary
+from qudas import QuData
 
-# 変数の定義
-q0 = pulp.LpVariable('q0', lowBound=0, upBound=1, cat='Binary')
-q1 = pulp.LpVariable('q1', lowBound=0, upBound=1, cat='Binary')
+# Pyqubo で問題を定義
+q0, q1 = Binary("q0"), Binary("q1")
+prob = (q0 + q1) ** 2
 
-# 問題の定義 (2q0 - q1)
-problem = pulp.LpProblem('QUBO', pulp.LpMinimize)
-problem += 2 * q0 - q1
+# QuData に Pyqubo の問題を渡す
+qudata = QuData.input().from_pyqubo(prob)
+print(qudata.prob)  # 出力: {('q0', 'q0'): 1.0, ('q0', 'q1'): 2.0, ('q1', 'q1'): 1.0}
 
-# QuData に変換
-qudata = QuData.input().from_pulp(problem)
-print(qudata.prob)  # 出力: {('q0', 'q0'): 2, ('q1', 'q1'): -1}
+# Amplify 形式に変換
+amplify_prob = qudata.to_amplify()
+print(amplify_prob)
 ```
 
-#### Amplify からの変換
-```python
-from amplify import VariableGenerator
-
-q = VariableGenerator().array("Binary", shape=(3))
-objective = q[0] * q[1] - q[2]
-
-qudata = QuData.input().from_amplify(objective)
-print(qudata.prob)  # 出力: {('q_0', 'q_1'): 1.0, ('q_2', 'q_2'): -1.0}
-```
-
-#### 配列 からの変換
+#### 配列から BQM への変換
 ```python
 import numpy as np
+from qudas import QuData
 
-array = np.array([
+# Numpy 配列を定義
+prob = np.array([
     [1, 1, 0],
     [0, 2, 0],
     [0, 0, -1],
 ])
 
-qudata = QuData.input().from_array(array)
+# QuData に配列を渡す
+qudata = QuData.input().from_array(prob)
 print(qudata.prob)  # 出力: {('q_0', 'q_0'): 1, ('q_0', 'q_1'): 1, ('q_1', 'q_1'): 2, ('q_2', 'q_2'): -1}
+
+# BQM 形式に変換
+bqm_prob = qudata.to_dimod_bqm()
+print(bqm_prob)
 ```
 
-#### CSV からの変換
+#### CSV から PuLP への変換
 ```python
+import pulp
+from qudas import QuData
+
+# CSVファイルのパス
 csv_file_path = './data/qudata.csv'
+
+# QuData に CSV を渡す
 qudata = QuData.input().from_csv(csv_file_path)
 print(qudata.prob)  # 出力: {('q_0', 'q_0'): 1.0, ('q_0', 'q_2'): 2.0, ...}
+
+# PuLP 形式に変換
+pulp_prob = qudata.to_pulp()
+print(pulp_prob)
 ```
 
 ## テストコード
