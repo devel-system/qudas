@@ -7,9 +7,9 @@ import numpy as np
 import pandas as pd
 import pulp
 import networkx as nx
-import matplotlib.pyplot as plt
 import dimod
 from sympy import Symbol
+import os
 
 def dicts_are_equal(dict1, dict2):
     """辞書のキーの順序を無視して等価性を比較する関数"""
@@ -253,6 +253,124 @@ class TestQudata(unittest.TestCase):
         qudata = QuData.input()
         with self.assertRaises(TypeError):
             qudata.from_sympy("invalid")  # 無効な型でTypeErrorが発生するか確認
+
+    # 以下から to_xxxx
+    def test_to_pulp(self):
+        """pulp形式に変換するメソッドのテスト"""
+        qudata = QuData.input({('q0', 'q0'): 2, ('q1', 'q1'): -1})
+        prob = qudata.to_pulp()
+        self.assertIsInstance(prob, pulp.LpProblem)
+
+        # 変数の定義
+        q0 = pulp.LpVariable('q0', lowBound=0, upBound=1, cat='Binary')
+        q1 = pulp.LpVariable('q1', lowBound=0, upBound=1, cat='Binary')
+
+        # 問題の定義 (2q0-q1)
+        problem = pulp.LpProblem('QUBO', pulp.LpMinimize)
+        problem += 2 * q0 - q1
+
+        # 目標関数の比較
+        self.assertEqual(str(prob.objective), str(problem.objective))
+
+        # 変数リストの比較
+        self.assertEqual([v.name for v in prob.variables()], [v.name for v in problem.variables()])
+
+    def test_to_amplify(self):
+        """amplify形式に変換するメソッドのテスト"""
+        qudata = QuData.input({('q_0', 'q_1'): 1.0, ('q_2', 'q_2'): -1.0}) # q_xでない場合はエラー
+        prob = qudata.to_amplify()
+        self.assertIsInstance(prob, Poly)
+
+        # amplifyの設定
+        q = VariableGenerator().array("Binary", shape=(3))
+        objective = q[0] * q[1] - q[2]
+
+        # 目標関数の比較
+        self.assertEqual(str(prob), str(objective))
+
+    # def test_to_pyqubo(self):
+    #     """pyqubo形式に変換するメソッドのテスト"""
+    #     prob = self.qudata.to_pyqubo()
+    #     self.assertIsInstance(prob, Add)
+
+    def test_to_array(self):
+        """numpy形式に変換するメソッドのテスト"""
+        qudata = QuData.input({('q_0', 'q_0'): 1, ('q_0', 'q_1'): 1, ('q_1', 'q_1'): 2, ('q_2', 'q_2'): -1})
+        prob = qudata.to_array()
+
+        # numpy配列のセットアップ
+        array = np.array([
+            [1, 1, 0],
+            [0, 2, 0],
+            [0, 0, -1],
+        ])
+
+        np.testing.assert_array_equal(prob, array)
+
+    def test_to_csv(self):
+        """CSV形式に保存するメソッドのテスト"""
+        filename = "test_qudata"
+        qudata = QuData.input({('q0', 'q0'): 1, ('q0', 'q2'): 2, ('q1', 'q1'): -1, ('q2', 'q1'): 2, ('q2', 'q2'): 2})
+        qudata.to_csv(name=filename)
+        self.assertTrue(os.path.exists(f"{filename}.csv"))
+        os.remove(f"{filename}.csv")  # テスト後にファイルを削除
+
+    def test_to_json(self):
+        """JSON形式に保存するメソッドのテスト"""
+        filename = "test_qudata"
+        qudata = QuData.input({('q0', 'q0'): 1, ('q0', 'q1'): 1, ('q1', 'q1'): -1, ('q2', 'q2'): 2})
+        qudata.to_json(name=filename)
+        self.assertTrue(os.path.exists(f"{filename}.json"))
+        os.remove(f"{filename}.json")  # テスト後にファイルを削除
+
+    def test_to_networkx(self):
+        """networkx形式に変換するメソッドのテスト"""
+        qudata = QuData.input({('q_0', 'q_1'): 1, ('q_1', 'q_2'): 1, ('q_0', 'q_2'): 1})
+        G = qudata.to_networkx()
+        self.assertIsInstance(G, nx.Graph)
+
+        # networkxの設定
+        H = nx.Graph()
+        H.add_edges_from([(0, 1), (1, 2), (0, 2)])
+        self.assertTrue(G, H)
+
+    def test_to_pandas(self):
+        """pandas形式に変換するメソッドのテスト"""
+        qudata = QuData.input({('q0', 'q0'): 1, ('q0', 'q1'): 1, ('q1', 'q1'): 2, ('q2', 'q2'): -1})
+        df = qudata.to_pandas()
+
+        # pandasの設定
+        array = np.array([
+            [1, 1, 0],
+            [0, 2, 0],
+            [0, 0, -1],
+        ])
+        expected_df = pd.DataFrame(array, columns=['q0', 'q1', 'q2'], index=['q0', 'q1', 'q2'], dtype=float)
+        pd.testing.assert_frame_equal(df, expected_df)
+
+    def test_to_dimod_bqm(self):
+        """dimodのBQM形式に変換するメソッドのテスト"""
+        qudata = QuData.input({('q0', 'q1'): 1, ('q2', 'q2'): -1})
+        bqm = qudata.to_dimod_bqm()
+        self.assertIsInstance(bqm, dimod.BinaryQuadraticModel)
+
+        # dimodのBQM形式の確認
+        expected_bqm = dimod.BinaryQuadraticModel({'q2': -1}, {('q0', 'q1'): 1}, vartype='BINARY')
+
+        self.assertEqual(bqm, expected_bqm)
+
+    def test_to_sympy(self):
+        """sympy形式に変換するメソッドのテスト"""
+        qudata = QuData.input({('q0', 'q1'): 1, ('q2', 'q2'): -1})
+        expr = qudata.to_sympy()
+
+        # sympyのSymbol形式の確認
+        q0_sympy = Symbol('q0')
+        q1_sympy = Symbol('q1')
+        q2_sympy = Symbol('q2')
+        prob_sympy = q0_sympy * q1_sympy - q2_sympy
+
+        self.assertEqual(expr, prob_sympy)
 
 if __name__ == '__main__':
     unittest.main()
