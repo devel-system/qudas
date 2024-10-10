@@ -65,7 +65,7 @@ qudasのインストール
 ここで、``TorchFMQA``, ``AnnealFMQA``, ``PipeIteration`` は別途定義する必要があります。\
 3つの処理を Pipeline module を用いて実行することができます。
 
-詳しくは ``test/test_fmqa.py`` を参照。
+詳しくは ``examples/test_fmqa.py`` を参照。
 
 データ変換例
 ~~~~~~~~~~~~~~~~~
@@ -131,3 +131,5 @@ CSVからの変換
    csv_file_path = './data/qudata.csv'
    qudata = QuData.input().from_csv(csv_file_path)
    print(qudata.prob)  # 出力: {('q_0', 'q_0'): 1.0, ('q_0', 'q_2'): 2.0, ...}
+
+詳しくは ``test/test_qudata.py`` を参照。
