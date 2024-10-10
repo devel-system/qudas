@@ -15,19 +15,111 @@ Qudasは、量子計算における最適化問題の入出力データを変換
 pip install qudas
 ```
 
-## 使い方
-基本的な使い方は以下の通りです。
+## 使用方法
+
+### 初期化
 
 ```python
-import qudas
+from qudata import QuData
 
-# 入力データの変換
-input_data = {...}
-converted_data = qudas.transform(input_data)
+# 最適化問題の初期化
+prob = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0}
+qudata = QuData.input(prob)
+print(qudata.prob)  # 出力: {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0}
 
-# 出力データの変換
-output_data = {...}
-converted_result = qudas.convert_output(output_data)
+# Noneで初期化した場合
+qudata = QuData.input()
+print(qudata.prob)  # 出力: {}
+```
+
+### 加算・減算・乗算・べき乗
+
+```python
+# 辞書形式の問題を加算
+qudata1 = QuData.input({('q0', 'q1'): 1.0})
+qudata2 = QuData.input({('q0', 'q0'): 2.0})
+result = qudata1 + qudata2
+print(result.prob)  # 出力: {('q0', 'q1'): 1.0, ('q0', 'q0'): 2.0}
+
+# 辞書形式の問題をべき乗
+qudata = QuData.input({('q0', 'q1'): 1.0})
+result = qudata ** 2
+print(result.prob)  # 出力: {('q0', 'q1'): 1.0, ('q0', 'q2', 'q1'): -2.0}
+```
+
+### データ形式の変換
+さまざまな形式のデータを `QuData` オブジェクトに変換することができます。
+
+#### PuLP からの変換
+```python
+import pulp
+
+# 変数の定義
+q0 = pulp.LpVariable('q0', lowBound=0, upBound=1, cat='Binary')
+q1 = pulp.LpVariable('q1', lowBound=0, upBound=1, cat='Binary')
+
+# 問題の定義 (2q0 - q1)
+problem = pulp.LpProblem('QUBO', pulp.LpMinimize)
+problem += 2 * q0 - q1
+
+# QuData に変換
+qudata = QuData.input().from_pulp(problem)
+print(qudata.prob)  # 出力: {('q0', 'q0'): 2, ('q1', 'q1'): -1}
+```
+
+#### Amplify からの変換
+```python
+from amplify import VariableGenerator
+
+q = VariableGenerator().array("Binary", shape=(3))
+objective = q[0] * q[1] - q[2]
+
+qudata = QuData.input().from_amplify(objective)
+print(qudata.prob)  # 出力: {('q_0', 'q_1'): 1.0, ('q_2', 'q_2'): -1.0}
+```
+
+#### 配列 からの変換
+```python
+import numpy as np
+
+array = np.array([
+    [1, 1, 0],
+    [0, 2, 0],
+    [0, 0, -1],
+])
+
+qudata = QuData.input().from_array(array)
+print(qudata.prob)  # 出力: {('q_0', 'q_0'): 1, ('q_0', 'q_1'): 1, ('q_1', 'q_1'): 2, ('q_2', 'q_2'): -1}
+```
+
+#### CSV からの変換
+```python
+csv_file_path = './data/qudata.csv'
+qudata = QuData.input().from_csv(csv_file_path)
+print(qudata.prob)  # 出力: {('q_0', 'q_0'): 1.0, ('q_0', 'q_2'): 2.0, ...}
+```
+
+## テストコード
+本ライブラリには、以下のようなテストを含めて動作確認を行っています。
+
+```python
+class TestQudata(unittest.TestCase):
+
+    def test_init_with_dict(self):
+        # 辞書データで初期化する場合のテスト
+        prob = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0}
+        qudata = QuData.input(prob)
+        self.assertTrue(dicts_are_equal(qudata.prob, prob))
+
+    def test_add(self):
+        # __add__メソッドのテスト
+        prob1 = {('q0', 'q1'): 1.0}
+        prob2 = {('q0', 'q0'): 2.0}
+        qudata1 = QuData.input(prob1)
+        qudata2 = QuData.input(prob2)
+        result = qudata1 + qudata2
+        expected = {('q0', 'q1'): 1.0, ('q0', 'q0'): 2.0}
+        self.assertTrue(dicts_are_equal(result.prob, expected))
 ```
 
 ## 開発者向け情報
