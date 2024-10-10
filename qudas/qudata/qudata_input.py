@@ -398,14 +398,14 @@ class QuDataInput(QuDataBase):
 
         variables = list(set(k for key in self.prob.keys() for k in key))
         gen = VariableGenerator()
-        q = gen.array("Binary", len(variables))
+        q = gen.array("Binary", len(variables)) # default は name="q"
+        labeled_q = {_q.name: _q for _q in q}
 
         qubo = 0
         for key, value in self.prob.items():
             sub_qubo = 1
             for k in key:
-                variable_index = variables.index(k)
-                sub_qubo *= q[variable_index]
+                sub_qubo *= labeled_q[k]
 
             qubo += sub_qubo * value
 
