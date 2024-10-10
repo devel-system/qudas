@@ -3,17 +3,11 @@ from .qudata_output import QuDataOutput
 from typing import Optional, Dict, Any
 
 class QuData:
-    def __init__(self) -> None:
-        """
-        QuDataInput と QuDataOutput を統合するクラス。
-        初期化時に、両方のインスタンスを作成します。
-        """
-        self._input: Optional[QuDataInput] = None
-        self._output: Optional[QuDataOutput] = None
 
-    def input(self, prob: Optional[Dict[str, Any]] = None) -> QuDataInput:
+    @classmethod
+    def input(cls, prob: Optional[Dict[str, Any]] = None) -> QuDataInput:
         """
-        QuDataInput のインスタンスを作成し、引数を受け取る。
+        クラスメソッドとして QuDataInput のインスタンスを作成し、引数を受け取る。
 
         Args:
             prob (dict, optional): QuDataInput の引数となる最適化問題データ。
@@ -21,12 +15,12 @@ class QuData:
         Returns:
             QuDataInput のインスタンス。
         """
-        self._input = QuDataInput(prob)
-        return self._input
+        return QuDataInput(prob)
 
-    def output(self, result: Optional[Dict[str, Any]] = None, result_type: Optional[str] = None) -> QuDataOutput:
+    @classmethod
+    def output(cls, result: Optional[Dict[str, Any]] = None, result_type: Optional[str] = None) -> QuDataOutput:
         """
-        QuDataOutput のインスタンスを作成し、引数を受け取る。
+        クラスメソッドとして QuDataOutput のインスタンスを作成し、引数を受け取る。
 
         Args:
             result (dict, optional): QuDataOutput の引数となる計算結果データ。
@@ -35,5 +29,4 @@ class QuData:
         Returns:
             QuDataOutput のインスタンス。
         """
-        self._output = QuDataOutput(result, result_type)
-        return self._output
+        return QuDataOutput(result, result_type)
