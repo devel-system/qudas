@@ -16,9 +16,10 @@ class QuDataOutput(QuDataBase):
         self.result_type = result_type
 
     # PuLPの計算結果を受け取る
-    def from_pulp(self, problem: LpProblem):
+    def from_pulp(self, problem: LpProblem) -> "QuDataOutput":
         # 目的関数の値を取得
         objective_value = value(problem.objective)
+
         # 変数の値を取得
         variables = {var.name: var.value() for var in problem.variables()}
         self.result = {
@@ -26,21 +27,25 @@ class QuDataOutput(QuDataBase):
             'objective': objective_value
         }
         self.result_type = 'pulp'
+        return self
 
     # Amplifyの計算結果を受け取る
-    def from_amplify(self, result: Dict[str, Any]):
+    def from_amplify(self, result: Dict[str, Any]) -> "QuDataOutput":
         self.result = result
         self.result_type = 'amplify'
+        return self
 
     # Dimodの計算結果を受け取る
-    def from_dimod(self, result: Dict[str, Any]):
+    def from_dimod(self, result: Dict[str, Any]) -> "QuDataOutput":
         self.result = result
         self.result_type = 'dimod'
+        return self
 
     # SymPyの計算結果を受け取る
-    def from_sympy(self, result: Dict[str, Any]):
+    def from_sympy(self, result: Dict[str, Any]) -> "QuDataOutput":
         self.result = result
         self.result_type = 'sympy'
+        return self
 
     # PuLP形式に変換
     def to_pulp(self) -> Dict[str, Any]:
@@ -74,26 +79,3 @@ class QuDataOutput(QuDataBase):
         else:
             solutions = [float(val) for val in self.result['variables'].values()]
             return {'variables': solutions, 'objective': self.result['objective']}
-
-if __name__ == '__main__':
-    # 使用例
-    from pulp import LpVariable, LpProblem, LpMinimize
-
-    # 最適化問題の定義（例）
-    problem = LpProblem("Example Problem", LpMinimize)
-    x = LpVariable('x', 0, 1)
-    y = LpVariable('y', 0, 1)
-    problem += x + y  # 目的関数
-    problem += x + 2 * y >= 1  # 制約
-    problem.solve()
-
-    # QudataOutputにPuLPの計算結果をセット
-    qdata = QudataOutput()
-    qdata.from_pulp(problem)
-
-    # 他の形式に変換（例）
-    amplify_result = qdata.to_amplify()
-    print(amplify_result)
-
-    sympy_result = qdata.to_sympy()
-    print(sympy_result)
