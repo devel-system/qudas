@@ -3,6 +3,8 @@ from qudas.qudata import QuData
 
 # その他必要なパッケージ
 from amplify import VariableGenerator, Poly
+from pyqubo import Binary, Base
+from pyqubo.utils.asserts import assert_qubo_equal
 import numpy as np
 import pandas as pd
 import pulp
@@ -128,22 +130,22 @@ class TestQudata(unittest.TestCase):
         with self.assertRaises(TypeError):
             qudata.from_amplify("invalid")  # 無効な型でTypeErrorが発生するか確認
 
-    # def test_from_pyqubo(self):
-    #     """from_pyquboメソッドのテスト"""
-    #     # pyquboのAddのセットアップ
-    #     x = Array.create('x', shape=2)
-    #     prob = (x[0] + x[1]) ** 2
+    def test_from_pyqubo(self):
+        """from_pyquboメソッドのテスト"""
+        # pyquboのBaseのセットアップ
+        q0, q1 = Binary("q0"), Binary("q1")
+        prob = (q0 + q1) ** 2
 
-    #     # QuData.inputオブジェクトを作成し、pyqubo問題を渡す
-    #     qudata = QuData.input().from_pyqubo(prob)
-    #     expected = {('x[0]', 'x[0]'): 1.0, ('x[0]', 'x[1]'): 2.0, ('x[1]', 'x[1]'): 1.0}
-    #     self.assertEqual(qudata.prob, expected)
+        # QuData.inputオブジェクトを作成し、pyqubo問題を渡す
+        qudata = QuData.input().from_pyqubo(prob)
+        expected = {('q0', 'q0'): 1.0, ('q0', 'q1'): 2.0, ('q1', 'q1'): 1.0}
+        self.assertEqual(qudata.prob, expected)
 
-    # def test_from_pyqubo_invalid_type(self):
-    #     """from_pyquboメソッドで無効な型のデータを渡した場合のテスト"""
-    #     qudata = QuData.input()
-    #     with self.assertRaises(TypeError):
-    #         qudata.from_pyqubo("invalid")  # 無効な型でTypeErrorが発生するか確認
+    def test_from_pyqubo_invalid_type(self):
+        """from_pyquboメソッドで無効な型のデータを渡した場合のテスト"""
+        qudata = QuData.input()
+        with self.assertRaises(TypeError):
+            qudata.from_pyqubo("invalid")  # 無効な型でTypeErrorが発生するか確認
 
     def test_from_array(self):
         """from_arrayメソッドのテスト"""
@@ -288,10 +290,22 @@ class TestQudata(unittest.TestCase):
         # 目標関数の比較
         self.assertEqual(str(prob), str(objective))
 
-    # def test_to_pyqubo(self):
-    #     """pyqubo形式に変換するメソッドのテスト"""
-    #     prob = self.qudata.to_pyqubo()
-    #     self.assertIsInstance(prob, Add)
+    def test_to_pyqubo(self):
+        """pyqubo形式に変換するメソッドのテスト"""
+        qudata = QuData.input({('q0', 'q0'): 1.0, ('q0', 'q1'): 2.0, ('q1', 'q1'): 1.0})
+        prob = qudata.to_pyqubo()
+        self.assertIsInstance(prob, Base)
+
+        # pyquboのBaseのセットアップ
+        q0, q1 = Binary("q0"), Binary("q1")
+        objective = (q0 + q1) ** 2
+
+        # qubo式への変換
+        qubo1, _ = prob.compile().to_qubo()
+        qubo2, _ = objective.compile().to_qubo()
+
+        # 目標関数の比較
+        assert_qubo_equal(qubo1, qubo2)
 
     def test_to_array(self):
         """numpy形式に変換するメソッドのテスト"""
