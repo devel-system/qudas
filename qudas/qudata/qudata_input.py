@@ -443,12 +443,7 @@ class QuDataInput(QuDataBase):
         """
 
         # 変数の順序を保持したリストを作成
-        variables = []
-        for key in self.prob.keys():
-            for k in key:
-                if k not in variables:
-                    variables.append(k)
-
+        variables = sorted(list(set(k for key in self.prob.keys() for k in key)))
         qubo = np.zeros((len(variables), len(variables)))
 
         for key, value in self.prob.items():
