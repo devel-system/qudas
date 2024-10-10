@@ -442,7 +442,13 @@ class QuDataInput(QuDataBase):
             np.ndarray: QUBO行列
         """
 
-        variables = list(set(k for key in self.prob.keys() for k in key))
+        # 変数の順序を保持したリストを作成
+        variables = []
+        for key in self.prob.keys():
+            for k in key:
+                if k not in variables:
+                    variables.append(k)
+
         qubo = np.zeros((len(variables), len(variables)))
 
         for key, value in self.prob.items():
