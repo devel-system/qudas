@@ -531,7 +531,8 @@ class QuDataInput(QuDataBase):
             pd.DataFrame: pandasデータ
         """
 
-        variables = list(set(k for key in self.prob.keys() for k in key))
+        # 変数の順序を保持したリストを作成
+        variables = sorted(list(set(k for key in self.prob.keys() for k in key)))
         array = self.to_array()
 
         return pd.DataFrame(array, columns=variables, index=variables)
