@@ -31,7 +31,8 @@ class QuDataOutput(QuDataBase):
 
     # Amplifyの計算結果を受け取る
     def from_amplify(self, result: Dict[str, Any]) -> "QuDataOutput":
-        self.result = result
+        variables = {str(k): v for k, v in result.best.values.items()}
+        self.result = {'variables': variables, 'objective': result.best.objective}
         self.result_type = 'amplify'
         return self
 
