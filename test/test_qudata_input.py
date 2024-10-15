@@ -1,13 +1,12 @@
 import unittest
-from qudas import QuDataInput
+from qudas.qudata import QuDataInput
 
 # その他必要なパッケージ
-from amplify import VariableGenerator, Poly
+from amplify import VariableGenerator
 import numpy as np
 import pandas as pd
 import pulp
 import networkx as nx
-import matplotlib.pyplot as plt
 import dimod
 from sympy import Symbol
 
@@ -254,154 +253,5 @@ class TestQudata(unittest.TestCase):
         with self.assertRaises(TypeError):
             qudata.from_sympy("invalid")  # 無効な型でTypeErrorが発生するか確認
 
-##############################
-### pulp
-##############################
-# 変数の定義
-q0 = pulp.LpVariable('q0', lowBound=0, upBound=1, cat='Binary')
-q1 = pulp.LpVariable('q1', lowBound=0, upBound=1, cat='Binary')
-
-# 問題の定義 (2q0-q1)
-problem = pulp.LpProblem('QUBO', pulp.LpMinimize)
-problem += 2 * q0 - q1
-
-##############################
-### amplify
-##############################
-gen = VariableGenerator()
-q = gen.array("Binary", shape=(3))
-objective = q[0] * q[1] - q[2]
-
-##############################
-### array
-##############################
-array = np.array([
-        [1, 1, 0],
-        [0, 2, 0],
-        [0, 0, -1],
-    ])
-
-##############################
-### networkx
-##############################
-G = nx.Graph()
-G.add_edges_from([(0, 1), (1, 2), (0, 2)])
-# nx.draw_networkx(G)
-# plt.show()
-
-##############################
-### pandas
-##############################
-df = pd.DataFrame(array,
-                  columns=['q0', 'q1', 'q2'],
-                  index=['q0', 'q1', 'q2'])
-
-##############################
-### dimod (bqm)
-##############################
-bqm = dimod.BinaryQuadraticModel({'q2': -1}, {('q0', 'q1'): 1}, vartype='BINARY')
-
-##############################
-### sympy
-##############################
-q0_sympy = Symbol('q0')
-q1_sympy = Symbol('q1')
-q2_sympy = Symbol('q2')
-prob_sympy = q0_sympy * q1_sympy - q2_sympy ** 2
-# print(prob.free_symbols)
-
-# terms = prob.as_ordered_terms()
-# print(terms, type(terms[0]), terms[1].free_symbols)
-
 if __name__ == '__main__':
     unittest.main()
-
-    # # dict
-    # qd1 = QuDataInput({('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0})
-    # print(f"dict={qd1.prob}")
-
-    # # pulp
-    # qd2 = QuDataInput()
-    # qd2.from_pulp(problem)
-    # print(f"pulp={qd2.prob}")
-
-    # # amplify
-    # qd3 = QuDataInput()
-    # qd3.from_amplify(objective)
-    # print(f"amplify={qd3.prob}")
-
-    # # array
-    # qd4 = QuDataInput()
-    # qd4.from_array(array)
-    # print(f"array={qd4.prob}")
-
-    # # csv
-    # qd5 = QuDataInput()
-    # qd5.from_csv(path='./data/qudata.csv')
-    # print(f"csv={qd5.prob}")
-
-    # # json
-    # qd6 = QuDataInput()
-    # qd6.from_json(path='./data/qudata.json')
-    # print(f"json={qd6.prob}")
-
-    # # networkx
-    # qd7 = QuDataInput()
-    # qd7.from_networkx(G)
-    # print(f"networkx={qd7.prob}")
-
-    # # pandas
-    # qd8 = QuDataInput()
-    # qd8.from_pandas(df)
-    # print(f"pandas={qd8.prob}")
-
-    # # dimod (bqm)
-    # qd9 = QuDataInput()
-    # qd9.from_dimod_bqm(bqm)
-    # print(f"dimod-bqm={qd9.prob}")
-
-    # # sympy
-    # qd10 = QuDataInput()
-    # qd10.from_sympy(prob_sympy)
-    # print(f"sympy={qd10.prob}")
-
-    # # to_pulp
-    # print(qd2.to_pulp())
-
-    # # to_amplify
-    # print(qd3.to_amplify())
-
-    # # to_array
-    # print(qd4.to_array())
-
-    # # to_csv
-    # qd5.to_csv(name="to-csv")
-
-    # # to_json
-    # qd6.to_json(name="to-json")
-
-    # # to_networkx
-    # toG = qd7.to_networkx()
-    # # nx.draw_networkx(toG)
-    # # plt.show()
-
-    # # to_pandas
-    # print(qd8.to_pandas())
-
-    # # to_dimod-bqm
-    # print(qd9.to_dimod_bqm())
-
-    # # to_sympy
-    # print(qd10.to_sympy())
-
-    # # add
-    # print(f"add={(qd1 + qd2).prob}")
-
-    # # sub
-    # print(f"sub={(qd1 - qd2).prob}")
-
-    # # mul
-    # print(f"mul={(qd1 * qd2).prob}")
-
-    # # pow
-    # print(f"pow={(qd1 ** 2).prob}")
