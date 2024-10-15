@@ -47,8 +47,8 @@ result = qudata ** 2
 print(result.prob)  # 出力: {('q0', 'q1'): 1.0, ('q0', 'q2', 'q1'): -2.0}
 ```
 
-### データ形式の変換
-さまざまな形式のデータを `QuData` オブジェクトを介して変換することができます。
+### データ形式の変換（QuDataInput）
+デバイスへの様々な入力形式のデータを `QuData` オブジェクトを介して変換することができます。
 
 #### pyqubo から Amplify への変換
 ```python
@@ -104,6 +104,64 @@ print(qudata.prob)  # 出力: {('q_0', 'q_0'): 1.0, ('q_0', 'q_2'): 2.0, ...}
 # PuLP 形式に変換
 pulp_prob = qudata.to_pulp()
 print(pulp_prob)
+```
+
+### データ形式の変換（QuDataOutput）
+デバイスからの様々な出力形式のデータを `QuData` オブジェクトを介して変換することができます。
+
+#### PuLP から Amplify への変換
+```python
+   import pulp
+   from qudas import QuData
+
+   # PuLP問題を定義して解く
+   prob = pulp.LpProblem("Test Problem", pulp.LpMinimize)
+   x = pulp.LpVariable('x', lowBound=0, upBound=1, cat='Binary')
+   y = pulp.LpVariable('y', lowBound=0, upBound=1, cat='Binary')
+   prob += 2*x - y
+   prob.solve()
+
+   # QuDataOutputのインスタンスを生成し、from_pulpメソッドで問題を変換
+   qudata = QuData.input().from_pulp(prob)
+   print(qudata.prob)  # 出力: {'x': 2.0, 'y': -1.0}
+
+   # Amplify形式に変換
+   amplify_prob = qudata.to_amplify()
+   print(amplify_prob)  # 出力: Amplifyの目標関数形式
+```
+
+#### SciPy から Dimod への変換
+```python
+   import numpy as np
+   from sympy import symbols, lambdify
+   from scipy.optimize import minimize, Bounds
+   from qudas import QuData
+
+   # シンボリック変数の定義
+   q0, q1, q2 = symbols('q0 q1 q2')
+
+   # 目的関数を定義
+   objective_function = 2 * q0 - q1 - q2
+
+   # シンボリック関数を数値化して評価できる形式に変換
+   f = lambdify([q0, q1, q2], objective_function, 'numpy')
+
+   # 初期解 (すべて0.5に設定)
+   q = [0.5, 0.5, 0.5]
+
+   # バイナリ変数の範囲を定義 (0 <= x <= 1)
+   bounds = Bounds([0, 0, 0], [1, 1, 1])
+
+   # SciPyで制約付き最適化を実行
+   res = minimize(lambda q: f(q[0], q[1], q[2]), q, method='SLSQP', bounds=bounds)
+
+   # QuDataOutputのインスタンスを生成し、from_scipyメソッドをテスト
+   qudata = QuData.input().from_scipy(res)
+   print(qudata.prob)  # 出力: {'q0': 2, 'q1': -1, 'q2': -1}
+
+   # Dimod形式に変換
+   dimod_prob = qudata.to_dimod_bqm()
+   print(dimod_prob)  # 出力: DimodのBQM形式
 ```
 
 ## テストコード
