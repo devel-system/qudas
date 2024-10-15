@@ -1,6 +1,11 @@
 from .qudata_base import QuDataBase
 from typing import Dict, Any
 from pulp import LpVariable, LpProblem, LpMinimize, value
+from amplify import Model, Result
+# from datetime import timedelta
+import dimod
+import numpy as np
+from scipy.optimize import OptimizeResult
 
 class QuDataOutput(QuDataBase):
     def __init__(self, result: Dict[str, Any] = None, result_type: str = None):
@@ -30,53 +35,76 @@ class QuDataOutput(QuDataBase):
         return self
 
     # Amplifyの計算結果を受け取る
-    def from_amplify(self, result: Dict[str, Any]) -> "QuDataOutput":
+    def from_amplify(self, result: Result) -> "QuDataOutput":
         variables = {str(k): v for k, v in result.best.values.items()}
         self.result = {'variables': variables, 'objective': result.best.objective}
         self.result_type = 'amplify'
         return self
 
     # Dimodの計算結果を受け取る
-    def from_dimod(self, result: Dict[str, Any]) -> "QuDataOutput":
-        self.result = result
+    def from_dimod(self, result: dimod.SampleSet) -> "QuDataOutput":
+        self.result = {'variables': result.first.sample, 'objective': result.first.energy}
         self.result_type = 'dimod'
         return self
 
-    # SymPyの計算結果を受け取る
-    def from_sympy(self, result: Dict[str, Any]) -> "QuDataOutput":
-        self.result = result
+    # SciPyの計算結果を受け取る
+    def from_scipy(self, result: OptimizeResult) -> "QuDataOutput":
+        variables = {f"q{i}": v for i, v in enumerate(result.x)}
+        self.result = {'variables': variables, 'objective': result.fun}
         self.result_type = 'sympy'
         return self
 
-    # PuLP形式に変換
-    def to_pulp(self) -> Dict[str, Any]:
-        if self.result_type == 'pulp':
-            return self.result
-        else:
-            return {'variables': self.result['variables'], 'objective': self.result['objective']}
+    # Amplify形式に変換（現状は対応不可）
+    # def to_amplify(self) -> Result:
 
-    # Amplify形式に変換
-    def to_amplify(self) -> Dict[str, Any]:
-        if self.result_type == 'amplify':
-            return self.result
-        else:
-            binary_matrix = [1 if val > 0 else 0 for val in self.result['variables'].values()]
-            return {'variables': binary_matrix, 'objective': self.result['objective']}
+    #     # best
+    #     best = Result.Solution()
+    #     best.values = self.data["variables"]
+    #     best.feasible = True
+    #     best.objective = self.data["objective"]
+    #     best.time = timedelta()
+
+    #     result = Result(
+    #         best=best,
+    #         client_result=None,
+    #         embedding=None,
+    #         execution_time=timedelta(),
+    #         filter_solution=False,
+    #         intermediate=Result.ModelConversion()
+    #     )
+    #     return result
 
     # Dimod形式に変換
-    def to_dimod(self) -> Dict[str, Any]:
-        if self.result_type == 'dimod':
-            return self.result
-        else:
-            # 仮のサンプルとエネルギーを用いてDimod形式に変換
-            samples = [dict(enumerate([int(val > 0) for val in self.result['variables'].values()]))]
-            energy = [self.result['objective']]
-            return {'variables': samples[0], 'objective': energy[0]}
+    def to_dimod(self) -> dimod.SampleSet:
+        sampleset = dimod.SampleSet.from_samples(
+            samples_like=dimod.as_samples(self.result["variables"]),
+            vartype='BINARY',
+            energy=self.result["objective"]
+        )
+        return sampleset
 
-    # SymPy形式に変換
-    def to_sympy(self) -> Dict[str, Any]:
-        if self.result_type == 'sympy':
-            return self.result
-        else:
-            solutions = [float(val) for val in self.result['variables'].values()]
-            return {'variables': solutions, 'objective': self.result['objective']}
+    # SciPy形式に変換
+    def to_scipy(self) -> OptimizeResult:
+        # 最適化後の結果（例: 最適解とその他の情報を仮定）
+        solution = self.result["variables"]  # 手動で得た最適化後の変数
+        fun_value = self.result["objective"]  # 目的関数の最小値
+        success = True    # 収束したかどうか
+        status = 0        # ステータスコード（0は成功）
+        message = 'Optimization terminated successfully.'  # 最適化メッセージ
+        nfev = 0         # 目的関数を評価した回数
+        nit = 0           # 反復回数
+
+        # solution の変数値をリストに変換
+        x = np.array(list(solution.values()))
+
+        # OptimizeResult オブジェクトの作成
+        result = OptimizeResult(
+            x=x,                # 最適化された変数の値
+            fun=fun_value,      # 目的関数の最小値
+            success=success,    # 成功フラグ
+            status=status,      # ステータスコード
+            message=message,    # 結果メッセージ
+            nfev=nfev,          # 目的関数評価回数
+            nit=nit             # 反復回数
+        )
+        return result
