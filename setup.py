@@ -55,7 +55,7 @@ setup(
     long_description=long_description,  # 長い説明 (README.mdから取得)
     long_description_content_type="text/markdown",  # 長い説明の形式
     url="https://github.com/devel-system/qudas",  # パッケージのリポジトリURL（適宜変更してください）
-    packages=find_packages(),  # パッケージを自動で検出
+    packages=find_packages(include=["qudas", "qudas.*"]),  # パッケージを自動で検出
     classifiers=[  # パッケージに関する分類
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
