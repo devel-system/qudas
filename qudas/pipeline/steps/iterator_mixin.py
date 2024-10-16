@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from .base import BaseStep
 
+
 class IteratorMixin(BaseStep, ABC):
     """
     Mixin class for all iterators in qudas.

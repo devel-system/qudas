@@ -9,6 +9,7 @@ from torch.nn import Module, MSELoss
 from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm.auto import trange
 
+
 class TorchFMQA(Module, BaseEstimator, TransformerMixin):
     """FMQAの学習処理
 
@@ -25,9 +26,9 @@ class TorchFMQA(Module, BaseEstimator, TransformerMixin):
     def set_global_params(self, params) -> None:
         """グローバルパラメータを設定"""
         self.params = params
-        self.v   = self.params["v"]
-        self.w   = self.params["w"]
-        self.w0  = self.params["w0"]
+        self.v = self.params["v"]
+        self.w = self.params["w"]
+        self.w0 = self.params["w0"]
 
     def get_global_params(self) -> dict:
         """グローバルパラメータを取得"""
@@ -67,21 +68,25 @@ class TorchFMQA(Module, BaseEstimator, TransformerMixin):
             torch.from_numpy(y).float(),
         )
 
-        dataset = TensorDataset(x_tensor, y_tensor) # (教師データ、正解データ)
-        train_set, valid_set = random_split(dataset, [0.8, 0.2]) # 8:2に分割
-        train_loader = DataLoader(train_set, batch_size=8, shuffle=True) # ミニバッチ学習、バッチサイズ: 8
+        dataset = TensorDataset(x_tensor, y_tensor)  # (教師データ、正解データ)
+        train_set, valid_set = random_split(dataset, [0.8, 0.2])  # 8:2に分割
+        train_loader = DataLoader(
+            train_set, batch_size=8, shuffle=True
+        )  # ミニバッチ学習、バッチサイズ: 8
         valid_loader = DataLoader(valid_set, batch_size=8, shuffle=True)
 
         # 学習の実行
         min_loss = 1e18  # 損失関数の最小値を保存
-        best_state = self.state_dict()  # モデルの最も良いパラメータを保存 (今のモデルのパラメータ状態を保存)
+        best_state = (
+            self.state_dict()
+        )  # モデルの最も良いパラメータを保存 (今のモデルのパラメータ状態を保存)
 
         # `range` の代わりに `tqdm` モジュールを用いて進捗を表示
         for _ in trange(epochs, leave=False):
             # 学習フェイズ
             for x_train, y_train in train_loader:
                 optimizer.zero_grad()
-                pred_y = self.forward(x_train) # nnに代入 (forward)
+                pred_y = self.forward(x_train)  # nnに代入 (forward)
                 loss = loss_func(pred_y, y_train)
                 loss.backward()
                 optimizer.step()

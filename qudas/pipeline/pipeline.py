@@ -1,6 +1,7 @@
 from typing import Sequence, Dict, Any, Tuple
 
-class Pipeline():
+
+class Pipeline:
     def __init__(self, steps: Sequence[Tuple[str, Any]]) -> None:
         """
         Pipelineクラスは一連のステップを受け取り、それぞれのステップを順に実行する。
@@ -8,9 +9,9 @@ class Pipeline():
         Args:
             steps (Sequence[Tuple[str, Any]]): ステップのリスト。各ステップは (名前, オブジェクト) のタプル形式。
         """
-        self.steps      = steps
-        self.models     = {step_name: None for step_name, _ in steps}
-        self.results    = {step_name: None for step_name, _ in steps}
+        self.steps = steps
+        self.models = {step_name: None for step_name, _ in steps}
+        self.results = {step_name: None for step_name, _ in steps}
         self.global_params = {}
 
     def set_global_params(self, params: Dict[str, Any]) -> None:
@@ -98,7 +99,9 @@ class Pipeline():
                 loop_num -= 1
             else:
                 self._process_step(last_step, X, y, 'transform')
-                self.results[last_step[0]] = self._process_step(last_step, X, y, 'optimize')
+                self.results[last_step[0]] = self._process_step(
+                    last_step, X, y, 'optimize'
+                )
                 self.models[last_step[0]] = self._process_step(last_step, X, y, 'fit')
                 break
 
@@ -144,7 +147,9 @@ class Pipeline():
                 loop_num -= 1
             else:
                 self._process_step(last_step, X, y, 'transform')
-                self.results[last_step[0]] = self._process_step(last_step, X, y, 'optimize')
+                self.results[last_step[0]] = self._process_step(
+                    last_step, X, y, 'optimize'
+                )
                 self.models[last_step[0]] = self._process_step(last_step, X, y, 'fit')
                 break
 

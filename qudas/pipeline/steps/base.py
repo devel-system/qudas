@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class BaseStep(ABC):
     @abstractmethod
     def set_global_params(self, params):

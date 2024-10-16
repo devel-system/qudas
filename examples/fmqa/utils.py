@@ -6,6 +6,7 @@ from typing import Callable
 seed = 1234
 rng = np.random.default_rng(seed)
 
+
 def make_blackbox_func(d: int) -> Callable[[np.ndarray], float]:
     """入力が長さ d のバリナリ値のベクトルで出力が float であるような関数を返却する
 
@@ -28,6 +29,7 @@ def make_blackbox_func(d: int) -> Callable[[np.ndarray], float]:
         return x @ Q @ x  # type: ignore
 
     return blackbox
+
 
 def init_training_data(d: int, n0: int, blackbox):
     """n0 組の初期教師データを作成する"""

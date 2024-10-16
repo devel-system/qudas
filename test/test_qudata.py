@@ -21,15 +21,16 @@ def dicts_are_equal(dict1, dict2):
     if len(dict1) != len(dict2):
         return False
 
-    for (k1, v1) in dict1.items():
+    for k1, v1 in dict1.items():
         found = False
-        for (k2, v2) in dict2.items():
+        for k2, v2 in dict2.items():
             if set(k1) == set(k2) and v1 == v2:
                 found = True
                 break
         if not found:
             return False
     return True
+
 
 class TestQudata(unittest.TestCase):
 
@@ -41,7 +42,6 @@ class TestQudata(unittest.TestCase):
         prob = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0}
         qudata = QuData.input(prob)
         self.assertTrue(dicts_are_equal(qudata.prob, prob))
-
 
     def test_init_with_none(self):
         """Noneで初期化する場合のテスト"""
@@ -60,7 +60,12 @@ class TestQudata(unittest.TestCase):
         qudata1 = QuData.input(prob1)
         qudata2 = QuData.input(prob2)
         result = qudata1 + qudata2
-        expected = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0, ('q0', 'q0'): 2, ('q1', 'q1'): -1}
+        expected = {
+            ('q0', 'q1'): 1.0,
+            ('q2', 'q2'): -1.0,
+            ('q0', 'q0'): 2,
+            ('q1', 'q1'): -1,
+        }
         self.assertTrue(dicts_are_equal(result.prob, expected))
 
     def test_sub(self):
@@ -70,7 +75,12 @@ class TestQudata(unittest.TestCase):
         qudata1 = QuData.input(prob1)
         qudata2 = QuData.input(prob2)
         result = qudata1 - qudata2
-        expected = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0, ('q0', 'q0'): -2, ('q1', 'q1'): 1}
+        expected = {
+            ('q0', 'q1'): 1.0,
+            ('q2', 'q2'): -1.0,
+            ('q0', 'q0'): -2,
+            ('q1', 'q1'): 1,
+        }
         self.assertTrue(dicts_are_equal(result.prob, expected))
 
     def test_mul(self):
@@ -87,7 +97,7 @@ class TestQudata(unittest.TestCase):
         """__pow__メソッドのテスト"""
         prob = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0}
         qudata = QuData.input(prob)
-        result = qudata ** 2
+        result = qudata**2
         expected = {('q0', 'q1'): 1.0, ('q0', 'q2', 'q1'): -2.0, ('q2', 'q2'): 1.0}
         self.assertTrue(dicts_are_equal(result.prob, expected))
 
@@ -156,15 +166,22 @@ class TestQudata(unittest.TestCase):
     def test_from_array(self):
         """from_arrayメソッドのテスト"""
         # numpy配列のセットアップ
-        prob = np.array([
-            [1, 1, 0],
-            [0, 2, 0],
-            [0, 0, -1],
-        ])
+        prob = np.array(
+            [
+                [1, 1, 0],
+                [0, 2, 0],
+                [0, 0, -1],
+            ]
+        )
 
         # QuData.inputオブジェクトを作成し、配列を渡す
         qudata = QuData.input().from_array(prob)
-        expected = {('q_0', 'q_0'): 1, ('q_0', 'q_1'): 1, ('q_1', 'q_1'): 2, ('q_2', 'q_2'): -1}
+        expected = {
+            ('q_0', 'q_0'): 1,
+            ('q_0', 'q_1'): 1,
+            ('q_1', 'q_1'): 2,
+            ('q_2', 'q_2'): -1,
+        }
         self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_array_invalid_type(self):
@@ -177,7 +194,13 @@ class TestQudata(unittest.TestCase):
         """from_csvメソッドのテスト"""
         csv_file_path = './data/qudata.csv'
         qudata = QuData.input().from_csv(csv_file_path)
-        expected = {('q_0', 'q_0'): 1.0, ('q_0', 'q_2'): 2.0, ('q_1', 'q_1'): -1.0, ('q_2', 'q_1'): 2.0, ('q_2', 'q_2'): 2.0}
+        expected = {
+            ('q_0', 'q_0'): 1.0,
+            ('q_0', 'q_2'): 2.0,
+            ('q_1', 'q_1'): -1.0,
+            ('q_2', 'q_1'): 2.0,
+            ('q_2', 'q_2'): 2.0,
+        }
         self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_csv_invalid(self):
@@ -191,7 +214,12 @@ class TestQudata(unittest.TestCase):
         """from_jsonメソッドのテスト"""
         json_file_path = './data/qudata.json'
         qudata = QuData.input().from_json(json_file_path)
-        expected = {('q0', 'q0'): 1.0, ('q0', 'q1'): 1.0, ('q1', 'q1'): -1.0, ('q2', 'q2'): 2.0}
+        expected = {
+            ('q0', 'q0'): 1.0,
+            ('q0', 'q1'): 1.0,
+            ('q1', 'q1'): -1.0,
+            ('q2', 'q2'): 2.0,
+        }
         self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_json_invalid(self):
@@ -217,11 +245,13 @@ class TestQudata(unittest.TestCase):
 
     def test_from_pandas(self):
         """from_pandasメソッドのテスト"""
-        array = np.array([
-            [1, 1, 0],
-            [0, 2, 0],
-            [0, 0, -1],
-        ])
+        array = np.array(
+            [
+                [1, 1, 0],
+                [0, 2, 0],
+                [0, 0, -1],
+            ]
+        )
         df = pd.DataFrame(array, columns=['q0', 'q1', 'q2'], index=['q0', 'q1', 'q2'])
         qudata = QuData.input().from_pandas(df)
         expected = {('q0', 'q0'): 1, ('q0', 'q1'): 1, ('q1', 'q1'): 2, ('q2', 'q2'): -1}
@@ -235,7 +265,9 @@ class TestQudata(unittest.TestCase):
 
     def test_from_dimod_bqm(self):
         """from_dimod_bqmメソッドのテスト"""
-        bqm = dimod.BinaryQuadraticModel({'q2': -1}, {('q0', 'q1'): 1}, vartype='BINARY')
+        bqm = dimod.BinaryQuadraticModel(
+            {'q2': -1}, {('q0', 'q1'): 1}, vartype='BINARY'
+        )
         qudata = QuData.input().from_dimod_bqm(bqm)
         expected = {('q0', 'q1'): 1, ('q2', 'q2'): -1}
         self.assertTrue(dicts_are_equal(qudata.prob, expected))
@@ -251,7 +283,7 @@ class TestQudata(unittest.TestCase):
         q0_sympy = Symbol('q0')
         q1_sympy = Symbol('q1')
         q2_sympy = Symbol('q2')
-        prob_sympy = q0_sympy * q1_sympy - q2_sympy ** 2
+        prob_sympy = q0_sympy * q1_sympy - q2_sympy**2
         qudata = QuData.input().from_sympy(prob_sympy)
         expected = {('q0', 'q1'): 1, ('q2', 'q2'): -1}
         self.assertTrue(dicts_are_equal(qudata.prob, expected))
@@ -281,11 +313,15 @@ class TestQudata(unittest.TestCase):
         self.assertEqual(str(prob.objective), str(problem.objective))
 
         # 変数リストの比較
-        self.assertEqual([v.name for v in prob.variables()], [v.name for v in problem.variables()])
+        self.assertEqual(
+            [v.name for v in prob.variables()], [v.name for v in problem.variables()]
+        )
 
     def test_to_amplify(self):
         """amplify形式に変換するメソッドのテスト"""
-        qudata = QuData.input({('q_0', 'q_1'): 1.0, ('q_2', 'q_2'): -1.0}) # q_xでない場合はエラー
+        qudata = QuData.input(
+            {('q_0', 'q_1'): 1.0, ('q_2', 'q_2'): -1.0}
+        )  # q_xでない場合はエラー
         prob = qudata.to_amplify()
         self.assertIsInstance(prob, Poly)
 
@@ -315,22 +351,39 @@ class TestQudata(unittest.TestCase):
 
     def test_to_array(self):
         """numpy形式に変換するメソッドのテスト"""
-        qudata = QuData.input({('q_0', 'q_0'): 1, ('q_0', 'q_1'): 1, ('q_1', 'q_1'): 2, ('q_2', 'q_2'): -1})
+        qudata = QuData.input(
+            {
+                ('q_0', 'q_0'): 1,
+                ('q_0', 'q_1'): 1,
+                ('q_1', 'q_1'): 2,
+                ('q_2', 'q_2'): -1,
+            }
+        )
         prob = qudata.to_array()
 
         # numpy配列のセットアップ
-        array = np.array([
-            [1, 1, 0],
-            [0, 2, 0],
-            [0, 0, -1],
-        ])
+        array = np.array(
+            [
+                [1, 1, 0],
+                [0, 2, 0],
+                [0, 0, -1],
+            ]
+        )
 
         np.testing.assert_array_equal(prob, array)
 
     def test_to_csv(self):
         """CSV形式に保存するメソッドのテスト"""
         filename = "test_qudata"
-        qudata = QuData.input({('q0', 'q0'): 1, ('q0', 'q2'): 2, ('q1', 'q1'): -1, ('q2', 'q1'): 2, ('q2', 'q2'): 2})
+        qudata = QuData.input(
+            {
+                ('q0', 'q0'): 1,
+                ('q0', 'q2'): 2,
+                ('q1', 'q1'): -1,
+                ('q2', 'q1'): 2,
+                ('q2', 'q2'): 2,
+            }
+        )
         qudata.to_csv(name=filename)
         self.assertTrue(os.path.exists(f"{filename}.csv"))
         os.remove(f"{filename}.csv")  # テスト後にファイルを削除
@@ -338,7 +391,9 @@ class TestQudata(unittest.TestCase):
     def test_to_json(self):
         """JSON形式に保存するメソッドのテスト"""
         filename = "test_qudata"
-        qudata = QuData.input({('q0', 'q0'): 1, ('q0', 'q1'): 1, ('q1', 'q1'): -1, ('q2', 'q2'): 2})
+        qudata = QuData.input(
+            {('q0', 'q0'): 1, ('q0', 'q1'): 1, ('q1', 'q1'): -1, ('q2', 'q2'): 2}
+        )
         qudata.to_json(name=filename)
         self.assertTrue(os.path.exists(f"{filename}.json"))
         os.remove(f"{filename}.json")  # テスト後にファイルを削除
@@ -356,16 +411,22 @@ class TestQudata(unittest.TestCase):
 
     def test_to_pandas(self):
         """pandas形式に変換するメソッドのテスト"""
-        qudata = QuData.input({('q0', 'q0'): 1, ('q0', 'q1'): 1, ('q1', 'q1'): 2, ('q2', 'q2'): -1})
+        qudata = QuData.input(
+            {('q0', 'q0'): 1, ('q0', 'q1'): 1, ('q1', 'q1'): 2, ('q2', 'q2'): -1}
+        )
         df = qudata.to_pandas()
 
         # pandasの設定
-        array = np.array([
-            [1, 1, 0],
-            [0, 2, 0],
-            [0, 0, -1],
-        ])
-        expected_df = pd.DataFrame(array, columns=['q0', 'q1', 'q2'], index=['q0', 'q1', 'q2'], dtype=float)
+        array = np.array(
+            [
+                [1, 1, 0],
+                [0, 2, 0],
+                [0, 0, -1],
+            ]
+        )
+        expected_df = pd.DataFrame(
+            array, columns=['q0', 'q1', 'q2'], index=['q0', 'q1', 'q2'], dtype=float
+        )
         pd.testing.assert_frame_equal(df, expected_df)
 
     def test_to_dimod_bqm(self):
@@ -375,7 +436,9 @@ class TestQudata(unittest.TestCase):
         self.assertIsInstance(bqm, dimod.BinaryQuadraticModel)
 
         # dimodのBQM形式の確認
-        expected_bqm = dimod.BinaryQuadraticModel({'q2': -1}, {('q0', 'q1'): 1}, vartype='BINARY')
+        expected_bqm = dimod.BinaryQuadraticModel(
+            {'q2': -1}, {('q0', 'q1'): 1}, vartype='BINARY'
+        )
 
         self.assertEqual(bqm, expected_bqm)
 
@@ -400,17 +463,14 @@ class TestQudata(unittest.TestCase):
         prob = pulp.LpProblem("Test Problem", pulp.LpMinimize)
         x = pulp.LpVariable('x', lowBound=0, upBound=1, cat='Binary')
         y = pulp.LpVariable('y', lowBound=0, upBound=1, cat='Binary')
-        prob += 2*x - y
+        prob += 2 * x - y
         prob.solve()
 
         # QuDataOutputのインスタンスを生成し、from_pulpメソッドをテスト
         qdo = QuData.output().from_pulp(prob)
 
         # 期待される結果
-        expected_result = {
-            'variables': {'x': 0, 'y': 1},
-            'objective': -1
-        }
+        expected_result = {'variables': {'x': 0, 'y': 1}, 'objective': -1}
 
         # 検証
         self.assertEqual(qdo.result, expected_result)
@@ -436,7 +496,7 @@ class TestQudata(unittest.TestCase):
         # 期待される結果
         expected_result = {
             'variables': {'q_0': 0.0, 'q_1': 1.0, 'q_2': 1.0},
-            'objective': -2
+            'objective': -2,
         }
 
         # 検証
@@ -454,7 +514,7 @@ class TestQudata(unittest.TestCase):
         # 期待される結果
         expected_result = {
             'variables': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0},
-            'objective': -2
+            'objective': -2,
         }
 
         # 検証
@@ -487,7 +547,7 @@ class TestQudata(unittest.TestCase):
         # 期待される結果
         expected_result = {
             'variables': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0},
-            'objective': -2
+            'objective': -2,
         }
 
         # 検証
@@ -496,10 +556,9 @@ class TestQudata(unittest.TestCase):
 
     def test_to_dimod(self):
         # Dimod形式の結果に変換
-        qdo = QuData.output(result={
-            'variables': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0},
-            'objective': -2
-        })
+        qdo = QuData.output(
+            result={'variables': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0}, 'objective': -2}
+        )
         dimod_result = qdo.to_dimod()
 
         # Dimod形式の結果
@@ -511,10 +570,9 @@ class TestQudata(unittest.TestCase):
 
     def test_to_scipy(self):
         # SciPy形式の結果に変換
-        qdo = QuData.output(result={
-            'variables': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0},
-            'objective': -2
-        })
+        qdo = QuData.output(
+            result={'variables': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0}, 'objective': -2}
+        )
         scipy_result = qdo.to_scipy()
 
         # シンボリック変数の定義
@@ -539,6 +597,7 @@ class TestQudata(unittest.TestCase):
         np.testing.assert_array_equal(scipy_result.x, res.x)
         self.assertEqual(scipy_result.fun, res.fun)
         self.assertEqual(scipy_result.success, res.success)
+
 
 if __name__ == '__main__':
     unittest.main()

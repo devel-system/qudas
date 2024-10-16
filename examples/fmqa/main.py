@@ -30,8 +30,11 @@ parameters = {'v': v, 'w': w, 'w0': w0}
 # pipeline
 steps = [
     ('TorchFMQA', TorchFMQA()),
-    ('AnnealFMQA', AnnealFMQA(blackbox, d, token="AE/HaqGh1iuFMEennXk10xS1LCgld8D18oC")),
-    ('pipeIteration', PipeIteration(blackbox, d, loop_num=N))
+    (
+        'AnnealFMQA',
+        AnnealFMQA(blackbox, d, token="AE/HaqGh1iuFMEennXk10xS1LCgld8D18oC"),
+    ),
+    ('pipeIteration', PipeIteration(blackbox, d, loop_num=N)),
 ]
 
 pipe = Pipeline(steps)

@@ -2,6 +2,7 @@ from .qudata_input import QuDataInput
 from .qudata_output import QuDataOutput
 from typing import Optional, Dict, Any
 
+
 class QuData:
 
     @classmethod
@@ -18,7 +19,9 @@ class QuData:
         return QuDataInput(prob)
 
     @classmethod
-    def output(cls, result: Optional[Dict[str, Any]] = None, result_type: Optional[str] = None) -> QuDataOutput:
+    def output(
+        cls, result: Optional[Dict[str, Any]] = None, result_type: Optional[str] = None
+    ) -> QuDataOutput:
         """
         クラスメソッドとして QuDataOutput のインスタンスを作成し、引数を受け取る。
 

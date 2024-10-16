@@ -10,6 +10,7 @@ import dimod
 from sympy import Symbol, symbols, lambdify
 from scipy.optimize import minimize, Bounds
 
+
 class TestQuDataOutput(unittest.TestCase):
 
     def test_from_pulp(self):
@@ -17,17 +18,14 @@ class TestQuDataOutput(unittest.TestCase):
         prob = LpProblem("Test Problem", LpMinimize)
         x = LpVariable('x', lowBound=0, upBound=1, cat='Binary')
         y = LpVariable('y', lowBound=0, upBound=1, cat='Binary')
-        prob += 2*x - y
+        prob += 2 * x - y
         prob.solve()
 
         # QuDataOutputのインスタンスを生成し、from_pulpメソッドをテスト
         qdo = QuDataOutput().from_pulp(prob)
 
         # 期待される結果
-        expected_result = {
-            'variables': {'x': 0, 'y': 1},
-            'objective': -1
-        }
+        expected_result = {'variables': {'x': 0, 'y': 1}, 'objective': -1}
 
         # 検証
         self.assertEqual(qdo.result, expected_result)
@@ -53,7 +51,7 @@ class TestQuDataOutput(unittest.TestCase):
         # 期待される結果
         expected_result = {
             'variables': {'q_0': 0.0, 'q_1': 1.0, 'q_2': 1.0},
-            'objective': -2
+            'objective': -2,
         }
 
         # 検証
@@ -71,7 +69,7 @@ class TestQuDataOutput(unittest.TestCase):
         # 期待される結果
         expected_result = {
             'variables': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0},
-            'objective': -2
+            'objective': -2,
         }
 
         # 検証
@@ -104,7 +102,7 @@ class TestQuDataOutput(unittest.TestCase):
         # 期待される結果
         expected_result = {
             'variables': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0},
-            'objective': -2
+            'objective': -2,
         }
 
         # 検証
@@ -113,10 +111,9 @@ class TestQuDataOutput(unittest.TestCase):
 
     def test_to_dimod(self):
         # Dimod形式の結果に変換
-        qdo = QuDataOutput(result={
-            'variables': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0},
-            'objective': -2
-        })
+        qdo = QuDataOutput(
+            result={'variables': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0}, 'objective': -2}
+        )
         dimod_result = qdo.to_dimod()
 
         # Dimod形式の結果
@@ -128,10 +125,9 @@ class TestQuDataOutput(unittest.TestCase):
 
     def test_to_scipy(self):
         # SciPy形式の結果に変換
-        qdo = QuDataOutput(result={
-            'variables': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0},
-            'objective': -2
-        })
+        qdo = QuDataOutput(
+            result={'variables': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0}, 'objective': -2}
+        )
         scipy_result = qdo.to_scipy()
 
         # シンボリック変数の定義
@@ -156,6 +152,7 @@ class TestQuDataOutput(unittest.TestCase):
         np.testing.assert_array_equal(scipy_result.x, res.x)
         self.assertEqual(scipy_result.fun, res.fun)
         self.assertEqual(scipy_result.success, res.success)
+
 
 if __name__ == '__main__':
     unittest.main()

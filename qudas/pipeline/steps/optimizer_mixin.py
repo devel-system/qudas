@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from .base import BaseStep
 
+
 class OptimizerMixin(BaseStep, ABC):
     """
     Mixin class for all optimizers in qudas.

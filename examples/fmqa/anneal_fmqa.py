@@ -6,6 +6,7 @@ from amplify import VariableGenerator, Model, FixstarsClient, solve, Poly
 from datetime import timedelta
 import numpy as np
 
+
 class AnnealFMQA(OptimizerMixin):
     """FMQAのアニーリング処理
 
@@ -13,11 +14,11 @@ class AnnealFMQA(OptimizerMixin):
         OptimizerMixin: qudasの最適化用mixinクラス
     """
 
-    def __init__(self, blackbox, d: int, token: str=None):
-        self.blackbox   = blackbox
-        self.d          = d
-        self.token      = token
-        self.result     = None
+    def __init__(self, blackbox, d: int, token: str = None):
+        self.blackbox = blackbox
+        self.d = d
+        self.token = token
+        self.result = None
 
     def set_global_params(self, params) -> None:
         self.params = params
@@ -32,9 +33,9 @@ class AnnealFMQA(OptimizerMixin):
         x = gen.array("Binary", self.d)
 
         # TorchFM からパラメータ v, w, w0 を取得
-        v   = self.params["v"]
-        w   = self.params["w"]
-        w0  = self.params["w0"]
+        v = self.params["v"]
+        w = self.params["w"]
+        w0 = self.params["w0"]
 
         # 目的関数を作成
         out_linear = w0 + (x * w).sum()

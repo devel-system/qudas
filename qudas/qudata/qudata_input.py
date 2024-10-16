@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import sympy
 
+
 class QuDataInput(QuDataBase):
     """量子データ"""
 
@@ -371,7 +372,9 @@ class QuDataInput(QuDataBase):
         """
 
         variables = list(set(k for key in self.prob.keys() for k in key))
-        q = [LpVariable(name, lowBound=0, upBound=1, cat='Binary') for name in variables]
+        q = [
+            LpVariable(name, lowBound=0, upBound=1, cat='Binary') for name in variables
+        ]
 
         qubo = LpProblem('QUBO', LpMinimize)
         _qubo = 0
@@ -398,7 +401,7 @@ class QuDataInput(QuDataBase):
 
         variables = list(set(k for key in self.prob.keys() for k in key))
         gen = VariableGenerator()
-        q = gen.array("Binary", len(variables)) # default は name="q"
+        q = gen.array("Binary", len(variables))  # default は name="q"
         labeled_q = {_q.name: _q for _q in q}
 
         qubo = 0
@@ -557,7 +560,11 @@ class QuDataInput(QuDataBase):
         """
 
         sympy_prob = sum(
-            sympy.Symbol(k[0]) * v if k[0] == k[1] else sympy.Symbol(k[0]) * sympy.Symbol(k[1]) * v
+            (
+                sympy.Symbol(k[0]) * v
+                if k[0] == k[1]
+                else sympy.Symbol(k[0]) * sympy.Symbol(k[1]) * v
+            )
             for k, v in self.prob.items()
         )
 

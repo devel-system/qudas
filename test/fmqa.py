@@ -12,6 +12,7 @@ from datetime import timedelta
 seed = 1234
 rng = np.random.default_rng(seed)
 
+
 def make_blackbox_func(d: int) -> Callable[[np.ndarray], float]:
     """入力が長さ d のバリナリ値のベクトルで出力が float であるような関数を返却する
 
@@ -35,8 +36,10 @@ def make_blackbox_func(d: int) -> Callable[[np.ndarray], float]:
 
     return blackbox
 
+
 # 乱数シードの固定
 torch.manual_seed(seed)
+
 
 class TorchFM(nn.Module):
     def __init__(self, d: int, k: int):
@@ -77,6 +80,7 @@ class TorchFM(nn.Module):
         np_w0 = self.w0.detach().numpy().copy()
         return np_v, np_w, float(np_w0)
 
+
 def anneal(torch_model: TorchFM) -> np.ndarray:
     """FM モデルのパラメータを受け取り、それらのパラメータにより記述される FM モデルの最小値を与える x を求める"""
 
@@ -111,6 +115,7 @@ def anneal(torch_model: TorchFM) -> np.ndarray:
     # モデルを最小化する入力ベクトルを返却
     return x.evaluate(result.best.values).astype(int)
 
+
 def train(
     x: np.ndarray,
     y: np.ndarray,
@@ -136,21 +141,25 @@ def train(
         torch.from_numpy(x).float(),
         torch.from_numpy(y).float(),
     )
-    dataset = TensorDataset(x_tensor, y_tensor) # (教師データ、正解データ)
-    train_set, valid_set = random_split(dataset, [0.8, 0.2]) # 8:2に分割
-    train_loader = DataLoader(train_set, batch_size=8, shuffle=True) # ミニバッチ学習、バッチサイズ: 8
+    dataset = TensorDataset(x_tensor, y_tensor)  # (教師データ、正解データ)
+    train_set, valid_set = random_split(dataset, [0.8, 0.2])  # 8:2に分割
+    train_loader = DataLoader(
+        train_set, batch_size=8, shuffle=True
+    )  # ミニバッチ学習、バッチサイズ: 8
     valid_loader = DataLoader(valid_set, batch_size=8, shuffle=True)
 
     # 学習の実行
     min_loss = 1e18  # 損失関数の最小値を保存
-    best_state = model.state_dict()  # モデルの最も良いパラメータを保存 (今のモデルのパラメータ状態を保存)
+    best_state = (
+        model.state_dict()
+    )  # モデルの最も良いパラメータを保存 (今のモデルのパラメータ状態を保存)
 
     # `range` の代わりに `tqdm` モジュールを用いて進捗を表示
     for _ in trange(epochs, leave=False):
         # 学習フェイズ
         for x_train, y_train in train_loader:
             optimizer.zero_grad()
-            pred_y = model(x_train) # nnに代入 (forward)
+            pred_y = model(x_train)  # nnに代入 (forward)
             loss = loss_func(pred_y, y_train)
             loss.backward()
             optimizer.step()
@@ -169,6 +178,7 @@ def train(
 
     # モデルを学習済みパラメータで更新
     model.load_state_dict(best_state)
+
 
 if __name__ == '__main__':
 

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any
 
+
 class QuDataBase(ABC):
     def __init__(self, data: Dict[str, Any] = None):
         """

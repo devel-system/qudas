@@ -1,5 +1,6 @@
 import os
 import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../..", "qudas"))
 
 # Configuration file for the Sphinx documentation builder.
@@ -22,7 +23,7 @@ extensions = [
     'sphinx.ext.autodoc',  # ソースコード読み込み用
     'sphinx.ext.viewcode',  # ハイライト済みのソースコードへのリンクを追加
     'sphinx.ext.todo',  # ToDoアイテムのサポート
-    'sphinx.ext.napoleon' #googleスタイルやNumpyスタイルでdocstringを記述した際に必要
+    'sphinx.ext.napoleon',  # googleスタイルやNumpyスタイルでdocstringを記述した際に必要
 ]
 
 templates_path = ['_templates']
@@ -35,14 +36,14 @@ language = 'en'
 
 html_theme = 'furo'
 html_sidebars = {
-   '**': [
+    '**': [
         'sidebar/brand.html',
         'sidebar/search.html',
         'sidebar/scroll-start.html',
         'sidebar/navigation.html',
         'sidebar/ethical-ads.html',
         'sidebar/scroll-end.html',
-        'sidebar/variant-selector.html'
+        'sidebar/variant-selector.html',
     ],
 }
 html_static_path = ['_static']

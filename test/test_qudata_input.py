@@ -10,20 +10,22 @@ import networkx as nx
 import dimod
 from sympy import Symbol
 
+
 def dicts_are_equal(dict1, dict2):
     """辞書のキーの順序を無視して等価性を比較する関数"""
     if len(dict1) != len(dict2):
         return False
 
-    for (k1, v1) in dict1.items():
+    for k1, v1 in dict1.items():
         found = False
-        for (k2, v2) in dict2.items():
+        for k2, v2 in dict2.items():
             if set(k1) == set(k2) and v1 == v2:
                 found = True
                 break
         if not found:
             return False
     return True
+
 
 class TestQudata(unittest.TestCase):
 
@@ -32,7 +34,6 @@ class TestQudata(unittest.TestCase):
         prob = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0}
         qudata = QuDataInput(prob)
         self.assertTrue(dicts_are_equal(qudata.prob, prob))
-
 
     def test_init_with_none(self):
         """Noneで初期化する場合のテスト"""
@@ -51,7 +52,12 @@ class TestQudata(unittest.TestCase):
         qudata1 = QuDataInput(prob1)
         qudata2 = QuDataInput(prob2)
         result = qudata1 + qudata2
-        expected = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0, ('q0', 'q0'): 2, ('q1', 'q1'): -1}
+        expected = {
+            ('q0', 'q1'): 1.0,
+            ('q2', 'q2'): -1.0,
+            ('q0', 'q0'): 2,
+            ('q1', 'q1'): -1,
+        }
         self.assertTrue(dicts_are_equal(result.prob, expected))
 
     def test_sub(self):
@@ -61,7 +67,12 @@ class TestQudata(unittest.TestCase):
         qudata1 = QuDataInput(prob1)
         qudata2 = QuDataInput(prob2)
         result = qudata1 - qudata2
-        expected = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0, ('q0', 'q0'): -2, ('q1', 'q1'): 1}
+        expected = {
+            ('q0', 'q1'): 1.0,
+            ('q2', 'q2'): -1.0,
+            ('q0', 'q0'): -2,
+            ('q1', 'q1'): 1,
+        }
         self.assertTrue(dicts_are_equal(result.prob, expected))
 
     def test_mul(self):
@@ -78,7 +89,7 @@ class TestQudata(unittest.TestCase):
         """__pow__メソッドのテスト"""
         prob = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0}
         qudata = QuDataInput(prob)
-        result = qudata ** 2
+        result = qudata**2
         expected = {('q0', 'q1'): 1.0, ('q0', 'q2', 'q1'): -2.0, ('q2', 'q2'): 1.0}
         self.assertTrue(dicts_are_equal(result.prob, expected))
 
@@ -147,15 +158,22 @@ class TestQudata(unittest.TestCase):
     def test_from_array(self):
         """from_arrayメソッドのテスト"""
         # numpy配列のセットアップ
-        prob = np.array([
-            [1, 1, 0],
-            [0, 2, 0],
-            [0, 0, -1],
-        ])
+        prob = np.array(
+            [
+                [1, 1, 0],
+                [0, 2, 0],
+                [0, 0, -1],
+            ]
+        )
 
         # QuDataInputオブジェクトを作成し、配列を渡す
         qudata = QuDataInput().from_array(prob)
-        expected = {('q_0', 'q_0'): 1, ('q_0', 'q_1'): 1, ('q_1', 'q_1'): 2, ('q_2', 'q_2'): -1}
+        expected = {
+            ('q_0', 'q_0'): 1,
+            ('q_0', 'q_1'): 1,
+            ('q_1', 'q_1'): 2,
+            ('q_2', 'q_2'): -1,
+        }
         self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_array_invalid_type(self):
@@ -168,7 +186,13 @@ class TestQudata(unittest.TestCase):
         """from_csvメソッドのテスト"""
         csv_file_path = './data/qudata.csv'
         qudata = QuDataInput().from_csv(csv_file_path)
-        expected = {('q_0', 'q_0'): 1.0, ('q_0', 'q_2'): 2.0, ('q_1', 'q_1'): -1.0, ('q_2', 'q_1'): 2.0, ('q_2', 'q_2'): 2.0}
+        expected = {
+            ('q_0', 'q_0'): 1.0,
+            ('q_0', 'q_2'): 2.0,
+            ('q_1', 'q_1'): -1.0,
+            ('q_2', 'q_1'): 2.0,
+            ('q_2', 'q_2'): 2.0,
+        }
         self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_csv_invalid(self):
@@ -182,7 +206,12 @@ class TestQudata(unittest.TestCase):
         """from_jsonメソッドのテスト"""
         json_file_path = './data/qudata.json'
         qudata = QuDataInput().from_json(json_file_path)
-        expected = {('q0', 'q0'): 1.0, ('q0', 'q1'): 1.0, ('q1', 'q1'): -1.0, ('q2', 'q2'): 2.0}
+        expected = {
+            ('q0', 'q0'): 1.0,
+            ('q0', 'q1'): 1.0,
+            ('q1', 'q1'): -1.0,
+            ('q2', 'q2'): 2.0,
+        }
         self.assertTrue(dicts_are_equal(qudata.prob, expected))
 
     def test_from_json_invalid(self):
@@ -208,11 +237,13 @@ class TestQudata(unittest.TestCase):
 
     def test_from_pandas(self):
         """from_pandasメソッドのテスト"""
-        array = np.array([
-            [1, 1, 0],
-            [0, 2, 0],
-            [0, 0, -1],
-        ])
+        array = np.array(
+            [
+                [1, 1, 0],
+                [0, 2, 0],
+                [0, 0, -1],
+            ]
+        )
         df = pd.DataFrame(array, columns=['q0', 'q1', 'q2'], index=['q0', 'q1', 'q2'])
         qudata = QuDataInput().from_pandas(df)
         expected = {('q0', 'q0'): 1, ('q0', 'q1'): 1, ('q1', 'q1'): 2, ('q2', 'q2'): -1}
@@ -226,7 +257,9 @@ class TestQudata(unittest.TestCase):
 
     def test_from_dimod_bqm(self):
         """from_dimod_bqmメソッドのテスト"""
-        bqm = dimod.BinaryQuadraticModel({'q2': -1}, {('q0', 'q1'): 1}, vartype='BINARY')
+        bqm = dimod.BinaryQuadraticModel(
+            {'q2': -1}, {('q0', 'q1'): 1}, vartype='BINARY'
+        )
         qudata = QuDataInput().from_dimod_bqm(bqm)
         expected = {('q0', 'q1'): 1, ('q2', 'q2'): -1}
         self.assertTrue(dicts_are_equal(qudata.prob, expected))
@@ -242,7 +275,7 @@ class TestQudata(unittest.TestCase):
         q0_sympy = Symbol('q0')
         q1_sympy = Symbol('q1')
         q2_sympy = Symbol('q2')
-        prob_sympy = q0_sympy * q1_sympy - q2_sympy ** 2
+        prob_sympy = q0_sympy * q1_sympy - q2_sympy**2
         qudata = QuDataInput().from_sympy(prob_sympy)
         expected = {('q0', 'q1'): 1, ('q2', 'q2'): -1}
         self.assertTrue(dicts_are_equal(qudata.prob, expected))
@@ -252,6 +285,7 @@ class TestQudata(unittest.TestCase):
         qudata = QuDataInput()
         with self.assertRaises(TypeError):
             qudata.from_sympy("invalid")  # 無効な型でTypeErrorが発生するか確認
+
 
 if __name__ == '__main__':
     unittest.main()
