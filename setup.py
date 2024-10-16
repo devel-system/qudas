@@ -1,5 +1,9 @@
 from setuptools import setup, find_packages
 
+# VERSION ファイルからバージョンを読み込む
+with open("VERSION", "r") as version_file:
+    version = version_file.read().strip()
+
 # 読み込むREADMEファイルの内容を長い説明として使用
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
