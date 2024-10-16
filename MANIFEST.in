@@ -1,0 +1,8 @@
+include README.md
+include LICENSE
+include VERSION
+include requirements.txt
+recursive-include docs *    # docs フォルダ内のすべてのファイルを含める
+recursive-include tests *   # テストフォルダ内のすべてのファイルを含める
+graft qudas                 # qudas フォルダ全体を含める
+global-exclude *.pyc        # コンパイル済みのPythonファイルを除外
