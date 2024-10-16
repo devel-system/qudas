@@ -1,0 +1,82 @@
+name: Python CI
+
+# ワークフローをトリガーするイベント
+on:
+  push:
+    branches:
+      - main  # main ブランチに push されたとき
+  pull_request:
+    branches:
+      - main  # main ブランチへのプルリクエスト時
+
+# ジョブの定義
+jobs:
+  test:
+
+    # このジョブは最新のUbuntuで実行される
+    runs-on: ubuntu-latest
+
+    # 複数のPythonバージョンでテストするためのマトリックス戦略
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, 3.10]
+
+    steps:
+    # コードをチェックアウトするステップ
+    - uses: actions/checkout@v3
+
+    # Pythonのバージョンを設定するステップ
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    # 必要な依存パッケージをインストールするステップ
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install .[dev]  # 開発用依存パッケージもインストール
+
+    # pytest を実行してテストを行うステップ
+    - name: Run tests
+      run: |
+        pytest
+
+    # Black を使ってコードフォーマットの確認を行うステップ
+    - name: Check code formatting with Black
+      run: |
+        black --check .
+
+  build:
+
+    # このジョブも最新のUbuntuで実行される
+    runs-on: ubuntu-latest
+
+    steps:
+    # コードをチェックアウトするステップ
+    - uses: actions/checkout@v3
+
+    # Pythonのバージョンを設定するステップ
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+
+    # 必要な依存パッケージをインストールするステップ
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # パッケージをビルドするステップ
+    - name: Build package
+      run: |
+        python setup.py sdist bdist_wheel
+
+    # ビルドされた成果物を GitHub Actions の成果物として保存するステップ
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifact
+        path: dist/
