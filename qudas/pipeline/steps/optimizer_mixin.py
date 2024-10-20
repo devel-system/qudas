@@ -1,47 +1,37 @@
 from abc import ABC, abstractmethod
+from typing import Any
 from .base import BaseStep
 
 
 class OptimizerMixin(BaseStep, ABC):
     """
-    Mixin class for all optimizers in qudas.
-    This mixin supports `transform` and `optimize`, with `optimize` being required.
+    パイプラインステップ内で使用する最適化処理用のMixinクラス。
+    このMixinクラスは、`transform` および `optimize` メソッドをサポートし、`optimize` メソッドの実装を必須とします。
     """
 
-    def transform(self, X):
+    def transform(self, X: Any) -> Any:
         """
-        Optional transform method. Can be overridden in subclasses.
+        オプションの変換メソッド。サブクラスでオーバーライド可能。
 
-        Parameters
-        ----------
-        X : array-like of shape (n_samples, n_features)
-            Input samples.
+        Args:
+            X (Any): 入力データ。
 
-        Returns
-        -------
-        X_new : Transformed data.
+        Returns:
+            Any: 変換後のデータ。
         """
         return X  # デフォルトでは変換しない
 
     @abstractmethod
-    def optimize(self, X=None, y=None, **fit_params):
+    def optimize(self, X: Any = None, y: Any = None, **fit_params) -> Any:
         """
-        Abstract method to be implemented in subclasses.
-        Fits to data and returns optimized results.
+        抽象的な最適化メソッド。
 
-        Parameters
-        ----------
-        X : array-like of shape (n_samples, n_features)
-            Input samples.
+        Args:
+            X (Any): 入力データ。
+            y (Any): ターゲットデータ。
+            **fit_params: 追加のパラメータ。
 
-        y :  array-like of shape (n_samples,) or (n_samples, n_outputs), default=None
-            Target values (None for unsupervised transformations).
-
-        **fit_params : dict
-            Additional fit parameters.
-
-        Returns
-        -------
-        Optimized result.
+        Returns:
+            Any: 最適化結果。
         """
         pass

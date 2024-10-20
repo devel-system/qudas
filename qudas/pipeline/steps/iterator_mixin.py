@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
+from typing import Any, Tuple
 from .base import BaseStep
 
 
 class IteratorMixin(BaseStep, ABC):
     """
-    Mixin class for all iterators in qudas.
-    This mixin requires `next_params` to be implemented.
+    パイプラインステップ内で使用するイテレータ用のMixinクラス。
+    このMixinクラスは次のパラメータセットを生成する `next_params` メソッドの実装を要求します。
     """
 
     def __init__(self) -> None:
@@ -15,25 +16,16 @@ class IteratorMixin(BaseStep, ABC):
         self.results = None
 
     @abstractmethod
-    def next_params(self, X, y=None, **iter_params):
+    def next_params(self, X: Any, y: Any = None, **iter_params) -> Tuple[Any, Any]:
         """
-        Abstract method to be implemented in subclasses.
-        Generates next set of parameters.
+        次のパラメータセットを生成する抽象メソッド。
 
-        Parameters
-        ----------
-        X : array-like of shape (n_samples, n_features)
-            Input samples.
+        Args:
+            X (Any): 入力データ。
+            y (Any): ターゲットデータ。
+            **iter_params: 追加のパラメータ。
 
-        y :  array-like of shape (n_samples,) or (n_samples, n_outputs), default=None
-            Target values (None for unsupervised transformations).
-
-        **iter_params : dict
-            Additional iteration parameters.
-
-        Returns
-        -------
-        X_new : ndarray of shape (n_samples, n_features_new)
-            Transformed data with next set of parameters.
+        Returns:
+            Tuple[Any, Any]: 次の入力データとターゲットデータ。
         """
         pass

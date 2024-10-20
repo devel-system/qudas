@@ -57,16 +57,13 @@ class Pipeline:
         Returns:
             Any: ステップによって処理されたデータまたは結果。
         """
-        if mode == 'transform':
-            if hasattr(step[1], 'transform'):
-                return step[1].transform(X)
-            else:
-                return X  # メソッドがない場合はXをそのまま返す
+        if mode == 'transform' and hasattr(step[1], 'transform')
+            return step[1].transform(X)
         elif mode == 'fit' and hasattr(step[1], 'fit'):
             return step[1].fit(X, y)
         elif mode == 'optimize' and hasattr(step[1], 'optimize'):
             return step[1].optimize(X, y).result
-        return None
+        return X  # シンプルな処理の場合、変換せずにそのまま返す
 
     def fit(self, X: Any, y: Any = None) -> 'Pipeline':
         """
@@ -166,14 +163,11 @@ class Pipeline:
             Any: 予測結果。
         """
 
-        try:
-            for step_name, step in self.steps:
-                X = self._process_step(step, X, None, 'transform')
-                if hasattr(self.models[step_name], 'predict'):
-                    return self.models[step_name].predict(X)
-            raise RuntimeError("predictメソッドが見つかりませんでした。")
-        except Exception as e:
-            raise RuntimeError(f"予測中にエラーが発生しました: {str(e)}")
+        for step_name, step in self.steps:
+            X = self._process_step(step, X, None, 'transform')
+            if hasattr(self.models[step_name], 'predict'):
+                return self.models[step_name].predict(X)
+        raise RuntimeError("predictメソッドが見つかりませんでした。")
 
     def get_results(self) -> Dict[str, Any]:
         """
