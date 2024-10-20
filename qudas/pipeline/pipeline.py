@@ -1,5 +1,5 @@
 from typing import Sequence, Dict, Any, Tuple
-from steps import IteratorMixin
+from .steps import IteratorMixin
 
 class Pipeline:
     def __init__(self, steps: Sequence[Tuple[str, Any]]) -> None:
