@@ -57,7 +57,7 @@ class Pipeline:
         Returns:
             Any: ステップによって処理されたデータまたは結果。
         """
-        if mode == 'transform' and hasattr(step[1], 'transform')
+        if mode == 'transform' and hasattr(step[1], 'transform'):
             return step[1].transform(X)
         elif mode == 'fit' and hasattr(step[1], 'fit'):
             return step[1].fit(X, y)
