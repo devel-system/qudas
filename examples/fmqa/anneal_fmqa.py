@@ -62,4 +62,4 @@ class AnnealFMQA(OptimizerMixin):
         # モデルを最小化する入力ベクトルを返却
         self.result = x.evaluate(result.best.values).astype(int)
 
-        return self
+        return self.result
