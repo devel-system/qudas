@@ -96,28 +96,39 @@ class Pipeline:
 
         middle_steps, last_step = self._split_steps()
 
-        # middle_stepsで処理
-        for step in middle_steps:
-            self._process_step(step, X, y, 'transform')
-            self.results[step[0]] = self._process_step(step, X, y, 'optimize')
-            self.models[step[0]] = self._process_step(step, X, y, 'fit')
-
-        # 最後のステップのループ処理
+        # 最後のステップのループ回数を取得 (IteratorMixin の loop_num)
         loop_num = getattr(last_step[1], 'loop_num', 1)
 
         while loop_num > 0:
-            if hasattr(last_step[1], 'next_params'):
-                last_step[1].models = self.models
-                last_step[1].results = self.results
-                X, y = last_step[1].next_params(X, y)
-                loop_num -= 1
-            else:
-                self._process_step(last_step, X, y, 'transform')
-                self.results[last_step[0]] = self._process_step(
-                    last_step, X, y, 'optimize'
-                )
+
+            # middle_stepsで処理
+            for step in middle_steps:
+                X = self._process_step(step, X, y, 'transform')
+
+                # optimize を実行し、結果を y に格納
+                if hasattr(step[1], 'optimize'):
+                    y = self._process_step(step, X, y, 'optimize')
+
+                # fit を実行し、モデルを保存
+                if hasattr(step[1], 'fit'):
+                    self.models[step[0]] = self._process_step(step, X, y, 'fit')
+
+            # 最後のステップの処理
+            X = self._process_step(last_step, X, y, 'transform')
+
+            # 最後のステップで optimize と fit を実行し、optimize の結果を y に格納
+            if hasattr(last_step[1], 'optimize'):
+                y = self._process_step(last_step, X, y, 'optimize')
+
+            if hasattr(last_step[1], 'fit'):
                 self.models[last_step[0]] = self._process_step(last_step, X, y, 'fit')
-                break
+
+            # next_step が定義されていれば、次のパラメータを取得
+            if hasattr(last_step[1], 'next_params'):
+                X, y = last_step[1].next_params(X, y)
+
+            # ループ回数をデクリメント
+            loop_num -= 1
 
         return self
 
