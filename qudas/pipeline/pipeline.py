@@ -1,5 +1,5 @@
 from typing import Sequence, Dict, Any, Tuple
-
+from steps import IteratorMixin
 
 class Pipeline:
     def __init__(self, steps: Sequence[Tuple[str, Any]]) -> None:
@@ -52,20 +52,34 @@ class Pipeline:
             step (Tuple[str, Any]): 現在のステップ。
             X (Any): 入力データ。
             y (Any): ターゲットデータ。
-            mode (str): 実行モード ('fit', 'transform', 'optimize')。
+            mode (str): 実行モード ('fit', 'transform', 'optimize', 'predict')。
 
         Returns:
-            Any: ステップによって処理されたデータまたは結果。
+            Any: ステップまたはモデルによって処理されたデータ。
         """
+        step_name, step_instance = step
+
+        # ステップに対応するモデルがある場合、そのモデルのtransformやpredictを使用
+        model = self.models[step_name]
+        if model is not None:
+            if mode == 'transform' and hasattr(model, 'transform'):
+                return model.transform(X)
+            if mode == 'predict' and hasattr(model, 'predict'):
+                return model.predict(X)
+
+        # モデルがない場合、通常のステップ処理
         if mode == 'transform':
-            if hasattr(step[1], 'transform'):
-                return step[1].transform(X)
+            if hasattr(step_instance, 'transform'):
+                return step_instance.transform(X)
             else:
                 return X
-        elif mode == 'fit' and hasattr(step[1], 'fit'):
-            return step[1].fit(X, y)
-        elif mode == 'optimize' and hasattr(step[1], 'optimize'):
-            return step[1].optimize(X, y)
+
+        elif mode == 'fit' and hasattr(step_instance, 'fit'):
+            return step_instance.fit(X, y)
+
+        elif mode == 'optimize' and hasattr(step_instance, 'optimize'):
+            return step_instance.optimize(X, y)
+
         return None
 
     def fit(self, X: Any, y: Any = None) -> 'Pipeline':
@@ -92,10 +106,10 @@ class Pipeline:
         loop_num = getattr(last_step[1], 'loop_num', 1)
 
         while loop_num > 0:
-            if hasattr(last_step[1], 'next_step'):
+            if hasattr(last_step[1], 'next_params'):
                 last_step[1].models = self.models
                 last_step[1].results = self.results
-                X, y = last_step[1].next_step(X, y)
+                X, y = last_step[1].next_params(X, y)
                 loop_num -= 1
             else:
                 self._process_step(last_step, X, y, 'transform')
@@ -157,20 +171,70 @@ class Pipeline:
 
     def predict(self, X: Any) -> Any:
         """
-        各ステップを順に適用してデータを予測する。
+        各ステップを順に適用してデータを予測する。予測を行うためには、最後のステップで
+        IteratorMixin でないステップが predict メソッドを持っている必要がある。
 
         Args:
             X (Any): 入力データ。
 
         Returns:
             Any: 予測結果。
+
+        Raises:
+            RuntimeError: 最後のステップに predict メソッドがない場合。
         """
 
-        for step_name, step in self.steps:
-            X = self._process_step(step, X, None, 'transform')
-            if hasattr(self.models[step_name], 'predict'):
-                return self.models[step_name].predict(X)
-        raise RuntimeError("predictメソッドが見つかりませんでした。")
+        middle_steps, last_step = self._split_steps()
+
+        # 中間ステップのyを初期化
+        y = None
+
+        # 最後のステップのループ回数を取得 (IteratorMixinのloop_num。IteratorMixinがない場合は1)
+        loop_num = getattr(last_step[1], 'loop_num', 1)
+
+        # 全ステップを loop_num 回繰り返す
+        while loop_num > 0:
+            # middle_stepsで処理
+            for step in middle_steps:
+                model = self.models[step[0]]
+
+                # transform 処理
+                X = self._process_step(step, X, y, 'transform')
+
+                # モデルが存在する場合の predict 処理
+                if model is not None and hasattr(model, 'predict'):
+                    y = model.predict(X)
+
+                # optimize がある場合の処理
+                elif hasattr(step[1], 'optimize'):
+                    y = self._process_step(step, X, y, 'optimize')
+
+            # 最後のステップの transform 処理
+            X = self._process_step(last_step, X, y, 'transform')
+
+            # 最後のステップに predict メソッドがある場合、その処理を実行
+            if hasattr(last_step[1], 'predict'):
+                y = self._process_step(last_step, X, y, 'predict')
+
+            # 最後のステップに next_params がある場合、次のパラメータを取得
+            if hasattr(last_step[1], 'next_params'):
+                X, y = last_step[1].next_params(X, y)
+
+            # ループ回数をデクリメント
+            loop_num -= 1
+
+        # 最後のステップで predict を実行
+        final_predict_step = last_step
+        if isinstance(last_step[1], IteratorMixin):
+            # IteratorMixinを持つ場合は、その前のステップで predict を実行
+            final_predict_step = middle_steps[-1] if middle_steps else last_step
+
+        # 最終的な predict の実行
+        if self.models[final_predict_step[0]] and hasattr(self.models[final_predict_step[0]], 'predict'):
+            return self._process_step(final_predict_step, X, y, 'predict')
+
+        # predict メソッドが見つからなかった場合のエラー
+        raise RuntimeError("パイプラインの最後のステップに predict メソッドが見つかりませんでした。")
 
     def get_results(self) -> Dict[str, Any]:
         """
