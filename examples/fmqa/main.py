@@ -30,10 +30,7 @@ global_parameters = {'v': v, 'w': w, 'w0': w0, 'blackbox': blackbox, 'd': d}
 # pipeline
 steps = [
     ('TorchFMQA', TorchFMQA()),
-    (
-        'AnnealFMQA',
-        AnnealFMQA(token="AE/HaqGh1iuFMEennXk10xS1LCgld8D18oC"),
-    )
+    ('AnnealFMQA', AnnealFMQA(token="AE/HaqGh1iuFMEennXk10xS1LCgld8D18oC"))
 ]
 
 pipe = Pipeline(steps, iterator=PipeIteration(loop_num=N))
