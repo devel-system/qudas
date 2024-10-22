@@ -94,18 +94,18 @@ class Pipeline:
 
         Returns:
             Pipeline: パイプラインオブジェクト自身。
+
+        Raises:
+            RuntimeError: 最後のステップに fit メソッドがない場合。
         """
 
         # 全体のglobal_iteratorのループ回数を取得
         global_loop_num = getattr(self.global_iterator, 'loop_num', 1)
 
         while global_loop_num > 0:
-            # middle_stepsと最後のステップを分離
-            middle_steps, last_step = self._split_steps()
 
-            # middle_stepsで処理
-            for step in middle_steps:
-
+            # self.stepsで処理
+            for step in self.steps:
                 step_name, step_instance = step
 
                 # 各ステップごとのループ回数を取得 (IteratorMixinのloop_num)
@@ -116,34 +116,80 @@ class Pipeline:
 
                     # optimize を実行し、結果を y に格納
                     if hasattr(step_instance, 'optimize'):
-                        y = self._process_step(step, X, y, 'optimize')
 
-                    # fit を実行し、モデルを保存
-                    if hasattr(step_instance, 'fit'):
-                        self.models[step_name] = self._process_step(step, X, y, 'fit')
+                        # パラメータをstepと共有（処理前）
+                        step_instance.set_global_params(self.get_global_params())
+                        step_instance.models = self.models
+                        step_instance.results = self.results
 
-                    # next_step が定義されていれば、次のパラメータを取得
+                        self.results[step_name] = self._process_step(step, X, y, 'optimize')
+
+                        # パラメータをstepと共有（処理後）
+                        step_instance.results = self.results
+                        self.set_global_params(step_instance.get_global_params())
+
+                    if global_loop_num == 1 and step_loop_num == 1 and step_name == self.steps[-1][0]:
+
+                        # fit を実行し、モデルを保存
+                        if hasattr(step_instance, 'fit'):
+
+                            # パラメータをstepと共有（処理前）
+                            step_instance.set_global_params(self.get_global_params())
+                            step_instance.models = self.models
+                            step_instance.results = self.results
+
+                            self.models[step_name] = self._process_step(step, X, y, 'fit')
+
+                            # パラメータをstepと共有（処理後）
+                            step_instance.models = self.models
+                            self.set_global_params(step_instance.get_global_params())
+
+                        else:
+                            # optimize メソッドが見つからなかった場合のエラー
+                            raise RuntimeError("パイプラインの最後のステップに fit メソッドが見つかりませんでした。")
+
+                    else:
+                        # fit を実行し、モデルを保存
+                        if hasattr(step_instance, 'fit'):
+
+                            # パラメータをstepと共有（処理前）
+                            step_instance.set_global_params(self.get_global_params())
+                            step_instance.models = self.models
+                            step_instance.results = self.results
+
+                            self.models[step_name] = self._process_step(step, X, y, 'fit')
+
+                            # パラメータをstepと共有（処理後）
+                            step_instance.models = self.models
+                            self.set_global_params(step_instance.get_global_params())
+
+
+                    # next_params が定義されていれば、次のパラメータを取得
                     if hasattr(step_instance, 'next_params'):
+
+                        # パラメータをstepと共有
+                        step_instance.set_global_params(self.get_global_params())
+                        step_instance.models = self.models
+                        step_instance.results = self.results
+
                         X, y = step_instance.next_params(X, y)
+                        self.set_global_params(step_instance.get_global_params())
 
                     # ステップごとのループ回数をデクリメント
                     step_loop_num -= 1
 
-            # 最後のステップの処理
-            X = self._process_step(last_step, X, y, 'transform')
+            # next_params が定義されていれば、次のパラメータを取得
+            if hasattr(self.global_iterator, 'next_params'):
 
-            # 最後のステップで optimize と fit を実行し、optimize の結果を y に格納
-            if hasattr(last_step[1], 'optimize'):
-                y = self._process_step(last_step, X, y, 'optimize')
+                # パラメータをstepと共有
+                self.global_iterator.set_global_params(self.get_global_params())
+                self.global_iterator.models = self.models
+                self.global_iterator.results = self.results
 
-            if hasattr(last_step[1], 'fit'):
-                self.models[last_step[0]] = self._process_step(last_step, X, y, 'fit')
+                X, y = self.global_iterator.next_params(X, y)
+                self.set_global_params(self.global_iterator.get_global_params())
 
-            # next_step が定義されていれば、次のパラメータを取得
-            if hasattr(last_step[1], 'next_params'):
-                X, y = last_step[1].next_params(X, y)
-
-            # 全体のループ回数をデクリメント
+            # ステップごとのループ回数をデクリメント
             global_loop_num -= 1
 
         return self
@@ -259,7 +305,7 @@ class Pipeline:
             # ステップごとのループ回数をデクリメント
             global_loop_num -= 1
 
-    def predict(self, X: Any) -> Any:
+    def predict(self, X: Any) -> Dict[str, Any]:
         """
         各ステップを順に適用してデータを予測する。予測を行うためには、最後のステップで
         IteratorMixin でないステップが predict メソッドを持っている必要がある。
@@ -271,60 +317,115 @@ class Pipeline:
             Any: 予測結果。
 
         Raises:
-            RuntimeError: 最後のステップに predict メソッドがない場合。
+            RuntimeError: 最後のステップに predict メソッドがない場合。最後のステップで model が作成されていない場合。
         """
 
-        middle_steps, last_step = self._split_steps()
+        # 全体のglobal_iteratorのループ回数を取得
+        global_loop_num = getattr(self.global_iterator, 'loop_num', 1)
 
-        # 中間ステップのyを初期化
-        y = None
+        while global_loop_num > 0:
 
-        # 最後のステップのループ回数を取得 (IteratorMixinのloop_num。IteratorMixinがない場合は1)
-        loop_num = getattr(last_step[1], 'loop_num', 1)
+            # self.stepsで処理
+            for step in self.steps:
+                step_name, step_instance = step
 
-        # 全ステップを loop_num 回繰り返す
-        while loop_num > 0:
-            # middle_stepsで処理
-            for step in middle_steps:
-                model = self.models[step[0]]
+                # 各ステップのループ回数を取得 (IteratorMixinのloop_num)
+                step_loop_num = getattr(step_instance, 'loop_num', 1)
 
-                # transform 処理
-                X = self._process_step(step, X, y, 'transform')
+                # 全ステップを step_loop_num 回繰り返す
+                while step_loop_num > 0:
 
-                # モデルが存在する場合の predict 処理
-                if model is not None and hasattr(model, 'predict'):
-                    y = model.predict(X)
+                    # Transformer
+                    X = self._process_step(step, X, y, 'transform')
 
-                # optimize がある場合の処理
-                elif hasattr(step[1], 'optimize'):
-                    y = self._process_step(step, X, y, 'optimize')
+                    if global_loop_num == 1 and step_loop_num == 1 and step_name == self.steps[-1][0]:
 
-            # 最後のステップの transform 処理
-            X = self._process_step(last_step, X, y, 'transform')
+                        # Predict
+                        if hasattr(step_instance, 'predict'):
 
-            # 最後のステップに predict メソッドがある場合、その処理を実行
-            if hasattr(last_step[1], 'predict'):
-                y = self._process_step(last_step, X, y, 'predict')
+                            # パラメータをstepと共有（処理前）
+                            step_instance.set_global_params(self.get_global_params())
+                            step_instance.models = self.models
+                            step_instance.results = self.results
 
-            # 最後のステップに next_params がある場合、次のパラメータを取得
-            if hasattr(last_step[1], 'next_params'):
-                X, y = last_step[1].next_params(X, y)
+                            # predict 処理
+                            model = self.models[step_name]
+                            if model is not None:
+                                self.results[step_name] = model.predict(X)
 
-            # ループ回数をデクリメント
-            loop_num -= 1
+                                # パラメータをstepと共有（処理後）
+                                step_instance.results = self.results
+                                self.set_global_params(step_instance.get_global_params())
 
-        # 最後のステップで predict を実行
-        final_predict_step = last_step
-        if isinstance(last_step[1], IteratorMixin):
-            # IteratorMixinを持つ場合は、その前のステップで predict を実行
-            final_predict_step = middle_steps[-1] if middle_steps else last_step
+                                return self.results
 
-        # 最終的な predict の実行
-        if self.models[final_predict_step[0]] and hasattr(self.models[final_predict_step[0]], 'predict'):
-            return self._process_step(final_predict_step, X, y, 'predict')
+                            else:
+                                # model が見つからなかった場合のエラー
+                                raise RuntimeError("パイプラインの最後のステップに model が見つかりませんでした。")
 
-        # predict メソッドが見つからなかった場合のエラー
-        raise RuntimeError("パイプラインの最後のステップに predict メソッドが見つかりませんでした。")
+                        else:
+                            # predict メソッドが見つからなかった場合のエラー
+                            raise RuntimeError("パイプラインの最後のステップに predict メソッドが見つかりませんでした。")
+
+                    else:
+                        # Predict
+                        if hasattr(step_instance, 'predict'):
+
+                            # パラメータをstepと共有（処理前）
+                            step_instance.set_global_params(self.get_global_params())
+                            step_instance.models = self.models
+                            step_instance.results = self.results
+
+                            # predict 処理
+                            model = self.models[step_name]
+                            if model is not None:
+                                self.results[step_name] = model.predict(X)
+
+                                # パラメータをstepと共有（処理後）
+                                step_instance.results = self.results
+                                self.set_global_params(step_instance.get_global_params())
+
+                    # optimize を実行し、結果を y に格納
+                    if hasattr(step_instance, 'optimize'):
+
+                        # パラメータをstepと共有（処理前）
+                        step_instance.set_global_params(self.get_global_params())
+                        step_instance.models = self.models
+                        step_instance.results = self.results
+
+                        self.results[step_name] = self._process_step(step, X, y, 'optimize')
+
+                        # パラメータをstepと共有（処理後）
+                        step_instance.results = self.results
+                        self.set_global_params(step_instance.get_global_params())
+
+                    # next_params が定義されていれば、次のパラメータを取得
+                    if hasattr(step_instance, 'next_params'):
+
+                        # パラメータをstepと共有
+                        step_instance.set_global_params(self.get_global_params())
+                        step_instance.models = self.models
+                        step_instance.results = self.results
+
+                        X, y = step_instance.next_params(X, y)
+                        self.set_global_params(step_instance.get_global_params())
+
+                    # ステップごとのループ回数をデクリメント
+                    step_loop_num -= 1
+
+            # next_params が定義されていれば、次のパラメータを取得
+            if hasattr(self.global_iterator, 'next_params'):
+
+                # パラメータをstepと共有
+                self.global_iterator.set_global_params(self.get_global_params())
+                self.global_iterator.models = self.models
+                self.global_iterator.results = self.results
+
+                X, y = self.global_iterator.next_params(X, y)
+                self.set_global_params(self.global_iterator.get_global_params())
+
+            # ステップごとのループ回数をデクリメント
+            global_loop_num -= 1
 
     def get_results(self) -> Dict[str, Any]:
         """
