@@ -105,6 +105,11 @@ class TorchFMQA(Module, BaseEstimator, TransformerMixin):
 
         # モデルを学習済みパラメータで更新
         self.load_state_dict(best_state)
-        self.set_global_params({'v': self.v, 'w': self.w, 'w0': self.w0})
+
+        # 次のパラメータを設定
+        self.params['v'] = self.v
+        self.params['w'] = self.w
+        self.params['w0'] = self.w0
+        self.set_global_params(self.params)
 
         return self

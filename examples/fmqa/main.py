@@ -25,19 +25,19 @@ k = 10
 v = torch.randn((d, k), requires_grad=True)
 w = torch.randn((d,), requires_grad=True)
 w0 = torch.randn((), requires_grad=True)
-parameters = {'v': v, 'w': w, 'w0': w0}
+global_parameters = {'v': v, 'w': w, 'w0': w0, 'blackbox': blackbox, 'd': d}
 
 # pipeline
 steps = [
     ('TorchFMQA', TorchFMQA()),
     (
         'AnnealFMQA',
-        AnnealFMQA(blackbox, d, token="AE/HaqGh1iuFMEennXk10xS1LCgld8D18oC"),
+        AnnealFMQA(token="AE/HaqGh1iuFMEennXk10xS1LCgld8D18oC"),
     )
 ]
 
-pipe = Pipeline(steps, iterator=PipeIteration(blackbox, d, loop_num=N))
-pipe.set_global_params(parameters)
+pipe = Pipeline(steps, iterator=PipeIteration(loop_num=N))
+pipe.set_global_params(global_parameters)
 
 # 最適化
 result = pipe.optimize(x, y)

@@ -14,9 +14,7 @@ class AnnealFMQA(OptimizerMixin):
         OptimizerMixin: qudasの最適化用mixinクラス
     """
 
-    def __init__(self, blackbox, d: int, token: str = None):
-        self.blackbox = blackbox
-        self.d = d
+    def __init__(self, token: str = None):
         self.token = token
         self.result = None
 
@@ -30,7 +28,7 @@ class AnnealFMQA(OptimizerMixin):
 
         # 長さ d のバイナリ変数の配列を作成
         gen = VariableGenerator()
-        x = gen.array("Binary", self.d)
+        x = gen.array("Binary", self.params['d'])
 
         # TorchFM からパラメータ v, w, w0 を取得
         v = self.params["v"]

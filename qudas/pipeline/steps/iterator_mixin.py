@@ -9,9 +9,9 @@ class IteratorMixin(BaseStep, ABC):
     このMixinクラスは次のパラメータセットを生成する `next_params` メソッドの実装を要求します。
     """
 
-    def __init__(self) -> None:
+    def __init__(self, loop_num: int = 1) -> None:
         super().__init__()
-        self.loop_num = 1  # デフォルトで1回のループ
+        self.loop_num = loop_num  # デフォルトで1回のループ
         self.models = None
         self.results = None
 
