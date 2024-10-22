@@ -33,11 +33,10 @@ steps = [
     (
         'AnnealFMQA',
         AnnealFMQA(blackbox, d, token="AE/HaqGh1iuFMEennXk10xS1LCgld8D18oC"),
-    ),
-    ('pipeIteration', PipeIteration(blackbox, d, loop_num=N)),
+    )
 ]
 
-pipe = Pipeline(steps)
+pipe = Pipeline(steps, iterator=PipeIteration(blackbox, d, loop_num=N))
 pipe.set_global_params(parameters)
 
 # 最適化
