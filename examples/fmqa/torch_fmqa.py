@@ -26,9 +26,6 @@ class TorchFMQA(Module, BaseEstimator, TransformerMixin):
     def set_global_params(self, params) -> None:
         """グローバルパラメータを設定"""
         self.params = params
-        self.v = self.params["v"]
-        self.w = self.params["w"]
-        self.w0 = self.params["w0"]
 
     def get_global_params(self) -> dict:
         """グローバルパラメータを取得"""
@@ -43,21 +40,31 @@ class TorchFMQA(Module, BaseEstimator, TransformerMixin):
         Returns:
             torch.Tensor: y の推定値 の 1次元 tensor (サイズはデータ数)
         """
-        out_linear = torch.matmul(x, self.w) + self.w0
 
-        out_1 = torch.matmul(x, self.v).pow(2).sum(1)
-        out_2 = torch.matmul(x.pow(2), self.v.pow(2)).sum(1)
+        v = self.params['v']
+        w = self.params['w']
+        w0 = self.params['w0']
+
+        out_linear = torch.matmul(x, w) + w0
+
+        out_1 = torch.matmul(x, v).pow(2).sum(1)
+        out_2 = torch.matmul(x.pow(2), v.pow(2)).sum(1)
         out_quadratic = 0.5 * (out_1 - out_2)
         out = out_linear + out_quadratic
         return out
 
     def fit(self, X: np.ndarray, y: np.ndarray):
         """モデルの学習"""
+
+        v = self.params['v']
+        w = self.params['w']
+        w0 = self.params['w0']
+
         # イテレーション数
         epochs = 2000
 
         # モデルの最適化関数 (パラメータ更新式)
-        optimizer = torch.optim.AdamW([self.v, self.w, self.w0], lr=0.1)
+        optimizer = torch.optim.AdamW([v, w, w0], lr=0.1)
 
         # 損失関数
         loss_func = MSELoss()
@@ -107,9 +114,9 @@ class TorchFMQA(Module, BaseEstimator, TransformerMixin):
         self.load_state_dict(best_state)
 
         # 次のパラメータを設定
-        self.params['v'] = self.v
-        self.params['w'] = self.w
-        self.params['w0'] = self.w0
+        self.params['v'] = v
+        self.params['w'] = w
+        self.params['w0'] = w0
         self.set_global_params(self.params)
 
         return self
