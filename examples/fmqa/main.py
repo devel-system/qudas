@@ -49,4 +49,8 @@ pipe.set_global_params(global_parameters)
 # 最適化
 result = pipe.optimize(x, y)
 print(f"{result=}")
-# print(f"{pipe.get_grobal_params()=}")
+# result={'TorchFMQA': None, 'AnnealFMQA': array([0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1,
+#        1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0,
+#        0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0,
+#        1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1,
+#        1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0])}
