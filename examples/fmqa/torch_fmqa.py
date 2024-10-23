@@ -21,15 +21,6 @@ class TorchFMQA(Module, BaseEstimator, TransformerMixin):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.params = {}
-
-    def set_global_params(self, params) -> None:
-        """グローバルパラメータを設定"""
-        self.params = params
-
-    def get_global_params(self) -> dict:
-        """グローバルパラメータを取得"""
-        return self.params
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """入力 x を受け取って y の推定値を出力する
@@ -41,9 +32,9 @@ class TorchFMQA(Module, BaseEstimator, TransformerMixin):
             torch.Tensor: y の推定値 の 1次元 tensor (サイズはデータ数)
         """
 
-        v = self.params['v']
-        w = self.params['w']
-        w0 = self.params['w0']
+        v = self.global_params['v']
+        w = self.global_params['w']
+        w0 = self.global_params['w0']
 
         out_linear = torch.matmul(x, w) + w0
 
@@ -56,9 +47,9 @@ class TorchFMQA(Module, BaseEstimator, TransformerMixin):
     def fit(self, X: np.ndarray, y: np.ndarray):
         """モデルの学習"""
 
-        v = self.params['v']
-        w = self.params['w']
-        w0 = self.params['w0']
+        v = self.global_params['v']
+        w = self.global_params['w']
+        w0 = self.global_params['w0']
 
         # イテレーション数
         epochs = 2000
@@ -114,9 +105,8 @@ class TorchFMQA(Module, BaseEstimator, TransformerMixin):
         self.load_state_dict(best_state)
 
         # 次のパラメータを設定
-        self.params['v'] = v
-        self.params['w'] = w
-        self.params['w0'] = w0
-        self.set_global_params(self.params)
+        self.global_params['v'] = v
+        self.global_params['w'] = w
+        self.global_params['w0'] = w0
 
         return self

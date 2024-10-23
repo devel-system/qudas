@@ -18,22 +18,16 @@ class AnnealFMQA(OptimizerMixin):
         self.token = token
         self.result = None
 
-    def set_global_params(self, params) -> None:
-        self.params = params
-
-    def get_global_params(self) -> dict:
-        return self.params
-
     def optimize(self, X=None, y=None) -> None:
 
         # 長さ d のバイナリ変数の配列を作成
         gen = VariableGenerator()
-        x = gen.array("Binary", self.params['d'])
+        x = gen.array("Binary", self.global_params['d'])
 
         # TorchFM からパラメータ v, w, w0 を取得
-        v = self.params["v"]
-        w = self.params["w"]
-        w0 = self.params["w0"]
+        v = self.global_params["v"]
+        w = self.global_params["w"]
+        w0 = self.global_params["w0"]
 
         # 目的関数を作成
         out_linear = w0 + (x * w).sum()

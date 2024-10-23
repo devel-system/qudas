@@ -19,16 +19,10 @@ class PipeIteration(IteratorMixin):
     def __init__(self, loop_num: int):
         super().__init__(loop_num)
 
-    def set_global_params(self, params) -> None:
-        self.params = params
-
-    def get_global_params(self) -> dict:
-        return self.params
-
     def next_params(self, X: np.array, y: np.array) -> tuple:
 
-        d = self.params['d']
-        blackbox = self.params['blackbox']
+        d = self.global_params['d']
+        blackbox = self.global_params['blackbox']
 
         # self.results["AnnealFMQA"] が重複しないようにする
         while (self.results["AnnealFMQA"] == X).all(axis=1).any():
