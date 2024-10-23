@@ -23,9 +23,6 @@ class Pipeline:
         Args:
             params (Dict[str, Any]): グローバルパラメータ。
         """
-        for step in self.steps:
-            if hasattr(step[1], 'set_global_params'):
-                step[1].set_global_params(params)
         self.global_params = params
 
     def get_global_params(self) -> Dict[str, Any]:
@@ -37,14 +34,21 @@ class Pipeline:
         """
         return self.global_params
 
-    def _split_steps(self) -> Tuple[Sequence[Tuple[str, Any]], Tuple[str, Any]]:
-        """
-        ステップを中間ステップと最終ステップに分ける。
+    def _assign_global_params(self, step_instance):
+        """ステップが global_params を自動的に持つようにする"""
+        if not hasattr(step_instance, 'set_global_params'):
+            step_instance.global_params = self.global_params
+        else:
+            step_instance.set_global_params(self.global_params)
 
-        Returns:
-            Tuple[Sequence[Tuple[str, Any]], Tuple[str, Any]]: 中間ステップと最終ステップのタプル。
-        """
-        return self.steps[:-1], self.steps[-1]
+        # models と results を共有
+        step_instance.models = self.models
+        step_instance.results = self.results
+
+    def _update_params(self, step_instance):
+        """パラメータを更新"""
+        if hasattr(step_instance, 'get_global_params'):
+            self.global_params = step_instance.get_global_params()
 
     def _process_step(self, step: Tuple[str, Any], X: Any, y: Any, mode: str) -> Any:
         """
@@ -60,10 +64,10 @@ class Pipeline:
             Any: ステップまたはモデルによって処理されたデータ。
         """
         step_name, step_instance = step
+        model = self.models.get(step_name)
 
-        # ステップに対応するモデルがある場合、そのモデルのtransformやpredictを使用
-        model = self.models[step_name]
-        if model is not None:
+        # モデルが存在し、transformまたはpredictを実行可能な場合
+        if model:
             if mode == 'transform' and hasattr(model, 'transform'):
                 return model.transform(X)
             if mode == 'predict' and hasattr(model, 'predict'):
@@ -118,15 +122,13 @@ class Pipeline:
                     if hasattr(step_instance, 'optimize'):
 
                         # パラメータをstepと共有（処理前）
-                        step_instance.set_global_params(self.get_global_params())
-                        step_instance.models = self.models
-                        step_instance.results = self.results
+                        self._assign_global_params(step_instance)
 
                         self.results[step_name] = self._process_step(step, X, y, 'optimize')
 
                         # パラメータをstepと共有（処理後）
                         step_instance.results = self.results
-                        self.set_global_params(step_instance.get_global_params())
+                        self._update_params(step_instance)
 
                     if global_loop_num == 1 and step_loop_num == 1 and step_name == self.steps[-1][0]:
 
@@ -134,15 +136,13 @@ class Pipeline:
                         if hasattr(step_instance, 'fit'):
 
                             # パラメータをstepと共有（処理前）
-                            step_instance.set_global_params(self.get_global_params())
-                            step_instance.models = self.models
-                            step_instance.results = self.results
+                            self._assign_global_params(step_instance)
 
                             self.models[step_name] = self._process_step(step, X, y, 'fit')
 
                             # パラメータをstepと共有（処理後）
                             step_instance.models = self.models
-                            self.set_global_params(step_instance.get_global_params())
+                            self._update_params(step_instance)
 
                         else:
                             # optimize メソッドが見つからなかった場合のエラー
@@ -153,27 +153,23 @@ class Pipeline:
                         if hasattr(step_instance, 'fit'):
 
                             # パラメータをstepと共有（処理前）
-                            step_instance.set_global_params(self.get_global_params())
-                            step_instance.models = self.models
-                            step_instance.results = self.results
+                            self._assign_global_params(step_instance)
 
                             self.models[step_name] = self._process_step(step, X, y, 'fit')
 
                             # パラメータをstepと共有（処理後）
                             step_instance.models = self.models
-                            self.set_global_params(step_instance.get_global_params())
+                            self._update_params(step_instance)
 
 
                     # next_params が定義されていれば、次のパラメータを取得
                     if hasattr(step_instance, 'next_params'):
 
                         # パラメータをstepと共有
-                        step_instance.set_global_params(self.get_global_params())
-                        step_instance.models = self.models
-                        step_instance.results = self.results
+                        self._assign_global_params(step_instance)
 
                         X, y = step_instance.next_params(X, y)
-                        self.set_global_params(step_instance.get_global_params())
+                        self._update_params(step_instance)
 
                     # ステップごとのループ回数をデクリメント
                     step_loop_num -= 1
@@ -182,12 +178,10 @@ class Pipeline:
             if hasattr(self.global_iterator, 'next_params'):
 
                 # パラメータをstepと共有
-                self.global_iterator.set_global_params(self.get_global_params())
-                self.global_iterator.models = self.models
-                self.global_iterator.results = self.results
+                self._assign_global_params(self.global_iterator)
 
                 X, y = self.global_iterator.next_params(X, y)
-                self.set_global_params(self.global_iterator.get_global_params())
+                self._update_params(self.global_iterator)
 
             # ステップごとのループ回数をデクリメント
             global_loop_num -= 1
@@ -230,15 +224,13 @@ class Pipeline:
                     if hasattr(step_instance, 'fit'):
 
                         # パラメータをstepと共有（処理前）
-                        step_instance.set_global_params(self.get_global_params())
-                        step_instance.models = self.models
-                        step_instance.results = self.results
+                        self._assign_global_params(step_instance)
 
                         self.models[step_name] = self._process_step(step, X, y, 'fit')
 
                         # パラメータをstepと共有（処理後）
                         step_instance.models = self.models
-                        self.set_global_params(step_instance.get_global_params())
+                        self._update_params(step_instance)
 
                     if global_loop_num == 1 and step_loop_num == 1 and step_name == self.steps[-1][0]:
 
@@ -246,15 +238,13 @@ class Pipeline:
                         if hasattr(step_instance, 'optimize'):
 
                             # パラメータをstepと共有（処理前）
-                            step_instance.set_global_params(self.get_global_params())
-                            step_instance.models = self.models
-                            step_instance.results = self.results
+                            self._assign_global_params(step_instance)
 
                             self.results[step_name] = self._process_step(step, X, y, 'optimize')
 
                             # パラメータをstepと共有（処理後）
                             step_instance.results = self.results
-                            self.set_global_params(step_instance.get_global_params())
+                            self._update_params(step_instance)
 
                             return self.results
 
@@ -267,26 +257,22 @@ class Pipeline:
                         if hasattr(step_instance, 'optimize'):
 
                             # パラメータをstepと共有（処理前）
-                            step_instance.set_global_params(self.get_global_params())
-                            step_instance.models = self.models
-                            step_instance.results = self.results
+                            self._assign_global_params(step_instance)
 
                             self.results[step_name] = self._process_step(step, X, y, 'optimize')
 
                             # パラメータをstepと共有（処理後）
                             step_instance.results = self.results
-                            self.set_global_params(step_instance.get_global_params())
+                            self._update_params(step_instance)
 
                     # next_params が定義されていれば、次のパラメータを取得
                     if hasattr(step_instance, 'next_params'):
 
                         # パラメータをstepと共有
-                        step_instance.set_global_params(self.get_global_params())
-                        step_instance.models = self.models
-                        step_instance.results = self.results
+                        self._assign_global_params(step_instance)
 
                         X, y = step_instance.next_params(X, y)
-                        self.set_global_params(step_instance.get_global_params())
+                        self._update_params(step_instance)
 
                     # ステップごとのループ回数をデクリメント
                     step_loop_num -= 1
@@ -295,12 +281,10 @@ class Pipeline:
             if hasattr(self.global_iterator, 'next_params'):
 
                 # パラメータをstepと共有
-                self.global_iterator.set_global_params(self.get_global_params())
-                self.global_iterator.models = self.models
-                self.global_iterator.results = self.results
+                self._assign_global_params(self.global_iterator)
 
                 X, y = self.global_iterator.next_params(X, y)
-                self.set_global_params(self.global_iterator.get_global_params())
+                self._update_params(self.global_iterator)
 
             # ステップごとのループ回数をデクリメント
             global_loop_num -= 1
@@ -344,9 +328,7 @@ class Pipeline:
                         if hasattr(step_instance, 'predict'):
 
                             # パラメータをstepと共有（処理前）
-                            step_instance.set_global_params(self.get_global_params())
-                            step_instance.models = self.models
-                            step_instance.results = self.results
+                            self._assign_global_params(step_instance)
 
                             # predict 処理
                             model = self.models[step_name]
@@ -355,7 +337,7 @@ class Pipeline:
 
                                 # パラメータをstepと共有（処理後）
                                 step_instance.results = self.results
-                                self.set_global_params(step_instance.get_global_params())
+                                self._update_params(step_instance)
 
                                 return self.results
 
@@ -372,9 +354,7 @@ class Pipeline:
                         if hasattr(step_instance, 'predict'):
 
                             # パラメータをstepと共有（処理前）
-                            step_instance.set_global_params(self.get_global_params())
-                            step_instance.models = self.models
-                            step_instance.results = self.results
+                            self._assign_global_params(step_instance)
 
                             # predict 処理
                             model = self.models[step_name]
@@ -383,32 +363,28 @@ class Pipeline:
 
                                 # パラメータをstepと共有（処理後）
                                 step_instance.results = self.results
-                                self.set_global_params(step_instance.get_global_params())
+                                self._update_params(step_instance)
 
                     # optimize を実行し、結果を y に格納
                     if hasattr(step_instance, 'optimize'):
 
                         # パラメータをstepと共有（処理前）
-                        step_instance.set_global_params(self.get_global_params())
-                        step_instance.models = self.models
-                        step_instance.results = self.results
+                        self._assign_global_params(step_instance)
 
                         self.results[step_name] = self._process_step(step, X, y, 'optimize')
 
                         # パラメータをstepと共有（処理後）
                         step_instance.results = self.results
-                        self.set_global_params(step_instance.get_global_params())
+                        self._update_params(step_instance)
 
                     # next_params が定義されていれば、次のパラメータを取得
                     if hasattr(step_instance, 'next_params'):
 
                         # パラメータをstepと共有
-                        step_instance.set_global_params(self.get_global_params())
-                        step_instance.models = self.models
-                        step_instance.results = self.results
+                        self._assign_global_params(step_instance)
 
                         X, y = step_instance.next_params(X, y)
-                        self.set_global_params(step_instance.get_global_params())
+                        self._update_params(step_instance)
 
                     # ステップごとのループ回数をデクリメント
                     step_loop_num -= 1
@@ -417,12 +393,10 @@ class Pipeline:
             if hasattr(self.global_iterator, 'next_params'):
 
                 # パラメータをstepと共有
-                self.global_iterator.set_global_params(self.get_global_params())
-                self.global_iterator.models = self.models
-                self.global_iterator.results = self.results
+                self._assign_global_params(self.global_iterator)
 
                 X, y = self.global_iterator.next_params(X, y)
-                self.set_global_params(self.global_iterator.get_global_params())
+                self._update_params(self.global_iterator)
 
             # ステップごとのループ回数をデクリメント
             global_loop_num -= 1
