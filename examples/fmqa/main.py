@@ -8,6 +8,16 @@ from utils import make_blackbox_func, init_training_data
 # module
 import torch
 
+# ENV
+from dotenv import load_dotenv
+import os
+
+# .envファイルの内容をロード
+load_dotenv()
+
+# envファイルからtokenを取得
+token = os.getenv("AMPLIFY_TOKEN")
+
 # 適当な関数を作成 (d次元, y = xQx)
 d = 100
 blackbox = make_blackbox_func(d)
@@ -30,7 +40,7 @@ global_parameters = {'v': v, 'w': w, 'w0': w0, 'blackbox': blackbox, 'd': d}
 # pipeline
 steps = [
     ('TorchFMQA', TorchFMQA()),
-    ('AnnealFMQA', AnnealFMQA(token="AE/HaqGh1iuFMEennXk10xS1LCgld8D18oC"))
+    ('AnnealFMQA', AnnealFMQA(token))
 ]
 
 pipe = Pipeline(steps, iterator=PipeIteration(loop_num=N))
