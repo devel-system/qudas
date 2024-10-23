@@ -9,6 +9,11 @@ class OptimizerMixin(BaseStep, ABC):
     このMixinクラスは、`transform` および `optimize` メソッドをサポートし、`optimize` メソッドの実装を必須とします。
     """
 
+    def __init__(self) -> None:
+        super().__init__()
+        self.models = None
+        self.results = None
+
     def transform(self, X: Any) -> Any:
         """
         オプションの変換メソッド。サブクラスでオーバーライド可能。
