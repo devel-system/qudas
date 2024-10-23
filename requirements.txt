@@ -44,6 +44,7 @@ pylatexenc==2.10
 pyparsing==3.1.2
 pyqubo==1.4.0
 python-dateutil==2.8.2
+python-dotenv==1.0.1
 pytz==2024.1
 qiskit==1.0.2
 qiskit-aer==0.14.1

@@ -40,6 +40,7 @@ extras_require = {
         "black==24.8.0",
         "flake8",
         "pytest",
+        "python-dotenv==1.0.1",
         "sphinx==7.1.2",
         "sphinx-basic-ng==1.0.0b2",
         "furo==2024.1.29",
