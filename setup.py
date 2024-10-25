@@ -49,7 +49,7 @@ extras_require = {
 
 setup(
     name="qudas",  # パッケージ名
-    version="0.0.1",  # バージョン
+    version="0.1.0",  # バージョン
     author="Keiichiro Higa",  # 作者
     author_email="higa.devel@gmail.com",  # 作者のメールアドレス
     description="Quantum data transform package",  # パッケージの短い説明
