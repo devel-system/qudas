@@ -1,5 +1,6 @@
 [project]
 name = "qudas"
+version = "0.1.0"
 authors = [
   { name="Keiichiro Higa", email="higa.devel@gmail.com" },
 ]
@@ -11,6 +12,10 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 88
