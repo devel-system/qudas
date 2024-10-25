@@ -289,7 +289,7 @@ class Pipeline:
             # ステップごとのループ回数をデクリメント
             global_loop_num -= 1
 
-    def predict(self, X: Any) -> Dict[str, Any]:
+    def predict(self, X: Any = None) -> Dict[str, Any]:
         """
         各ステップを順に適用してデータを予測する。予測を行うためには、最後のステップで
         IteratorMixin でないステップが predict メソッドを持っている必要がある。
@@ -303,6 +303,9 @@ class Pipeline:
         Raises:
             RuntimeError: 最後のステップに predict メソッドがない場合。最後のステップで model が作成されていない場合。
         """
+
+        # y の初期値
+        y = None
 
         # 全体のglobal_iteratorのループ回数を取得
         global_loop_num = getattr(self.global_iterator, 'loop_num', 1)
