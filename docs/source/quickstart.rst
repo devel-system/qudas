@@ -116,7 +116,7 @@ PuLP から Amplify への変換
    prob.solve()
 
    # QuDataOutputのインスタンスを生成し、from_pulpメソッドで問題を変換
-   qudata = QuData.input().from_pulp(prob)
+   qudata = QuData.output().from_pulp(prob)
    print(qudata.prob)  # 出力: {'x': 2.0, 'y': -1.0}
 
    # Amplify形式に変換
@@ -152,7 +152,7 @@ SciPy から Dimod への変換
    res = minimize(lambda q: f(q[0], q[1], q[2]), q, method='SLSQP', bounds=bounds)
 
    # QuDataOutputのインスタンスを生成し、from_scipyメソッドをテスト
-   qudata = QuData.input().from_scipy(res)
+   qudata = QuData.output().from_scipy(res)
    print(qudata.prob)  # 出力: {'q0': 2, 'q1': -1, 'q2': -1}
 
    # Dimod形式に変換
