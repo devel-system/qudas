@@ -21,9 +21,7 @@ if __name__ == '__main__':
     train_kernel = calculate_kernel(zz_feature_map, train_data)
 
     # pipeline
-    steps = [
-        ('qSVC', SVC(kernel='precomputed'))
-    ]
+    steps = [('qSVC', SVC(kernel='precomputed'))]
 
     pipeline = Pipeline(steps)
 

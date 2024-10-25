@@ -4,7 +4,9 @@
 import os
 
 # VERSIONファイルのパスを絶対パスで取得
-VERSION_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'VERSION')
+VERSION_FILE_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), '..', 'VERSION'
+)
 
 # VERSIONファイルからバージョンを読み込む
 try:

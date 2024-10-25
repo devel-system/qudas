@@ -1,8 +1,11 @@
 from typing import Sequence, Dict, Any, Tuple, Optional
 from .steps import IteratorMixin
 
+
 class Pipeline:
-    def __init__(self, steps: Sequence[Tuple[str, Any]], iterator: Optional[IteratorMixin]=None) -> None:
+    def __init__(
+        self, steps: Sequence[Tuple[str, Any]], iterator: Optional[IteratorMixin] = None
+    ) -> None:
         """
         Pipelineクラスは一連のステップを受け取り、それぞれのステップを順に実行する。
 
@@ -124,13 +127,19 @@ class Pipeline:
                         # パラメータをstepと共有（処理前）
                         self._assign_global_params(step_instance)
 
-                        self.results[step_name] = self._process_step(step, X, y, 'optimize')
+                        self.results[step_name] = self._process_step(
+                            step, X, y, 'optimize'
+                        )
 
                         # パラメータをstepと共有（処理後）
                         step_instance.results = self.results
                         self._update_params(step_instance)
 
-                    if global_loop_num == 1 and step_loop_num == 1 and step_name == self.steps[-1][0]:
+                    if (
+                        global_loop_num == 1
+                        and step_loop_num == 1
+                        and step_name == self.steps[-1][0]
+                    ):
 
                         # fit を実行し、モデルを保存
                         if hasattr(step_instance, 'fit'):
@@ -138,7 +147,9 @@ class Pipeline:
                             # パラメータをstepと共有（処理前）
                             self._assign_global_params(step_instance)
 
-                            self.models[step_name] = self._process_step(step, X, y, 'fit')
+                            self.models[step_name] = self._process_step(
+                                step, X, y, 'fit'
+                            )
 
                             # パラメータをstepと共有（処理後）
                             step_instance.models = self.models
@@ -146,7 +157,9 @@ class Pipeline:
 
                         else:
                             # optimize メソッドが見つからなかった場合のエラー
-                            raise RuntimeError("パイプラインの最後のステップに fit メソッドが見つかりませんでした。")
+                            raise RuntimeError(
+                                "パイプラインの最後のステップに fit メソッドが見つかりませんでした。"
+                            )
 
                     else:
                         # fit を実行し、モデルを保存
@@ -155,12 +168,13 @@ class Pipeline:
                             # パラメータをstepと共有（処理前）
                             self._assign_global_params(step_instance)
 
-                            self.models[step_name] = self._process_step(step, X, y, 'fit')
+                            self.models[step_name] = self._process_step(
+                                step, X, y, 'fit'
+                            )
 
                             # パラメータをstepと共有（処理後）
                             step_instance.models = self.models
                             self._update_params(step_instance)
-
 
                     # next_params が定義されていれば、次のパラメータを取得
                     if hasattr(step_instance, 'next_params'):
@@ -232,7 +246,11 @@ class Pipeline:
                         step_instance.models = self.models
                         self._update_params(step_instance)
 
-                    if global_loop_num == 1 and step_loop_num == 1 and step_name == self.steps[-1][0]:
+                    if (
+                        global_loop_num == 1
+                        and step_loop_num == 1
+                        and step_name == self.steps[-1][0]
+                    ):
 
                         # Optimizer
                         if hasattr(step_instance, 'optimize'):
@@ -240,7 +258,9 @@ class Pipeline:
                             # パラメータをstepと共有（処理前）
                             self._assign_global_params(step_instance)
 
-                            self.results[step_name] = self._process_step(step, X, y, 'optimize')
+                            self.results[step_name] = self._process_step(
+                                step, X, y, 'optimize'
+                            )
 
                             # パラメータをstepと共有（処理後）
                             step_instance.results = self.results
@@ -250,7 +270,9 @@ class Pipeline:
 
                         else:
                             # optimize メソッドが見つからなかった場合のエラー
-                            raise RuntimeError("パイプラインの最後のステップに optimize メソッドが見つかりませんでした。")
+                            raise RuntimeError(
+                                "パイプラインの最後のステップに optimize メソッドが見つかりませんでした。"
+                            )
 
                     else:
                         # Optimizer
@@ -259,7 +281,9 @@ class Pipeline:
                             # パラメータをstepと共有（処理前）
                             self._assign_global_params(step_instance)
 
-                            self.results[step_name] = self._process_step(step, X, y, 'optimize')
+                            self.results[step_name] = self._process_step(
+                                step, X, y, 'optimize'
+                            )
 
                             # パラメータをstepと共有（処理後）
                             step_instance.results = self.results
@@ -325,7 +349,11 @@ class Pipeline:
                     # Transformer
                     X = self._process_step(step, X, y, 'transform')
 
-                    if global_loop_num == 1 and step_loop_num == 1 and step_name == self.steps[-1][0]:
+                    if (
+                        global_loop_num == 1
+                        and step_loop_num == 1
+                        and step_name == self.steps[-1][0]
+                    ):
 
                         # Predict
                         if hasattr(step_instance, 'predict'):
@@ -346,11 +374,15 @@ class Pipeline:
 
                             else:
                                 # model が見つからなかった場合のエラー
-                                raise RuntimeError("パイプラインの最後のステップに model が見つかりませんでした。")
+                                raise RuntimeError(
+                                    "パイプラインの最後のステップに model が見つかりませんでした。"
+                                )
 
                         else:
                             # predict メソッドが見つからなかった場合のエラー
-                            raise RuntimeError("パイプラインの最後のステップに predict メソッドが見つかりませんでした。")
+                            raise RuntimeError(
+                                "パイプラインの最後のステップに predict メソッドが見つかりませんでした。"
+                            )
 
                     else:
                         # Predict
@@ -374,7 +406,9 @@ class Pipeline:
                         # パラメータをstepと共有（処理前）
                         self._assign_global_params(step_instance)
 
-                        self.results[step_name] = self._process_step(step, X, y, 'optimize')
+                        self.results[step_name] = self._process_step(
+                            step, X, y, 'optimize'
+                        )
 
                         # パラメータをstepと共有（処理後）
                         step_instance.results = self.results

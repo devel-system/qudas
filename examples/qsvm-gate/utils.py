@@ -10,9 +10,11 @@ B = X[np.where(Y == 1)]
 A_label = np.zeros(A.shape[0], dtype=int)
 B_label = np.ones(B.shape[0], dtype=int)
 
+
 def _split(arr, test_ratio):
     sep = int(arr.shape[0] * (1 - test_ratio))
     return arr[:sep], arr[sep:]
+
 
 def make_train_test_sets(test_ratio=0.3):
     A_label = np.zeros(A.shape[0], dtype=int)
@@ -26,6 +28,7 @@ def make_train_test_sets(test_ratio=0.3):
     X_test = np.concatenate([A_test, B_test])
     y_test = np.concatenate([A_test_label, B_test_label])
     return X_train, y_train, X_test, y_test
+
 
 def calculate_kernel(zz_feature_map, x_data, y_data=None):
     if y_data is None:

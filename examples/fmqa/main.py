@@ -38,10 +38,7 @@ w0 = torch.randn((), requires_grad=True)
 global_parameters = {'v': v, 'w': w, 'w0': w0, 'blackbox': blackbox, 'd': d}
 
 # pipeline
-steps = [
-    ('TorchFMQA', TorchFMQA()),
-    ('AnnealFMQA', AnnealFMQA(token))
-]
+steps = [('TorchFMQA', TorchFMQA()), ('AnnealFMQA', AnnealFMQA(token))]
 
 pipe = Pipeline(steps, iterator=PipeIteration(loop_num=N))
 pipe.set_global_params(global_parameters)
