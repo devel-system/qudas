@@ -61,6 +61,7 @@ install_requires = [
     "Pygments==2.17.2",
     "pylatexenc==2.10",
     "pyparsing==3.1.2",
+    "pyproject_hooks==1.2.0",
     "pyqubo==1.4.0",
     "python-dateutil==2.8.2",
     "pytz==2024.1",
@@ -93,6 +94,7 @@ install_requires = [
 extras_require = {
     "dev": [
         "black==24.8.0",
+        "build==1.2.2.post1",
         "flake8",
         "pytest",
         "python-dotenv==1.0.1",
