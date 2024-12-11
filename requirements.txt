@@ -60,7 +60,7 @@ python-dotenv==1.0.1
 pytz==2024.1
 qiskit==1.0.2
 qiskit-aer==0.14.1
-qudas @ file:///Users/kei/Desktop/python/quantum%20programming/nedo/qudas
+qudas==0.1.0
 readme_renderer==43.0
 requests==2.31.0
 requests-toolbelt==1.0.0
