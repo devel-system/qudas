@@ -251,7 +251,7 @@ black --check .
 以下のコマンドでパッケージを更新します。
 
 ```
-pip install . -U
+pip install .[dev] -U
 ```
 
 ## ライセンス
