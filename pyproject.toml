@@ -1,6 +1,6 @@
 [project]
 name = "qudas"
-version = "0.1.0.dev1"
+version = "0.1.1.dev1"
 authors = [
   { name="Keiichiro Higa", email="higa.devel@gmail.com" },
 ]
