@@ -118,7 +118,7 @@ setup(
     packages=find_packages(include=["qudas", "qudas.*"]),  # パッケージを自動で検出
     classifiers=[  # パッケージに関する分類
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.8",  # Pythonの必要バージョン
