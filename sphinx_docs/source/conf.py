@@ -38,9 +38,6 @@ language = 'en'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'furo'
-html_theme_options = {
-    "navigation_with_keys": True,
-}
 html_sidebars = {
     '**': [
         'sidebar/brand.html',
@@ -53,6 +50,21 @@ html_sidebars = {
     ],
 }
 html_static_path = ['_static']
+html_css_files = [
+    'css/futo.css',  # 必要であれば追加
+]
+html_js_files = [
+    'scripts/furo.js',  # 必要であれば追加
+]
+
+# GitHub Pages用のURL構造を明示
+html_context = {
+    "display_github": True,
+    "github_user": "devel-system",  # GitHubユーザー名
+    "github_repo": "qudas",        # リポジトリ名
+    "github_version": "develop",      # ブランチ名
+    "doc_path": "docs",            # 公開ディレクトリ
+}
 
 # コードテーマ
 # pygments_style = 'autumn'
