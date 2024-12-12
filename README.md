@@ -193,24 +193,18 @@ class TestQudata(unittest.TestCase):
 
 Sphinxを使用してHTMLドキュメントを生成します。
 
-1. 初回の設定
-```
-mkdir docs
-cd docs
-sphinx-quickstart
-sphinx-apidoc -f -o source ../qudas
-```
+1. 初回の設定（（特になし）
 
-2. `docs/source/conf.py` を適宜修正
+2. `sphinx_docs/source/conf.py` を適宜修正
 
 3. ドキュメントをビルド
 ```
-cd docs
+cd sphinx_docs
 make clean
 make html
 ```
 
-生成されたHTMLドキュメントは `docs/build/html/index.html` で確認できます。
+生成されたHTMLドキュメントは `sphinx_docs/build/html/index.html` で確認できます。
 Markdownは [GitHub-flavored Markdown](https://guides.github.com/features/mastering-markdown/) を参考にしてください。
 
 ### テスト

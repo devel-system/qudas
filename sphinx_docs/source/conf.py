@@ -17,7 +17,7 @@ sys.path.insert(
 project = 'Qudas'
 copyright = '2024, DEVEL Co., Ltd.'
 author = 'KeiichiroHiga'
-release = '0.0.1'
+release = '0.1.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
