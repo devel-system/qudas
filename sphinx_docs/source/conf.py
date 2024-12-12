@@ -50,6 +50,7 @@ html_sidebars = {
     ],
 }
 html_static_path = ['_static']
+html_baseurl = 'https://devel-system.github.io/qudas/'
 html_css_files = [
     'css/futo.css',  # 必要であれば追加
 ]
