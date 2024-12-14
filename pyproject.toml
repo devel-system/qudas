@@ -115,6 +115,9 @@ dev = [
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+packages = ["qudas"]
+
 [tool.black]
 line-length = 88
 skip-string-normalization = true
