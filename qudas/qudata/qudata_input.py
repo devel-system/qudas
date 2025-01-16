@@ -121,7 +121,7 @@ class QuDataInput(QuDataBase):
                     pass
 
                 # 1変数
-                if len(key) == 1:
+                elif len(key) == 1:
                     qubo[(variables[key[0]].name, variables[key[0]].name)] = value
 
                 # 2変数
