@@ -116,6 +116,10 @@ class QuDataInput(QuDataBase):
             qubo = {}
             for key, value in prob.as_dict().items():
 
+                # 定数
+                if len(key) == 0:
+                    pass
+
                 # 1変数
                 if len(key) == 1:
                     qubo[(variables[key[0]].name, variables[key[0]].name)] = value

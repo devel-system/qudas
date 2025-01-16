@@ -13,8 +13,11 @@ import dimod
 from sympy import Symbol, symbols, lambdify
 from scipy.optimize import minimize, Bounds
 from datetime import timedelta
+from dotenv import load_dotenv
 import os
 
+# 環境変数の読み込み
+load_dotenv()
 
 def dicts_are_equal(dict1, dict2):
     """辞書のキーの順序を無視して等価性を比較する関数"""
@@ -133,7 +136,7 @@ class TestQudata(unittest.TestCase):
         """from_amplifyメソッドのテスト"""
         # amplifyの設定
         q = VariableGenerator().array("Binary", shape=(3))
-        objective = q[0] * q[1] - q[2]
+        objective = q[0] * q[1] - q[2] + 20
 
         # QuData.inputオブジェクトを作成し、amplify問題を渡す
         qudata = QuData.input().from_amplify(objective)
@@ -484,7 +487,7 @@ class TestQudata(unittest.TestCase):
 
         # ソルバーの設定
         client = FixstarsClient()
-        client.token = "AE/HaqGh1iuFMEennXk10xS1LCgld8D18oC"
+        client.token = os.getenv("AMPLIFY_TOKEN")
         client.parameters.timeout = timedelta(milliseconds=100)
 
         # 最小化を実行

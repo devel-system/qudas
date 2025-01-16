@@ -1,6 +1,6 @@
 [project]
 name = "qudas"
-version = "0.1.2"
+version = "0.1.3"
 authors = [
   { name="Keiichiro Higa", email="higa.devel@gmail.com" },
 ]
@@ -85,7 +85,6 @@ dependencies = [
     "sympy==1.12",
     "threadpoolctl==3.3.0",
     "tomli==2.0.2",
-    "torch==2.2.0",
     "tqdm==4.66.2",
     "typing_extensions==4.9.0",
     "tzdata==2023.4",
@@ -109,6 +108,9 @@ dev = [
     "furo==2024.1.29",
     "twine==5.1.1",
     "readme_renderer==43.0"
+]
+test = [
+    "torch==2.2.0"
 ]
 
 [build-system]
