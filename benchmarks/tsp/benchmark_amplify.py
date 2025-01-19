@@ -1,14 +1,15 @@
-# 巡回セールスマン問題（pyqubo）
-from pyqubo import Array
+# 巡回セールスマン問題（amplify）
+from amplify import VariableGenerator
 import networkx as nx
 
-def create_TSP_QUBO_pyqubo(cities: int=10):
+def create_TSP_QUBO_amplify(cities: int=10):
 
     # 完全グラフの作成
     G = nx.complete_graph(cities)
 
     # QUBOの作成
-    x_arr = Array.create('x', shape=(cities, cities), vartype='BINARY')
+    gen = VariableGenerator()     # 決定変数のジェネレータを作成
+    x_arr = gen.array("Binary", shape=(cities, cities))
 
     # 目的関数
     H = 0
@@ -43,7 +44,7 @@ if __name__ == '__main__':
     TSP_SIZE = [5, 10, 50, 100, 500, 1000]
     for size in TSP_SIZE:
         print(f"TSP size: {size}")
-        mean_time, std_dev, number, repeat = adaptive_timeit(lambda: create_TSP_QUBO_pyqubo(size))
+        mean_time, std_dev, number, repeat = adaptive_timeit(lambda: create_TSP_QUBO_amplify(size))
         csv_data.append(["-", "-", "-", size, mean_time, std_dev, number, repeat])
 
     ##################################
@@ -52,7 +53,7 @@ if __name__ == '__main__':
 
     for size in TSP_SIZE:
         # QuData形式に変換
-        QUBO = create_TSP_QUBO_pyqubo(size)
+        QUBO = create_TSP_QUBO_amplify(size)
         mean_time, std_dev, number, repeat = adaptive_timeit(lambda: QuData.input().from_pyqubo(QUBO))
         csv_data.append(["pyqubo", "-", "qudata", size, mean_time, std_dev, number, repeat])
         qudata = QuData.input().from_pyqubo(QUBO)
@@ -66,7 +67,7 @@ if __name__ == '__main__':
         csv_data.append(["pyqubo", "qudata", "dimod_bqm", size, mean_time, std_dev, number, repeat])
 
     # csvに出力
-    with open('TSP_result_pyqubo.csv', 'w', newline='') as f:
+    with open('TSP_result_amplify.csv', 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(["from", "middle", "to", "size", "mean_time (ms)", "std_dev (ms)", "number", "repeat"])
         writer.writerows(csv_data)
