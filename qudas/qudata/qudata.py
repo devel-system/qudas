@@ -1,35 +1,42 @@
-from .qudata_input import QuDataInput
-from .qudata_output import QuDataOutput
+from qudas.annealing import QdAnnIR, QuDataAnnealingOutput
 from typing import Optional, Dict, Any
 
 
 class QuData:
 
     @classmethod
-    def input(cls, prob: Optional[Dict[str, Any]] = None) -> QuDataInput:
+    def input(cls, prob: Optional[Dict[str, Any]] = None) -> QdAnnIR:
         """
-        クラスメソッドとして QuDataInput のインスタンスを作成し、引数を受け取る。
-
-        Args:
-            prob (dict, optional): QuDataInput の引数となる最適化問題データ。
-
-        Returns:
-            QuDataInput のインスタンス。
+        新IR (QdAnnIR) を返却するラッパー。旧API互換のために残してある。
         """
-        return QuDataInput(prob)
+        if prob is None:
+            return QdAnnIR()
+        if isinstance(prob, dict):
+            return QdAnnIR(prob)
+        raise TypeError(f"{type(prob)}は対応していない型です。")
 
     @classmethod
     def output(
-        cls, result: Optional[Dict[str, Any]] = None, result_type: Optional[str] = None
-    ) -> QuDataOutput:
-        """
-        クラスメソッドとして QuDataOutput のインスタンスを作成し、引数を受け取る。
+        cls,
+        # 新 API
+        results: Optional[Dict[str, Dict[str, Any]]] = None,
+        # 旧 API
+        result: Optional[Dict[str, Any]] = None,
+        result_type: Optional[str] = None,
+        **kwargs,
+    ) -> QuDataAnnealingOutput:
+        """新しい出力クラス (QuDataAnnealingOutput) を返却する。
 
-        Args:
-            result (dict, optional): QuDataOutput の引数となる計算結果データ。
-            result_type (str, optional): 結果の形式。
-
-        Returns:
-            QuDataOutput のインスタンス。
+        旧 API の `result`/`result_type` でも呼び出せるように互換を維持する。
         """
-        return QuDataOutput(result, result_type)
+
+        return QuDataAnnealingOutput(
+            results=results,
+            result=result,
+            result_type=result_type,
+            **kwargs,
+        )
+
+# 旧クラス名のエイリアス（互換性維持）
+QuDataInput = QdAnnIR
+QuDataOutput = QuDataAnnealingOutput

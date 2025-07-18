@@ -18,4 +18,4 @@ except FileNotFoundError:
 from .qudata import QuData
 from .pipeline import Pipeline
 
-__all__ = ['QuData', 'Pipeline']
+__all__ = ["QuData", "Pipeline"]
