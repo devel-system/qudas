@@ -3,13 +3,13 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, Any, Optional
 
-from qudas.core.base import QdExecBase
+from qudas.core.base import QdExecutorBase
 
-from .input import QuDataGateInput, QdGateIn
-from .output import QuDataGateOutput, QdGateOut
+from .input import QdGateInput
+from .output import QdGateOutput
 
 
-class QuDataGateExecutor(QdExecBase):
+class QdGateExecutor(QdExecutorBase):
     """量子ゲート方式の ``Executor``。
 
     * デフォルトでは ``qiskit_simulator`` を用いて実行します。
@@ -19,60 +19,54 @@ class QuDataGateExecutor(QdExecBase):
     # --------------------------------------------------------------
     # コンストラクタ / 共通パラメータ
     # --------------------------------------------------------------
-    def __init__(self, backend: str = "qiskit_simulator") -> None:
+    def __init__(
+        self,
+        provider: str,
+        provider_config: Optional[Dict[str, Any]] = None,
+        provider_map: Optional[Dict[str, str]] = None,
+        provider_config_map: Optional[Dict[str, Dict[str, Any]]] = None
+    ) -> None:
         """Parameters
         ----------
-        backend : str, optional
-            使用するバックエンド名 (例: ``"qiskit_simulator"``、``"braket_ionq"`` など)。
-            :py:meth:`run` で backend を明示しない場合にデフォルトとして利用されます。
+        provider : str, optional
+            The provider to use for the executor. (e.g. "qiskit", "braket")
+        provider_config : dict[str, Any], optional
+            The configuration for the provider.
+        provider_map : dict[str, str], optional
+            The mapping of block labels to providers. (e.g. {"block0": "qiskit", "block1": "braket"})
+        provider_config_map : dict[str, dict[str, Any]], optional
+            The mapping of block labels to provider configurations. (e.g. {"block0": {"backend": "qiskit_simulator"}, "block1": {"backend": "braket_ionq"}})
         """
-
-        self.backend = backend
+        super().__init__(provider, provider_config, provider_map, provider_config_map)
 
     # --------------------------------------------------------------
     # パブリック API
     # --------------------------------------------------------------
-    def run(self, input_data: QuDataGateInput) -> QuDataGateOutput:  # noqa: D401 – simple method name
-        """単一の :class:`QuDataGateInput` を実行し、 ``QuDataGateOutput`` を返却。"""
+    def run(self, input_data: QdGateInput) -> QdGateOutput:  # noqa: D401 – simple method name
+        """単一の :class:`QdGateInput` を実行し、 ``QdGateOutput`` を返却。"""
+        block = input_data.block
+        provider = self.resolve_provider(block.label)
+        config = self.resolve_provider_config(block.label)
+        result = self._run_single_block(block, provider, config)
+        return QdGateOutput({block.label: result})
 
-        # 入力を IR へ変換
-        ir = input_data.to_ir()
-
-        # backend 毎の実行ルーティンへディスパッチ
-        if self.backend == "qiskit_simulator":
-            circuit = self._ir_to_qiskit(ir)
-            result = self._run_qiskit(circuit)
-        else:
-            raise NotImplementedError(f"Backend '{self.backend}' は未サポートです。")
-
-        # SDK 依存の生の結果 → フレンドリーなオブジェクトへラップ
-        return QuDataGateOutput(result)
-
-    def run_split(
-        self,
-        input_data: QuDataGateInput,
-        backend_map: Optional[Dict[str, str]] = None,
-    ) -> QuDataGateOutput:  # noqa: D401 – simple method name
+    def run_split(self, input_data: QdGateInput) -> QdGateOutput:  # noqa: D401 – simple method name
         """入力をブロックごとに分割して並列実行します。
 
         Parameters
         ----------
-        input_data : QuDataGateInput
+        input_data : QdGateInput
             実行対象の量子回路ブロックを含む入力。
-        backend_map : dict[str, str], optional
-            ``{block_name: backend}`` 形式でブロック毎に利用する backend を指定します。
-            未指定または辞書に存在しないブロックは ``self.backend`` が使われます。
 
         Returns
         -------
-        QuDataGateOutput
+        QdGateOutput
             ブロック名をキー、各 backend の実行結果を値とする辞書を ``results`` として保持します。
         """
 
         if not hasattr(input_data, "blocks"):
             raise AttributeError("input_data は 'blocks' 属性を持つ必要があります。")
 
-        backend_map = backend_map or {}
         results: Dict[str, Dict[str, Any]] = {}
 
         # 並列実行 (CPU バウンドではないため ThreadPoolExecutor で十分)
@@ -81,24 +75,25 @@ class QuDataGateExecutor(QdExecBase):
                 pool.submit(
                     self._run_single_block,
                     block,
-                    backend_map.get(block.name, self.backend),
-                ): block.name
+                    self.resolve_provider(block.label),
+                    self.resolve_provider_config(block.label),
+                ): block.label
                 for block in input_data.blocks
             }
 
             for future in as_completed(future_map):
-                block_name, res_dict = future.result()
-                results[block_name] = res_dict
+                label, result = future.result()
+                results[label] = result
 
-        return QuDataGateOutput(results)
+        return QdGateOutput(results)
 
     # --------------------------------------------------------------
     # 内部ユーティリティ
     # --------------------------------------------------------------
-    def _run_single_block(self, block, backend: str):
+    def _run_single_block(self, block, provider: str, kwargs: Dict[str, Any]):
         """1 ブロック分の量子回路を指定バックエンドで実行。"""
         # --- 現在は QuantumCircuitBlock (SDK 非依存) をサポート ------------------
-        if backend == "qiskit_simulator":
+        if provider == "qiskit":
             # ``block`` の型に応じて回路を用意
             if hasattr(block, "gates"):
                 # 新しい QuantumCircuitBlock 形式
@@ -107,11 +102,11 @@ class QuDataGateExecutor(QdExecBase):
                 # 旧形式: ``circuit`` 属性に直接 qiskit.QuantumCircuit が入っている想定
                 circuit = self._ensure_qiskit_circuit(getattr(block, "circuit", None))
 
-            result = self._run_qiskit(circuit)
+            result = self._run_qiskit(circuit, **kwargs)
         else:
-            raise NotImplementedError(f"Backend '{backend}' は未サポートです。")
+            raise NotImplementedError(f"Provider '{provider}' は未サポートです。")
 
-        return block.name, result
+        return block.label, result
 
     # ------------------------------------------------------------------
     # 量子回路ブロック → Qiskit 変換
@@ -151,31 +146,27 @@ class QuDataGateExecutor(QdExecBase):
             return qc
         except Exception:
             # qiskit import error or conversion error → fallback
-            return QuDataGateExecutor._ir_to_qiskit(None)
+            return QdGateExecutor._ir_to_qiskit(None)
 
     # ------------------------------------------------------------------
     # backend 実装
     # ------------------------------------------------------------------
     @staticmethod
-    def _run_qiskit(circuit):
+    def _run_qiskit(circuit, **kwargs):
         """Qiskit Aer/Basics を用いて回路をシミュレーション。"""
 
         try:
             # lazy import – qiskit が入っていない環境でも動作させるため
             from qiskit import Aer, execute  # type: ignore
 
-            try:
-                backend = Aer.get_backend("aer_simulator")
-            except Exception:  # 旧版 fallback
-                backend = Aer.get_backend("qasm_simulator")
-
-            job = execute(circuit, backend=backend, shots=1024)
+            backend = Aer.get_backend(kwargs.get("backend", "qasm_simulator"))
+            job = execute(circuit, backend=backend, **kwargs)
             counts = job.result().get_counts()
             return {"counts": dict(counts), "device": "qiskit_simulator"}
 
         except Exception:  # noqa: BLE001 – ImportError or runtime errors
             # qiskit 非インストール or その他エラー → naive fallback
-            return QuDataGateExecutor._run_naive(device="qiskit_simulator(fallback)")
+            return QdGateExecutor._run_naive(device="qiskit_simulator(fallback)")
 
     # ------------------------------------------------------------------
     # フォールバック実装
@@ -220,9 +211,8 @@ class QuDataGateExecutor(QdExecBase):
             pass  # qiskit import error → fallthrough
 
         # fallback dummy circuit
-        return QuDataGateExecutor._ir_to_qiskit(None)
+        return QdGateExecutor._ir_to_qiskit(None)
 
 
 # 下位互換性維持のためのエイリアス -----------------------------------------
-QuGateExecutor = QuDataGateExecutor
-QdGateExec = QuDataGateExecutor
+QdGateExec = QdGateExecutor

@@ -1,9 +1,43 @@
-from qudas.core.base import QdOutBase
+from qudas.core.output_base import QdOutputBase, QdOutputBaseData
+from dataclasses import dataclass
+from typing import Dict, Any, Optional
 
+@dataclass
+class QdGateOutputData(QdOutputBaseData):
+    counts: Dict[str, int]
+    expectation_value: Optional[float] = None
+    shots: Optional[int] = None
 
-class QuDataGateOutput(QdOutBase):
-    def __init__(self, results):
-        self.results = results
+class QdGateOutput(QdOutputBase):
+    """量子ゲート方式の計算結果を保持するアウトプットクラス。
+
+    1 ブロックにつき 1 つの結果辞書を保持し、複数ブロック分を
+    `results` という大域辞書で管理する設計とする。
+
+    Example
+    -------
+    >>> results = {
+    ...     "blockA": {
+    ...         "solution": {"x0": 1, "x1": 0},
+    ...         "counts": {"00": 100, "11": 200},
+    ...         "expectation_value": 0.5,
+    ...         "shots": 300,
+    ...         "device": "aer_simulator",
+    ...     },
+    ...     "blockB": {
+    ...         "solution": {"x0": 0, "x1": 1},
+    ...         "counts": {"00": 150, "11": 150},
+    ...         "expectation_value": 0.2,
+    ...         "shots": 300,
+    ...         "device": "braket_ionq",
+    ...     },
+    ... }
+    >>> qd_out = QdGateOutput(results)
+    >>> qd_out.get_block_solution("blockA")
+    {'x0': 1, 'x1': 0}
+    """
+    def __init__(self, results: Optional[Dict[str, QdGateOutputData]] = None):
+        self.results = results or {}
 
     def to_dict(self):
         return self.results
@@ -37,4 +71,4 @@ class QuDataGateOutput(QdOutBase):
             print(self.results)
 
 
-QdGateOut = QuDataGateOutput
+QdGateOut = QdGateOutput

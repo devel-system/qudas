@@ -1,14 +1,17 @@
-from qudas.core.base import QdOutBase
+from qudas.core.output_base import QdOutputBase, QdOutputBaseData
+from dataclasses import dataclass
 from typing import Dict, Any, Optional
 
 # 依存ライブラリはローカル import で遅延読み込み
-
-
 # NOTE: 旧 API 互換を保ちつつ多ブロック対応させる。
 #   - 旧: `result`/`solution` 単一ブロック辞書を保持し `.result`, `.solution`, `.result_type`
 #   - 新: 複数ブロックを `results` 辞書で保持
 
-class QuDataAnnealingOutput(QdOutBase):
+@dataclass
+class QdAnnealingOutputData(QdOutputBaseData):
+    energy: float
+
+class QdAnnealingOutput(QdOutputBase):
     """アニーリング系の計算結果を保持するアウトプットクラス。
 
     1 ブロックにつき 1 つの結果辞書を保持し、複数ブロック分を
@@ -28,19 +31,12 @@ class QuDataAnnealingOutput(QdOutBase):
     ...         "device": "dimod",
     ...     },
     ... }
-    >>> qd_out = QuDataAnnealingOutput(results)
+    >>> qd_out = QdAnnealingOutput(results)
     >>> qd_out.get_block_solution("blockA")
     {'x0': 1, 'x1': 0}
     """
 
-    def __init__(
-        self,
-        results: Optional[Dict[str, Dict[str, Any]]] = None,
-        # 旧 API 用
-        result: Optional[Dict[str, Any]] = None,
-        result_type: Optional[str] = None,
-        **kwargs,
-    ):
+    def __init__(self, results: Optional[Dict[str, QdAnnealingOutputData]] = None):
         """コンストラクタ。
 
         Parameters
@@ -49,35 +45,20 @@ class QuDataAnnealingOutput(QdOutBase):
             ブロックラベルをキーに、各ブロックの計算結果辞書を
             値として持つ辞書。省略時は空辞書で初期化される。
         """
+        self.results = results or {}
 
-        # 旧 API: `result` or `solution` キーワードがあれば `block0` として登録
-        if results is None:
-            # solution エイリアス (kwargs) > result 引数 の優先度
-            single_result = kwargs.get('solution', result)
-            if single_result is not None:
-                # 単一ブロックを内部形式へ変換
-                variables = single_result.get('variables') if isinstance(single_result, dict) else single_result
-                # 旧 API のキー (objective/energy)
-                single_result_obj = None
-                if isinstance(single_result, dict):
-                    single_result_obj = single_result.get('objective') or single_result.get('energy')
-                self.results = {
-                    'block0': {
-                        'solution': variables,
-                        'energy': single_result_obj,
-                        'device': result_type,
-                    }
-                }
-            else:
-                self.results = {}
-        else:
-            self.results = results
+    @property
+    def solution(self) -> Optional[Any]:
+        """最初のブロックの solution を返す（辞書 or None）"""
+        if not self.results:
+            return None
+        return next(iter(self.results.values())).solution
 
-        # 互換用属性
-        self.result_type = result_type or self._infer_last_device()
-
-        # `solution` は最初のブロックを参照（存在しない場合は空辞書）
-        self.solution = self.get_block_solution(next(iter(self.results)) if self.results else 'block0')
+    @property
+    def last_device(self) -> Optional[str]:
+        if not self.results:
+            return None
+        return next(reversed(self.results.values())).device
 
     # ------------------------------------------------------------------
     # 汎用ユーティリティ
@@ -127,8 +108,33 @@ class QuDataAnnealingOutput(QdOutBase):
         }
         # 旧 API 属性も更新
         self.solution = variables
-        self.result_type = extras.get('device', self.result_type)
+        self.last_device = extras.get('device', self.last_device)
         return self
+
+    @classmethod
+    def from_sdk_format(cls, sdk_obj: Any, target: str) -> "QdAnnealingOutput":
+        """外部ライブラリ向けのフォーマットからインスタンスを生成します。
+
+        Args:
+            sdk_obj (Any): 外部ライブラリ向けのフォーマット。
+            target (str): 外部ライブラリの名前。
+
+        Raises:
+            ValueError: サポートされていない外部ライブラリの場合。
+
+        Returns:
+            QdAnnealingOutput: インスタンス。
+        """
+        if target == "pulp":
+            return cls.from_pulp(sdk_obj)
+        elif target == "amplify":
+            return cls.from_amplify(sdk_obj)
+        elif target == "dimod":
+            return cls.from_dimod(sdk_obj)
+        elif target == "scipy":
+            return cls.from_scipy(sdk_obj)
+        else:
+            raise ValueError(f"Unsupported SDK target: {target}")
 
     def from_pulp(self, problem, block_label: str = 'block0'):
         from pulp import value  # local import
@@ -149,8 +155,28 @@ class QuDataAnnealingOutput(QdOutBase):
         return self._set_block(block_label, variables, result.fun, device='scipy')
 
     # ------------------------------------------------------------------
-    # to_* 系 (QuDataAnnealingOutput → 外部ライブラリ)
+    # to_* 系 (QdAnnealingOutput → 外部ライブラリ)
     # ------------------------------------------------------------------
+    def to_sdk_format(self, target: str) -> Dict[str, Any]:
+        """外部ライブラリ向けのフォーマットに変換します。
+
+        Args:
+            target (str): 外部ライブラリの名前。
+
+        Raises:
+            ValueError: サポートされていない外部ライブラリの場合。
+
+        Returns:
+            dict: 外部ライブラリ向けのフォーマット。
+        """
+        target = target.lower()
+        if target == "dimod":
+            return {label: self.to_dimod(label) for label in self.results}
+        elif target == "scipy":
+            return {label: self.to_scipy(label) for label in self.results}
+        else:
+            raise ValueError(f"Unsupported SDK target: {target}")
+
     def to_dimod(self, block_label: str = 'block0'):
         import dimod
         if block_label not in self.results:
@@ -183,4 +209,4 @@ class QuDataAnnealingOutput(QdOutBase):
 
 
 # エイリアス（旧クラス名を残しておく）
-QdAnnOut = QuDataAnnealingOutput
+QdAnnOut = QdAnnealingOutput

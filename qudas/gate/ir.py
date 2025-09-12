@@ -1,55 +1,91 @@
-class QuAlgorithmIR:
-    def __init__(self, gates):
+from qudas.gate.gate_ir import QdGateIR
+from typing import List, Iterable
+
+class QdAlgorithmIR:
+    def __init__(self, gates: List[QdGateIR]):
         self.gates = gates
 
     @classmethod
-    def from_blocks(cls, blocks):
-        return cls(gates=[g for b in blocks for g in b])
-
-    @classmethod
-    def from_qasm(cls, qasm):
-        """OpenQASM 文字列 / ファイルパス / QuantumCircuit から ``QuAlgorithmIR`` を生成する。
+    def from_blocks(cls, blocks: Iterable[Iterable[QdGateIR]]):
+        """量子回路ブロックの集合から ``QdAlgorithmIR`` を生成する。
 
         Parameters
         ----------
-        qasm : str | qiskit.circuit.QuantumCircuit
-            以下のいずれかを受け付ける。
-
-            * OpenQASM 形式の文字列
-            * OpenQASM ファイルのパス (``.qasm`` 拡張子など)
-            * ``qiskit.circuit.QuantumCircuit`` オブジェクト
-
-        Returns
-        -------
-        QuAlgorithmIR
-            パースした回路の各ゲートを `gates` リストとして保持するクラスインスタンス。
+        blocks : Iterable[Iterable[QdGateIR]]
+            各ブロックが ``QdGateIR`` を要素にもつ反復可能オブジェクト。
+            典型的には :class:`qudas.gate.block.QdGateBlock` のリストを想定。
         """
 
-        # lazy import : qiskit が未使用の場合の起動コストを抑える
-        from qiskit import QuantumCircuit  # type: ignore
-        import os
-
-        # QuantumCircuit が渡された場合
-        if isinstance(qasm, QuantumCircuit):
-            qc = qasm
-
-        # 文字列が渡された場合 (ファイルパス or QASM 文字列)
-        elif isinstance(qasm, str):
-            # ファイルパスとして存在する場合はファイル読み込みを優先
-            if os.path.exists(qasm):
-                qc = QuantumCircuit.from_qasm_file(qasm)
-            else:
-                # 直接 QASM 文字列として解釈
-                qc = QuantumCircuit.from_qasm_str(qasm)
-
-        else:
-            raise TypeError(f"{type(qasm)} は対応していない型です。")
-
-        # QuantumCircuit.data は (Instruction, qubits, clbits) のタプルからなるリスト
-        # Instruction オブジェクトのみを保持して IR の gates とする。
-        gates = [inst for inst, _qargs, _cargs in qc.data]
+        gates: List[QdGateIR] = []
+        for block in blocks:
+            for gate in block:
+                if isinstance(gate, QdGateIR):
+                    gates.append(gate)
+                else:
+                    # 型が異なる場合はスキップ／将来拡張時に警告など
+                    continue
 
         return cls(gates=gates)
 
+    @classmethod
+    def from_qasm(cls, qasm):
+        """OpenQASM 文字列 / ファイルパス / QuantumCircuit から ``QdAlgorithmIR`` を生成する。
+        (QdGateIR ベース)"""
+        from qiskit import QuantumCircuit  # type: ignore
+        import os
 
-QdIR = QuAlgorithmIR
+        if isinstance(qasm, QuantumCircuit):
+            qc = qasm
+        elif isinstance(qasm, str):
+            if os.path.exists(qasm):
+                qc = QuantumCircuit.from_qasm_file(qasm)
+            else:
+                qc = QuantumCircuit.from_qasm_str(qasm)
+        else:
+            raise TypeError(f"{type(qasm)} は対応していない型です。")
+
+        gates: List[QdGateIR] = []
+        for inst, qargs, _ in qc.data:
+            targets = [q.index for q in qargs]
+            gate_ir = QdGateIR(
+                gate=inst.name,
+                targets=targets,
+                controls=[],
+                params=list(inst.params) if inst.params is not None else [],
+            )
+            gates.append(gate_ir)
+
+        return cls(gates=gates)
+
+    def to_qiskit(self):
+        """保持している ``QdGateIR`` 一覧から ``qiskit.circuit.QuantumCircuit`` を生成する。"""
+        from qiskit import QuantumCircuit  # type: ignore
+        from qiskit.circuit import Instruction  # type: ignore
+
+        if not self.gates:
+            return QuantumCircuit(0)
+
+        # 回路に必要な量子ビット数を取得
+        max_index = max(
+            (
+                max(g.targets + g.controls)
+                if (g.targets or g.controls)
+                else -1
+                for g in self.gates
+            )
+        )
+        num_qubits = max_index + 1
+        qc = QuantumCircuit(num_qubits)
+
+        for g in self.gates:
+            # 制御 -> ターゲット の順で並べる
+            qubit_indices = g.controls + g.targets
+            instruction = Instruction(
+                name=g.gate,
+                num_qubits=len(qubit_indices),
+                num_clbits=0,
+                params=g.params,
+            )
+            qc.append(instruction, [qc.qubits[i] for i in qubit_indices])
+
+        return qc

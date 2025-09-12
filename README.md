@@ -3,49 +3,51 @@
 
 Qudasは、量子計算における最適化問題の入出力データを変換するためのPythonライブラリです。異なるデータ形式間の変換をサポートし、さまざまな量子計算環境での統一的なデータ処理を可能にします。
 
-## 主な機能
-- 量子計算における入力データのフォーマット変換
-- 計算結果の出力データのフォーマット変換
-- AnnealingやGateデバイスのデータに対応
+本 README は
 
-## インストール
-以下のコマンドを使用してインストールします。
+1. ライブラリ利用者向けドキュメント (Install / How-to / API 遷移ガイド)
+2. 開発者向けドキュメント (開発フロー / コントリビュート手順)
 
+の 2 つのセクションで構成されています。
+
+---
+
+## 1️⃣ ライブラリ利用者向けドキュメント
+
+### 1-1. インストール
+```bash
+pip install qudas  # PyPI 版 (推奨)
+# or
+pip install git+https://github.com/devel-system/qudas.git@v0.2.0  # 開発版
 ```
-pip install qudas
-```
 
-## 使用方法
+### 1-2. クイックスタート
+以下では代表的なユースケースを抜粋します。詳細は [examples/](examples/) も参照してください。
 
-### 初期化
-
+#### 1-2-1. QuData の生成
 ```python
-from qudata import QuData
+from qudas import QuData
 
-# 最適化問題の初期化
-prob = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0}
-qudata = QuData.input(prob)
-print(qudata.prob)  # 出力: {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0}
-
-# Noneで初期化した場合
-qudata = QuData.input()
-print(qudata.prob)  # 出力: {}
+# QUBO (dict) から生成
+qubo = {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0}
+qudata = QuData.input(qubo)
+print(qudata.prob)               # => {('q0', 'q1'): 1.0, ('q2', 'q2'): -1.0}
 ```
 
-### 加算・減算・乗算・べき乗
-
+#### 1-2-2. 四則演算
 ```python
-# 辞書形式の問題を加算
-qudata1 = QuData.input({('q0', 'q1'): 1.0})
-qudata2 = QuData.input({('q0', 'q0'): 2.0})
-result = qudata1 + qudata2
-print(result.prob)  # 出力: {('q0', 'q1'): 1.0, ('q0', 'q0'): 2.0}
-
-# 辞書形式の問題をべき乗
-qudata = QuData.input({('q0', 'q1'): 1.0})
-result = qudata ** 2
-print(result.prob)  # 出力: {('q0', 'q1'): 1.0, ('q0', 'q2', 'q1'): -2.0}
+q1 = QuData.input({('q0', 'q1'): 1.0})
+q2 = QuData.input({('q0', 'q0'): 2.0})
+print((q1 + q2).prob)            # => {('q0','q1'):1.0, ('q0','q0'):2.0}
+print((q1 ** 2).prob)            # => {('q0','q1'):1.0, ('q0','q2','q1'):-2.0}
 ```
+
+#### 1-2-3. データ形式変換
+| from | to | サンプルコード |
+|------|----|----------------|
+| PyQUBO | Amplify | `QuData.input().from_pyqubo(expr).to_amplify()` |
+| NumPy 配列 | dimod-BQM | `QuData.input().from_array(arr).to_dimod_bqm()` |
+| CSV | PuLP | `QuData.input().from_csv('qudata.csv').to_pulp()` |
 
 ### データ形式の変換（QuDataInput）
 デバイスへの様々な入力形式のデータを `QuData` オブジェクトを介して変換することができます。
@@ -111,62 +113,189 @@ print(pulp_prob)
 
 #### PuLP から Amplify への変換
 ```python
-   import pulp
-   from qudas import QuData
+import pulp
+from qudas import QuData
 
-   # PuLP問題を定義して解く
-   prob = pulp.LpProblem("Test Problem", pulp.LpMinimize)
-   x = pulp.LpVariable('x', lowBound=0, upBound=1, cat='Binary')
-   y = pulp.LpVariable('y', lowBound=0, upBound=1, cat='Binary')
-   prob += 2*x - y
-   prob.solve()
+# PuLP問題を定義して解く
+prob = pulp.LpProblem("Test Problem", pulp.LpMinimize)
+x = pulp.LpVariable('x', lowBound=0, upBound=1, cat='Binary')
+y = pulp.LpVariable('y', lowBound=0, upBound=1, cat='Binary')
+prob += 2*x - y
+prob.solve()
 
-   # QuDataOutputのインスタンスを生成し、from_pulpメソッドで問題を変換
-   qudata = QuData.output().from_pulp(prob)
-   print(qudata.prob)  # 出力: {'x': 2.0, 'y': -1.0}
+# QuDataOutputのインスタンスを生成し、from_pulpメソッドで問題を変換
+qudata = QuData.output().from_pulp(prob)
+print(qudata.prob)  # 出力: {'x': 2.0, 'y': -1.0}
 
-   # Amplify形式に変換
-   amplify_prob = qudata.to_amplify()
-   print(amplify_prob)  # 出力: Amplifyの目標関数形式
+# Amplify形式に変換
+amplify_prob = qudata.to_amplify()
+print(amplify_prob)  # 出力: Amplifyの目標関数形式
 ```
 
 #### SciPy から Dimod への変換
 ```python
-   import numpy as np
-   from sympy import symbols, lambdify
-   from scipy.optimize import minimize, Bounds
-   from qudas import QuData
+import numpy as np
+from sympy import symbols, lambdify
+from scipy.optimize import minimize, Bounds
+from qudas import QuData
 
-   # シンボリック変数の定義
-   q0, q1, q2 = symbols('q0 q1 q2')
+# シンボリック変数の定義
+q0, q1, q2 = symbols('q0 q1 q2')
 
-   # 目的関数を定義
-   objective_function = 2 * q0 - q1 - q2
+# 目的関数を定義
+objective_function = 2 * q0 - q1 - q2
 
-   # シンボリック関数を数値化して評価できる形式に変換
-   f = lambdify([q0, q1, q2], objective_function, 'numpy')
+# シンボリック関数を数値化して評価できる形式に変換
+f = lambdify([q0, q1, q2], objective_function, 'numpy')
 
-   # 初期解 (すべて0.5に設定)
-   q = [0.5, 0.5, 0.5]
+# 初期解 (すべて0.5に設定)
+q = [0.5, 0.5, 0.5]
 
-   # バイナリ変数の範囲を定義 (0 <= x <= 1)
-   bounds = Bounds([0, 0, 0], [1, 1, 1])
+# バイナリ変数の範囲を定義 (0 <= x <= 1)
+bounds = Bounds([0, 0, 0], [1, 1, 1])
 
-   # SciPyで制約付き最適化を実行
-   res = minimize(lambda q: f(q[0], q[1], q[2]), q, method='SLSQP', bounds=bounds)
+# SciPyで制約付き最適化を実行
+res = minimize(lambda q: f(q[0], q[1], q[2]), q, method='SLSQP', bounds=bounds)
 
-   # QuDataOutputのインスタンスを生成し、from_scipyメソッドをテスト
-   qudata = QuData.output().from_scipy(res)
-   print(qudata.prob)  # 出力: {'q0': 2, 'q1': -1, 'q2': -1}
+# QuDataOutputのインスタンスを生成し、from_scipyメソッドをテスト
+qudata = QuData.output().from_scipy(res)
+print(qudata.prob)  # 出力: {'q0': 2, 'q1': -1, 'q2': -1}
 
-   # Dimod形式に変換
-   dimod_prob = qudata.to_dimod_bqm()
-   print(dimod_prob)  # 出力: DimodのBQM形式
+# Dimod形式に変換
+dimod_prob = qudata.to_dimod_bqm()
+print(dimod_prob)  # 出力: DimodのBQM形式
 ```
 
-## テストコード
-本ライブラリには、以下のようなテストを含めて動作確認を行っています。
+---
 
+### 1-3. **NEW** 量子ゲート実行 (v0.2 系で追加)
+量子ゲート方式の回路を `QdGateExecutor` で実行できます。内部で Qiskit シミュレータを呼び出すため、追加依存は `qiskit` のみです。
+
+以下ではテストコードと同様に、代表的な 4 パターンの実行／変換例を示します。
+
+#### 1-3-1. 純粋な Qudas での実行
+```python
+from qudas.gate import (
+    QdGateIR, QdCircuitBlock,
+    QdGateInput, QdGateExecutor,
+)
+
+# H + CX でベル状態を生成する 2qubit 回路
+gates = [
+    QdGateIR(gate='h', targets=[0]),
+    QdGateIR(gate='cx', targets=[1], controls=[0]),
+]
+block = QdCircuitBlock(name='bell', gates=gates, num_qubits=2)
+qd_input = QdGateInput(blocks=[block])
+
+# 実行
+result = QdGateExecutor().run(qd_input)
+print(result.results)  # => {'counts': {'00': 512, '11': 512}, 'device': 'qiskit_simulator'}
+```
+
+#### 1-3-2. Qudas の回路 → Qiskit へ変換して実行
+```python
+from qudas.gate import (
+    QdGateIR, QdCircuitBlock,
+    QdGateInput, QdGateExecutor,
+)
+from qiskit import Aer, execute
+
+# H + CX でベル状態を生成する 2qubit 回路
+gates = [
+    QdGateIR(gate='h', targets=[0]),
+    QdGateIR(gate='cx', targets=[1], controls=[0]),
+]
+block = QdCircuitBlock(name='bell', gates=gates, num_qubits=2)
+
+ir = block.to_ir()               # QdCircuitBlock → QdAlgorithmIR
+qc = ir.to_qiskit()              # → qiskit.QuantumCircuit
+
+backend = Aer.get_backend('qasm_simulator')
+counts = execute(qc, backend=backend, shots=256).result().get_counts()
+print(counts)
+```
+
+#### 1-3-3. 外部フレームワーク (Qiskit) の回路 → Qudas で実行
+```python
+from qiskit import QuantumCircuit
+qc = QuantumCircuit(1, 1)
+qc.h(0)
+qc.measure(0, 0)
+
+# Qiskit → QdAlgorithmIR
+from qudas.gate import QdAlgorithmIR
+ir = QdAlgorithmIR.from_qasm(qc)
+
+# QdAlgorithmIR → QdCircuitBlock → Qudas 実行
+block = QdCircuitBlock(name='load', gates=ir.gates, num_qubits=1)
+qd_input = QdGateInput(blocks=[block])
+result = QdGateExecutor().run(qd_input)
+print(result.results)
+```
+
+#### 1-3-4. 外部フレームワーク → さらに別フレームワークへ変換して実行
+```python
+from qiskit import QuantumCircuit, Aer, execute
+
+# オリジナル回路
+qc_original = QuantumCircuit(1, 1)
+qc_original.x(0)
+qc_original.measure(0, 0)
+
+# Qiskit → OpenQASM 文字列
+qasm_str = qc_original.qasm()
+
+# OpenQASM → QdAlgorithmIR (qudas) → Qiskit 再生成
+from qudas.gate import QdAlgorithmIR
+ir = QdAlgorithmIR.from_qasm(qasm_str)
+qc_converted = ir.to_qiskit()
+
+# 別 backend (再度 Qiskit シミュレータ) で実行
+backend = Aer.get_backend('qasm_simulator')
+counts = execute(qc_converted, backend=backend, shots=128).result().get_counts()
+print(counts)
+```
+
+* 複数ブロックを並列に実行したい場合は `QdGateExecutor.run_split()` を利用してください。
+
+---
+
+### 1-4. アニーリング実行 API 変更点 (v0.1 → v0.2)
+古いバージョンをお使いの方は以下の表を参考にマイグレーションしてください。
+
+| v0.1 系 | v0.2 系 |
+|---------|---------|
+| `from qudas.annealing.executor import AnnealingExecutor` | `from qudas.annealing import QdAnnealingExecutor` |
+| `AnnealingExecutor().execute(qubo)` | `QdAnnealingExecutor().run(QdAnnealingInput(qubo))` |
+| (戻り値) dict | (戻り値) `QdAnnealingOutput` オブジェクト |
+
+#### 新しい使用例
+```python
+from qudas.annealing import QdAnnealingInput, QdAnnealingExecutor
+
+# QUBO を用意
+qubo = {('q0', 'q1'): 1.0, ('q1', 'q1'): -1.0}
+
+# 入力 IR 化 & 実行
+inp = QdAnnealingInput.from_dict(qubo)
+result = QdAnnealingExecutor().run(inp)
+print(result.solution, result.energy)
+```
+
+## ライセンス
+このプロジェクトはApache-2.0ライセンスの下で提供されています。詳細は`LICENSE`ファイルを参照してください。
+
+## 謝辞
+本成果は、国立研究開発法人新エネルギー・産業技術総合開発機構 (ＮＥＤＯ) の助成事業として得られたものです。
+
+---
+
+## 開発者向けドキュメント
+
+開発に関する詳細な手順やガイドラインは `DEVELOPER.md` を参照してください。
+
+## テストコード
 ```python
 class TestQudata(unittest.TestCase):
 
@@ -186,70 +315,3 @@ class TestQudata(unittest.TestCase):
         expected = {('q0', 'q1'): 1.0, ('q0', 'q0'): 2.0}
         self.assertTrue(dicts_are_equal(result.prob, expected))
 ```
-
-## 開発者向け情報
-
-### ドキュメントの生成方法
-
-Sphinxを使用してHTMLドキュメントを生成します。
-
-1. 初回の設定（（特になし）
-
-2. `sphinx_docs/source/conf.py` を適宜修正
-
-3. ドキュメントをビルド
-```
-cd sphinx_docs
-make clean
-make html
-```
-
-生成されたHTMLドキュメントは `sphinx_docs/build/html/index.html` で確認できます。
-Markdownは [GitHub-flavored Markdown](https://guides.github.com/features/mastering-markdown/) を参考にしてください。
-
-### テスト
-Qudasのテストは、`tests/` ディレクトリに配置された `test_xxx.py` ファイルで行います。テストの実行は以下のコマンドで可能です。
-
-```
-pytest tests/
-```
-
-### コードフォーマット
-
-このプロジェクトでは、Python コードのフォーマットに [Black](https://black.readthedocs.io/en/stable/) を使用しています。`Black` は自動でコードを整形し、一貫したスタイルを保つことができます。
-
-#### `Black` を使ったコードフォーマット
-
-1. `Black` のインストール:
-    - 開発環境用の依存パッケージとともに `Black` をインストールします:
-    ```bash
-    pip install .[dev]
-    ```
-
-2. コードを自動フォーマットするには、プロジェクトのルートディレクトリで次のコマンドを実行します:
-    ```bash
-    black .
-    ```
-
-    これにより、すべての Python ファイルが自動的にフォーマットされます。
-
-#### コードフォーマットの確認
-
-`black --check .` コマンドを使用すると、コードがフォーマットされているかどうかを確認することができます。このコマンドは実際にはファイルを変更せず、フォーマットが必要かどうかを表示するだけです。
-
-```bash
-black --check .
-```
-
-### パッケージの更新方法
-以下のコマンドでパッケージを更新します。
-
-```
-pip install .[dev] -U
-```
-
-## ライセンス
-このプロジェクトはApache-2.0ライセンスの下で提供されています。詳細は`LICENSE`ファイルを参照してください。
-
-## 謝辞
-この成果は、国立研究開発法人新エネルギー・産業技術総合開発機構（ＮＥＤＯ）の助成事業の結果得られたものです。

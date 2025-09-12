@@ -1,7 +1,13 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Any, Optional, Dict
 
+@dataclass
+class QdOutputBaseData:
+    solution: Any
+    device: str
 
-class QuDataOutputBase(ABC):
+class QdOutputBase(ABC):
     """qudas Executor から返却される結果データの基底クラス。
 
     ゲート・アニーリング方式に依存しない共通機能として
@@ -20,6 +26,12 @@ class QuDataOutputBase(ABC):
         """
         ...
 
+    @classmethod
+    @abstractmethod
+    def from_sdk_format(cls, sdk_obj: Any, target: str) -> "QdOutputBase":
+        """外部 SDK 向けのフォーマットからインスタンスを生成します。"""
+        ...
+
     @abstractmethod
     def visualize(self):
         """結果を可視化します。"""
@@ -27,6 +39,6 @@ class QuDataOutputBase(ABC):
 
 
 # 下位互換性維持のためのエイリアス
-QdOutBase = QuDataOutputBase
+QdOutBase = QdOutputBase
 
-__all__ = ["QuDataOutputBase", "QdOutBase"]
+__all__ = ["QdOutputBase", "QdOutBase"]

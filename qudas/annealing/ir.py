@@ -1,4 +1,4 @@
-class QdAnnIR:
+class QdAnnealingIR:
     """量子アニーリング用の中間表現 (QUBO) を表すクラス。
 
     旧 `QuDataInput` で担っていた QUBO 変換・演算機能を移植した。
@@ -31,13 +31,13 @@ class QdAnnIR:
                 result[k] = op(0, v)
         return result
 
-    def __add__(self, other: "QdAnnIR") -> "QdAnnIR":
-        return QdAnnIR(self._merge_dict(self.qubo, other.qubo, lambda x, y: x + y))
+    def __add__(self, other: "QdAnnealingIR") -> "QdAnnealingIR":
+        return QdAnnealingIR(self._merge_dict(self.qubo, other.qubo, lambda x, y: x + y))
 
-    def __sub__(self, other: "QdAnnIR") -> "QdAnnIR":
-        return QdAnnIR(self._merge_dict(self.qubo, other.qubo, lambda x, y: x - y))
+    def __sub__(self, other: "QdAnnealingIR") -> "QdAnnealingIR":
+        return QdAnnealingIR(self._merge_dict(self.qubo, other.qubo, lambda x, y: x - y))
 
-    def __mul__(self, other: "QdAnnIR") -> "QdAnnIR":
+    def __mul__(self, other: "QdAnnealingIR") -> "QdAnnealingIR":
         qubo = {}
         for k1, v1 in self.qubo.items():
             for k2, v2 in other.qubo.items():
@@ -55,11 +55,11 @@ class QdAnnIR:
                         qubo[(var, var)] = v1 * v2
                     else:
                         qubo[tuple(key_set)] = v1 * v2
-        return QdAnnIR(qubo)
+        return QdAnnealingIR(qubo)
 
-    def __pow__(self, other: int) -> "QdAnnIR":
+    def __pow__(self, other: int) -> "QdAnnealingIR":
         if isinstance(other, int):
-            result = QdAnnIR(self.qubo)
+            result = QdAnnealingIR(self.qubo)
             for _ in range(1, other):
                 result = result * self
             return result
@@ -80,7 +80,7 @@ class QdAnnIR:
     from pulp import LpProblem
     from pyqubo import Base
 
-    def from_pulp(self, prob: "LpProblem") -> "QdAnnIR":  # type: ignore[name-defined]
+    def from_pulp(self, prob: "LpProblem") -> "QdAnnealingIR":  # type: ignore[name-defined]
         from pulp import LpProblem  # local import to avoid heavy dep if未使用
         if isinstance(prob, LpProblem):
             qubo = {}
@@ -90,7 +90,7 @@ class QdAnnIR:
             return self
         raise TypeError(f"{type(prob)}は対応していない型です。")
 
-    def from_amplify(self, prob: "Poly") -> "QdAnnIR":  # type: ignore[name-defined]
+    def from_amplify(self, prob: "Poly") -> "QdAnnealingIR":  # type: ignore[name-defined]
         from amplify import Poly  # type: ignore
         if isinstance(prob, Poly):
             variables = prob.variables
@@ -108,7 +108,7 @@ class QdAnnIR:
             return self
         raise TypeError(f"{type(prob)}は対応していない型です。")
 
-    def from_pyqubo(self, prob: "Base") -> "QdAnnIR":  # type: ignore[name-defined]
+    def from_pyqubo(self, prob: "Base") -> "QdAnnealingIR":  # type: ignore[name-defined]
         from pyqubo import Base  # type: ignore
         if isinstance(prob, Base):
             qubo = prob.compile().to_qubo()
@@ -116,7 +116,7 @@ class QdAnnIR:
             return self
         raise TypeError(f"{type(prob)}は対応していない型です。")
 
-    def from_array(self, prob: "np.ndarray") -> "QdAnnIR":  # type: ignore[name-defined]
+    def from_array(self, prob: "np.ndarray") -> "QdAnnealingIR":  # type: ignore[name-defined]
         import numpy as np  # noqa
         if isinstance(prob, np.ndarray):
             qubo: dict = {}
@@ -132,7 +132,7 @@ class QdAnnIR:
             return self
         raise TypeError(f"{type(prob)}は対応していない型です。")
 
-    def from_csv(self, path: str, encoding: str = "utf-8-sig") -> "QdAnnIR":
+    def from_csv(self, path: str, encoding: str = "utf-8-sig") -> "QdAnnealingIR":
         import csv  # local import
         try:
             with open(path, encoding=encoding, newline="") as f:
@@ -151,7 +151,7 @@ class QdAnnIR:
         except Exception as e:
             raise ValueError("読み取りエラー") from e
 
-    def from_json(self, path: str) -> "QdAnnIR":
+    def from_json(self, path: str) -> "QdAnnealingIR":
         import json  # local import
         try:
             with open(path) as f:
@@ -164,7 +164,7 @@ class QdAnnIR:
         except Exception as e:
             raise ValueError("読み取りエラー") from e
 
-    def from_networkx(self, prob: "nx.Graph") -> "QdAnnIR":  # type: ignore[name-defined]
+    def from_networkx(self, prob: "nx.Graph") -> "QdAnnealingIR":  # type: ignore[name-defined]
         import networkx as nx  # noqa
         if isinstance(prob, nx.Graph):
             qubo: dict = {}
@@ -177,7 +177,7 @@ class QdAnnIR:
             return self
         raise TypeError(f"{type(prob)}は対応していない型です。")
 
-    def from_pandas(self, prob: "pd.DataFrame") -> "QdAnnIR":  # type: ignore[name-defined]
+    def from_pandas(self, prob: "pd.DataFrame") -> "QdAnnealingIR":  # type: ignore[name-defined]
         import pandas as pd  # noqa
         if isinstance(prob, pd.DataFrame):
             key1_list = prob.columns.tolist()
@@ -195,7 +195,7 @@ class QdAnnIR:
             return self
         raise TypeError(f"{type(prob)}は対応していない型です。")
 
-    def from_dimod_bqm(self, prob: "dimod.BinaryQuadraticModel") -> "QdAnnIR":  # type: ignore[name-defined]
+    def from_dimod_bqm(self, prob: "dimod.BinaryQuadraticModel") -> "QdAnnealingIR":  # type: ignore[name-defined]
         import dimod  # noqa
         if isinstance(prob, dimod.BinaryQuadraticModel):
             qubo = dict(prob.quadratic).copy()
@@ -207,7 +207,7 @@ class QdAnnIR:
             return self
         raise TypeError(f"{type(prob)}は対応していない型です。")
 
-    def from_sympy(self, prob: "sympy.core.expr.Expr") -> "QdAnnIR":  # type: ignore[name-defined]
+    def from_sympy(self, prob: "sympy.core.expr.Expr") -> "QdAnnealingIR":  # type: ignore[name-defined]
         import sympy  # noqa
         if isinstance(prob, sympy.core.expr.Expr):
             qubo: dict = {}
@@ -351,7 +351,7 @@ class QdAnnIR:
 
     # alias for old name
     @classmethod
-    def from_dict(cls, data: dict) -> "QdAnnIR":
+    def from_dict(cls, data: dict) -> "QdAnnealingIR":
         return cls(qubo=data)
 
     # 旧 API との互換性: qubo プロパティを prob にも提供
@@ -361,6 +361,8 @@ class QdAnnIR:
 
     # 比較用
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, QdAnnIR):
+        if not isinstance(other, QdAnnealingIR):
             return False
         return self.qubo == other.qubo
+
+QdAnnIR = QdAnnealingIR

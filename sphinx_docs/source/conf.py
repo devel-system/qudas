@@ -6,6 +6,18 @@ sys.path.insert(
     0, os.path.join(os.path.dirname(__file__), "../..", "examples")
 )  # examplesのコードを追加
 
+# VERSIONファイルのパスを絶対パスで取得
+VERSION_FILE_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), '../..', 'VERSION'
+)
+
+# VERSIONファイルからバージョンを読み込む
+try:
+    with open(VERSION_FILE_PATH) as version_file:
+        __version__ = version_file.read().strip()
+except FileNotFoundError:
+    __version__ = '0.0.1'  # デフォルトバージョンを設定
+
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -15,9 +27,9 @@ sys.path.insert(
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Qudas'
-copyright = '2024, DEVEL Co., Ltd.'
+copyright = '2024 - 2025, DEVEL Co., Ltd.'
 author = 'KeiichiroHiga'
-release = '0.1.1'
+release = __version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

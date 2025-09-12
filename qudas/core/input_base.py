@@ -4,10 +4,10 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 
-class QuDataInputBase(ABC):
+class QdInputBase(ABC):
     """qudas の各 Executor に入力されるデータの基底クラス。
 
-    ゲート方式、QUBO 方式のどちらでも利用できる共通インターフェースを提供します。
+    ゲート方式、アニーリングのQUBO方式のどちらでも利用できる共通インターフェースを提供します。
     ゲート系を対象とするサブクラスでは ``to_ir`` をオーバーライドして、
     ゲート用の中間表現 (IR) を返すように実装してください。
     """
@@ -19,7 +19,7 @@ class QuDataInputBase(ABC):
 
     @classmethod
     @abstractmethod
-    def from_dict(cls, data: dict) -> "QuDataInputBase":
+    def from_dict(cls, data: dict) -> "QdInputBase":
         """``to_dict`` で得られた辞書からインスタンスを復元します。"""
         ...
 
@@ -35,6 +35,6 @@ class QuDataInputBase(ABC):
 
 
 # 下位互換性維持のためのエイリアス
-QdInBase = QuDataInputBase
+QdInBase = QdInputBase
 
-__all__ = ["QuDataInputBase", "QdInBase"]
+__all__ = ["QdInputBase", "QdInBase"]

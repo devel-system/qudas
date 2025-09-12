@@ -4,33 +4,67 @@ import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, Any, Tuple, Optional
 
-from qudas.core.base import QdExecBase
+from qudas.core.base import QdExecutorBase
 
-from .input import QdAnnIn
-from .output import QdAnnOut
+from .input import QdAnnealingInput
+from .output import QdAnnealingOutput
 
 
-class QuAnnealingExecutor(QdExecBase):
+class QdAnnealingExecutor(QdExecutorBase):
     """複数デバイスへの並列実行をサポートするアニーリング用 Executor。"""
 
     # --------------------------------------------------------------
     # コンストラクタ / パラメータ
     # --------------------------------------------------------------
-    def __init__(self, backend_map: Optional[Dict[str, str]] = None):
+    def __init__(self, provider: str, provider_config: Optional[Dict[str, Any]] = None, provider_map: Optional[Dict[str, str]] = None, provider_config_map: Optional[Dict[str, Dict[str, Any]]] = None):
         """Parameters
         ----------
-        backend_map : dict[str, str], optional
-            ブロックラベルをキーに使用するバックエンド名を指定する辞書。
-            省略時はすべて ``default`` (= dimod) を用いる。
+        provider : str, optional
+            The provider to use for the executor. (e.g. "amplify", "dimod")
+        provider_config : dict[str, Any], optional
+            The configuration for the provider.
+        provider_map : dict[str, str], optional
+            The mapping of block labels to providers. (e.g. {"block0": "amplify", "block1": "dimod"})
+        provider_config_map : dict[str, dict[str, Any]], optional
+            The mapping of block labels to provider configurations. (e.g. {"block0": {"backend": "amplify"}, "block1": {"backend": "dimod"}})
         """
-
-        self.backend_map = backend_map or {}
+        super().__init__(provider, provider_config, provider_map, provider_config_map)
 
     # --------------------------------------------------------------
     # パブリック API
     # --------------------------------------------------------------
-    def run(self, input_data: QdAnnIn) -> QdAnnOut:  # noqa: D401 – simple method name
-        """与えられた複数ブロックを並列実行し、結果を ``QdAnnOut`` で返却。"""
+    def run(self, input_data: QdAnnealingInput) -> QdAnnealingOutput:  # noqa: D401 – simple method name
+        """単一の :class:`QdAnnealingInput` を実行し、 ``QdAnnealingOutput`` を返却。
+
+        Parameters
+        ----------
+        input_data : QdAnnealingInput
+            実行対象の量子アニーリングブロックを含む入力。
+
+        Returns
+        -------
+        QdAnnealingOutput
+            ブロック名をキー、各 backend の実行結果を値とする辞書を ``results`` として保持します。
+        """
+        block = input_data.block
+        provider = self.resolve_provider(block.label)
+        config = self.resolve_provider_config(block.label)
+        result = self._run_single_block(block, provider, config)
+        return QdAnnealingOutput({block.label: result})
+
+    def run_split(self, input_data: QdAnnealingInput) -> QdAnnealingOutput:  # noqa: D401 – simple method name
+        """与えられた複数ブロックを並列実行し、結果を ``QdAnnealingOutput`` で返却。
+
+        Parameters
+        ----------
+        input_data : QdAnnealingInput
+            実行対象の量子アニーリングブロックを含む入力。
+
+        Returns
+        -------
+        QdAnnealingOutput
+            ブロック名をキー、各 backend の実行結果を値とする辞書を ``results`` として保持します。
+        """
 
         if not hasattr(input_data, "blocks"):
             raise AttributeError("input_data は 'blocks' 属性を持つ必要があります。")
@@ -40,37 +74,42 @@ class QuAnnealingExecutor(QdExecBase):
         # 並列実行 (CPU バウンドではないため ThreadPoolExecutor で十分)
         with ThreadPoolExecutor() as pool:
             future_map = {
-                pool.submit(self._run_single_block, block.qubo, self.backend_map.get(block.label, "default"), block.label):
+                pool.submit(
+                    self._run_single_block,
+                    block,
+                    self.resolve_provider(block.label),
+                    self.resolve_provider_config(block.label),
+                ):
                 block.label
                 for block in input_data.blocks
             }
 
             for future in as_completed(future_map):
-                block_label, res_dict = future.result()
-                results[block_label] = res_dict
+                label, result = future.result()
+                results[label] = result
 
-        return QdAnnOut(results)
+        return QdAnnealingOutput(results)
 
     # --------------------------------------------------------------
     # 内部ユーティリティ
     # --------------------------------------------------------------
-    def _run_single_block(self, qubo: Dict[Tuple[str, str], float], backend: str, label: str):
+    def _run_single_block(self, block, provider: str, kwargs: Dict[str, Any]):
         """1 ブロック分の QUBO を指定バックエンドで解く。"""
 
-        if backend == "amplify":
-            result = self._run_amplify(qubo)
-        elif backend == "dimod" or backend == "default":
-            result = self._run_dimod(qubo)
+        if provider == "amplify":
+            result = self._run_amplify(block.qubo, **kwargs)
+        elif provider == "dimod" or provider == "default":
+            result = self._run_dimod(block.qubo, **kwargs)
         else:
-            raise NotImplementedError(f"Backend '{backend}' は未サポートです。")
+            raise NotImplementedError(f"Provider '{provider}' は未サポートです。")
 
-        return label, result
+        return block.label, result
 
     # ------------------------------------------------------------------
     # backend 実装
     # ------------------------------------------------------------------
     @staticmethod
-    def _run_amplify(qubo):
+    def _run_amplify(qubo: Dict[Tuple[str, str], float], **kwargs):
         """Fixstars Amplify を用いて QUBO を解く。(トークン未設定時はフォールバック)"""
 
         try:
@@ -106,10 +145,10 @@ class QuAnnealingExecutor(QdExecBase):
 
         except Exception:  # noqa: BLE001 – Any failure → フォールバック
             # Amplify が使えない場合は naive 解法にフォールバック
-            return QuAnnealingExecutor._run_naive(qubo, device="amplify(fallback)")
+            return QdAnnealingExecutor._run_naive(qubo, device="amplify(fallback)", **kwargs)  # type: ignore
 
     @staticmethod
-    def _run_dimod(qubo):
+    def _run_dimod(qubo: Dict[Tuple[str, str], float], **kwargs):
         """Dimod の ExactSolver で QUBO を解く。dimod が無い場合はフォールバック。"""
 
         try:
@@ -130,13 +169,13 @@ class QuAnnealingExecutor(QdExecBase):
             return {"solution": dict(best.sample), "energy": best.energy, "device": "dimod"}
 
         except Exception:  # noqa: BLE001 – ImportError or others
-            return QuAnnealingExecutor._run_naive(qubo, device="dimod(fallback)")
+            return QdAnnealingExecutor._run_naive(qubo, device="dimod(fallback)", **kwargs)  # type: ignore
 
     # ------------------------------------------------------------------
     # フォールバック: 単純評価 (すべて 0 に固定)
     # ------------------------------------------------------------------
     @staticmethod
-    def _run_naive(qubo, device="naive"):
+    def _run_naive(qubo: Dict[Tuple[str, str], float], device="naive", **kwargs):
         vars_set = set()
         for key in qubo.keys():
             vars_set.update(key)
@@ -146,4 +185,4 @@ class QuAnnealingExecutor(QdExecBase):
 
 
 # エイリアス
-QdAnnExec = QuAnnealingExecutor
+QdAnnExec = QdAnnealingExecutor

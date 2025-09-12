@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 
-class QuantumGateIR:
+class QdGateIR:
     """単一ゲートのIR表現。"""
 
     def __init__(
@@ -11,7 +11,7 @@ class QuantumGateIR:
         controls: Optional[List[int]] = None,
         params: Optional[List[float]] = None,
     ) -> None:
-        """QuantumGateIR を初期化する。
+        """QdGateIR を初期化する。
 
         Parameters
         ----------
@@ -28,7 +28,3 @@ class QuantumGateIR:
         self.targets: List[int] = targets
         self.controls: List[int] = controls or []
         self.params: List[float] = params or []
-
-
-# Alias for backward compatibility / shorthand
-QdGateIR = QuantumGateIR

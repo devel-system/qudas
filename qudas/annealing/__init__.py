@@ -1,12 +1,13 @@
-from .input import QuDataAnnealingInput, QdAnnIn
-from .output import QuDataAnnealingOutput, QdAnnOut
-from .executor import QuAnnealingExecutor, QdAnnExec
-from .ir import QdAnnIR
-from .block import QdAnnBlock
+from .input import QdAnnealingInput, QdAnnIn
+from .output import QdAnnealingOutput, QdAnnOut
+from .executor import QdAnnealingExecutor, QdAnnExec
+from .ir import QdAnnealingIR, QdAnnIR
+from .block import QdAnnealingBlock, QdAnnBlock
 
 __all__ = [
-    "QuDataAnnealingInput", "QdAnnIn",
-    "QuDataAnnealingOutput", "QdAnnOut",
-    "QuAnnealingExecutor", "QdAnnExec",
-    "QdAnnIR", "QdAnnBlock",
+    "QdAnnealingInput", "QdAnnIn",
+    "QdAnnealingOutput", "QdAnnOut",
+    "QdAnnealingExecutor", "QdAnnExec",
+    "QdAnnealingIR", "QdAnnIR",
+    "QdAnnealingBlock", "QdAnnBlock",
 ]

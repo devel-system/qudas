@@ -7,19 +7,19 @@
 
 from __future__ import annotations
 
-from .input_base import QuDataInputBase
-from .output_base import QuDataOutputBase
-from .executor_base import QuExecutorBase
+from .input_base import QdInputBase
+from .output_base import QdOutputBase
+from .executor_base import QdExecutorBase
 
 # 旧クラス名のエイリアス ----------------------------------------------------
-QdInBase = QuDataInputBase
-QdOutBase = QuDataOutputBase
-QdExecBase = QuExecutorBase
+QdInBase = QdInputBase
+QdOutBase = QdOutputBase
+QdExecBase = QdExecutorBase
 
 __all__ = [
-    "QuDataInputBase",
-    "QuDataOutputBase",
-    "QuExecutorBase",
+    "QdInputBase",
+    "QdOutputBase",
+    "QdExecutorBase",
     "QdInBase",
     "QdOutBase",
     "QdExecBase",

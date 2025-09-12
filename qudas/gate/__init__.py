@@ -1,17 +1,16 @@
-from .input import QuDataGateInput, QdGateIn
-from .output import QuDataGateOutput, QdGateOut
+from .input import QdGateInput, QdGateIn
+from .output import QdGateOutput, QdGateOut
 # Executor
-from .executor import QuDataGateExecutor, QuGateExecutor, QdGateExec
-from .ir import QuAlgorithmIR, QdIR
-from .block import QuantumCircuitBlock, QdBlock
-from .gate_ir import QuantumGateIR, QdGateIR
+from .executor import QdGateExecutor, QdGateExec
+from .ir import QdAlgorithmIR
+from .block import QdGateBlock, QdBlock
+from .gate_ir import QdGateIR
 
 __all__ = [
-    "QuDataGateInput", "QdGateIn",
-    "QuDataGateOutput", "QdGateOut",
-    "QuDataGateExecutor",
-    "QuGateExecutor", "QdGateExec",
-    "QuAlgorithmIR", "QdIR",
-    "QuantumCircuitBlock", "QdBlock",
-    "QuantumGateIR", "QdGateIR",
+    "QdGateInput", "QdGateIn",
+    "QdGateOutput", "QdGateOut",
+    "QdGateExecutor", "QdGateExec",
+    "QdAlgorithmIR",
+    "QdGateBlock", "QdBlock",
+    "QdGateIR",
 ]

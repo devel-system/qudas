@@ -1,4 +1,4 @@
-from qudas.annealing import QdAnnIR, QuDataAnnealingOutput
+from qudas.annealing import QdAnnIR, QdAnnealingOutput
 from typing import Optional, Dict, Any
 
 
@@ -24,13 +24,13 @@ class QuData:
         result: Optional[Dict[str, Any]] = None,
         result_type: Optional[str] = None,
         **kwargs,
-    ) -> QuDataAnnealingOutput:
+    ) -> QdAnnealingOutput:
         """新しい出力クラス (QuDataAnnealingOutput) を返却する。
 
         旧 API の `result`/`result_type` でも呼び出せるように互換を維持する。
         """
 
-        return QuDataAnnealingOutput(
+        return QdAnnealingOutput(
             results=results,
             result=result,
             result_type=result_type,
@@ -39,4 +39,4 @@ class QuData:
 
 # 旧クラス名のエイリアス（互換性維持）
 QuDataInput = QdAnnIR
-QuDataOutput = QuDataAnnealingOutput
+QuDataOutput = QdAnnealingOutput
