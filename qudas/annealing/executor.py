@@ -16,7 +16,7 @@ class QdAnnealingExecutor(QdExecutorBase):
     # --------------------------------------------------------------
     # コンストラクタ / パラメータ
     # --------------------------------------------------------------
-    def __init__(self, provider: str, provider_config: Optional[Dict[str, Any]] = None, provider_map: Optional[Dict[str, str]] = None, provider_config_map: Optional[Dict[str, Dict[str, Any]]] = None):
+    def __init__(self, provider: str = "default", provider_config: Optional[Dict[str, Any]] = None, provider_map: Optional[Dict[str, str]] = None, provider_config_map: Optional[Dict[str, Dict[str, Any]]] = None):
         """Parameters
         ----------
         provider : str, optional
@@ -49,7 +49,7 @@ class QdAnnealingExecutor(QdExecutorBase):
         block = input_data.block
         provider = self.resolve_provider(block.label)
         config = self.resolve_provider_config(block.label)
-        result = self._run_single_block(block, provider, config)
+        _, result = self._run_single_block(block, provider, config)
         return QdAnnealingOutput({block.label: result})
 
     def run_split(self, input_data: QdAnnealingInput) -> QdAnnealingOutput:  # noqa: D401 – simple method name

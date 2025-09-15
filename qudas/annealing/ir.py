@@ -1,4 +1,6 @@
-class QdAnnealingIR:
+from collections.abc import Mapping
+
+class QdAnnealingIR(Mapping):
     """量子アニーリング用の中間表現 (QUBO) を表すクラス。
 
     旧 `QuDataInput` で担っていた QUBO 変換・演算機能を移植した。
@@ -364,5 +366,15 @@ class QdAnnealingIR:
         if not isinstance(other, QdAnnealingIR):
             return False
         return self.qubo == other.qubo
+
+    # Mapping インターフェース
+    def __len__(self):
+        return len(self.qubo)
+
+    def __iter__(self):
+        return iter(self.qubo)
+
+    def __getitem__(self, key):
+        return self.qubo[key]
 
 QdAnnIR = QdAnnealingIR

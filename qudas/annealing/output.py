@@ -207,6 +207,22 @@ class QdAnnealingOutput(QdOutputBase):
         )
         return result
 
+    def visualize(self):
+        """結果を可視化します。"""
+        try:
+            import matplotlib.pyplot as plt  # type: ignore
+
+            for idx, (label, res) in enumerate(self.results.items() if isinstance(self.results, dict) else [("", self.results)]):
+                plt.figure(idx)
+                if "counts" in res:
+                    plt.bar(res["counts"].keys(), res["counts"].values())
+                    plt.title(f"Counts for {label}")
+            plt.show()
+        except Exception:
+            # matplotlib 無い場合、テキスト表示にフォールバック
+            print("QuDataGateOutput.visualize(): matplotlib が見つからないためテキスト出力します。")
+            print(self.results)
+
 
 # エイリアス（旧クラス名を残しておく）
 QdAnnOut = QdAnnealingOutput

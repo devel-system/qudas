@@ -38,6 +38,10 @@ class QdAnnealingInput(QdInputBase):
                 "blocks には QdAnnealingBlock のリスト、QdAnnealingIR、または None を渡してください。"
             )
 
+    @property
+    def block(self) -> QdAnnealingBlock:
+        return self.blocks[0]
+
     # ------------------------------------------------------------------
     # 旧 API 互換: `.ir` プロパティ (最初のブロックを参照)
     # ------------------------------------------------------------------
@@ -54,6 +58,10 @@ class QdAnnealingInput(QdInputBase):
     def to_dict(self) -> Dict[str, Dict]:  # noqa: D401 – 単純メソッド
         """``{block_label: qubo_dict}`` 形式へ変換。"""
         return {block.label: block.qubo for block in self.blocks}
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Dict]) -> "QdAnnealingInput":
+        return cls(blocks=[QdAnnealingBlock(qubo, label=label) for label, qubo in data.items()])
 
 
 # エイリアス (旧クラス名)

@@ -29,7 +29,7 @@ class QdExecutorBase(ABC):
         provider_config_map : dict[str, dict[str, Any]], optional
             The mapping of block labels to provider configurations. (e.g. {"block0": {"backend": "qiskit_simulator"}, "block1": {"backend": "braket_ionq"}})
         """
-        if provider is None:
+        if provider is None and provider_map is None:
             raise ValueError("provider is required")
 
         self.provider = provider
