@@ -53,6 +53,10 @@ class QdGateOutput(QdOutputBase):
         # とりあえず内部辞書をそのまま返す。
         return {"target": target, "results": self.results}
 
+    @classmethod
+    def from_sdk_format(cls, sdk_obj: Any, target: str) -> "QdGateOutput":
+        return cls(sdk_obj["results"])
+
     def visualize(self):  # noqa: D401 – simple method name
         """結果を簡易可視化 (テキスト出力)。"""
 

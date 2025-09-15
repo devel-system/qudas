@@ -21,7 +21,7 @@ class QdGateExecutor(QdExecutorBase):
     # --------------------------------------------------------------
     def __init__(
         self,
-        provider: str,
+        provider: str = "default",
         provider_config: Optional[Dict[str, Any]] = None,
         provider_map: Optional[Dict[str, str]] = None,
         provider_config_map: Optional[Dict[str, Dict[str, Any]]] = None
@@ -47,7 +47,7 @@ class QdGateExecutor(QdExecutorBase):
         block = input_data.block
         provider = self.resolve_provider(block.label)
         config = self.resolve_provider_config(block.label)
-        result = self._run_single_block(block, provider, config)
+        _, result = self._run_single_block(block, provider, config)
         return QdGateOutput({block.label: result})
 
     def run_split(self, input_data: QdGateInput) -> QdGateOutput:  # noqa: D401 – simple method name
@@ -93,7 +93,7 @@ class QdGateExecutor(QdExecutorBase):
     def _run_single_block(self, block, provider: str, kwargs: Dict[str, Any]):
         """1 ブロック分の量子回路を指定バックエンドで実行。"""
         # --- 現在は QuantumCircuitBlock (SDK 非依存) をサポート ------------------
-        if provider == "qiskit":
+        if provider == "qiskit" or provider == "default":
             # ``block`` の型に応じて回路を用意
             if hasattr(block, "gates"):
                 # 新しい QuantumCircuitBlock 形式

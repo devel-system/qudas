@@ -32,6 +32,10 @@ class QdGateInput(QdInputBase):
                 "blocks には QdGateBlock のリスト、QdAlgorithmIR、または None を渡してください。"
             )
 
+    @property
+    def block(self) -> QdGateBlock:
+        return self.blocks[0]
+
     def to_dict(self):
         return {block.label: {"gates": block.gates, "num_qubits": block.num_qubits} for block in self.blocks}
 

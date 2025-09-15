@@ -118,4 +118,5 @@ class TestAnnealingExecutor(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    runner = unittest.TextTestRunner(verbosity=2)
+    unittest.main(testRunner=runner)

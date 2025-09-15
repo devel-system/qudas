@@ -46,12 +46,12 @@ class QdAlgorithmIR:
 
         gates: List[QdGateIR] = []
         for inst, qargs, _ in qc.data:
-            targets = [q.index for q in qargs]
+            targets = [qc.qubits.index(q) for q in qargs]
             gate_ir = QdGateIR(
                 gate=inst.name,
                 targets=targets,
                 controls=[],
-                params=list(inst.params) if inst.params is not None else [],
+                params=list(inst.parameters) if hasattr(inst, "parameters") else []
             )
             gates.append(gate_ir)
 
@@ -61,6 +61,7 @@ class QdAlgorithmIR:
         """保持している ``QdGateIR`` 一覧から ``qiskit.circuit.QuantumCircuit`` を生成する。"""
         from qiskit import QuantumCircuit  # type: ignore
         from qiskit.circuit import Instruction  # type: ignore
+        from qiskit.circuit.library import XGate, HGate, CXGate, RZGate, RXGate, RYGate
 
         if not self.gates:
             return QuantumCircuit(0)
@@ -75,17 +76,39 @@ class QdAlgorithmIR:
             )
         )
         num_qubits = max_index + 1
-        qc = QuantumCircuit(num_qubits)
+
+        # 測定ゲートがあるかどうか確認
+        has_measure = any(g.gate == "measure" for g in self.gates)
+        if has_measure:
+            qc = QuantumCircuit(num_qubits, num_qubits)  # qubits と同数の classical bits
+        else:
+            qc = QuantumCircuit(num_qubits)
+
+        # 名前→ゲートオブジェクトの対応表
+        gate_map = {
+            "x": XGate,
+            "h": HGate,
+            "cx": CXGate,
+            "rz": RZGate,
+            "rx": RXGate,
+            "ry": RYGate,
+            # 必要に応じて追加
+        }
 
         for g in self.gates:
             # 制御 -> ターゲット の順で並べる
             qubit_indices = g.controls + g.targets
-            instruction = Instruction(
-                name=g.gate,
-                num_qubits=len(qubit_indices),
-                num_clbits=0,
-                params=g.params,
-            )
-            qc.append(instruction, [qc.qubits[i] for i in qubit_indices])
+
+            if g.gate == "measure":
+                # targets[0] を qubit, 同じ index の classical bit に対応付け
+                for t in g.targets:
+                    qc.measure(t, t)
+
+            else:
+                if g.gate in gate_map:
+                    gate = gate_map[g.gate](*g.params) if g.params else gate_map[g.gate]()
+                    qc.append(gate, [qc.qubits[i] for i in qubit_indices])
+                else:
+                    raise ValueError(f"Unsupported gate: {g.gate}")
 
         return qc
