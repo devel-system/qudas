@@ -52,13 +52,17 @@ class QdAnnealingOutput(QdOutputBase):
         """最初のブロックの solution を返す（辞書 or None）"""
         if not self.results:
             return None
-        return next(iter(self.results.values())).solution
+        return next(iter(self.results.values()))["solution"]
 
     @property
     def last_device(self) -> Optional[str]:
         if not self.results:
             return None
-        return next(reversed(self.results.values())).device
+        return next(reversed(self.results.values()))["device"]
+
+    @property
+    def result_type(self) -> Optional[str]:
+        return self.last_device
 
     # ------------------------------------------------------------------
     # 汎用ユーティリティ
@@ -106,9 +110,6 @@ class QdAnnealingOutput(QdOutputBase):
             'energy': objective,
             **extras,
         }
-        # 旧 API 属性も更新
-        self.solution = variables
-        self.last_device = extras.get('device', self.last_device)
         return self
 
     @classmethod

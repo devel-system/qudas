@@ -245,9 +245,11 @@ class QdAnnealingIR(Mapping):
 
     def to_amplify(self):
         from amplify import VariableGenerator  # type: ignore
-        variables = list(set(k for key in self.qubo.keys() for k in key))
+        variables = sorted(set(k for key in self.qubo.keys() for k in key))
+
         gen = VariableGenerator()
         labeled_q = {str(name): gen.scalar("Binary", name=str(name)) for name in variables}
+
         qubo_poly = 0
         for key, value in self.qubo.items():
             sub_qubo = 1
@@ -315,8 +317,8 @@ class QdAnnealingIR(Mapping):
 
     def to_pandas(self):
         import pandas as pd  # noqa
-        variables = list(set(k for key in self.qubo.keys() for k in key))
-        df = pd.DataFrame(0, index=variables, columns=variables)
+        variables = sorted(set(k for key in self.qubo.keys() for k in key))
+        df = pd.DataFrame(0.0, index=variables, columns=variables)
         for key, value in self.qubo.items():
             df.loc[key[0], key[1]] = value
         return df
@@ -334,14 +336,14 @@ class QdAnnealingIR(Mapping):
 
     def to_sympy(self):
         import sympy  # noqa
-        variables = list(set(k for key in self.qubo.keys() for k in key))
-        sym_vars = {name: sympy.Symbol(name) for name in variables}
         expr = 0
-        for key, value in self.qubo.items():
-            sub_expr = 1
-            for k in key:
-                sub_expr *= sym_vars[k]
-            expr += sub_expr * value
+        for (i, j), value in self.qubo.items():
+            if i == j:
+                # 対角項（一次項として扱う）
+                expr += sympy.Symbol(i) * value
+            else:
+                # 非対角項（二次項）
+                expr += sympy.Symbol(i) * sympy.Symbol(j) * value
         return expr
 
     # ------------------------------

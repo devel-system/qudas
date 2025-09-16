@@ -1,42 +1,39 @@
-from qudas.annealing import QdAnnIR, QdAnnealingOutput
-from typing import Optional, Dict, Any
+from qudas.annealing import QdAnnealingIR, QdAnnealingOutput
+from qudas.gate import QdGateIR, QdGateOutput
+from typing import Optional, Dict, Any, Union
 
 
 class QuData:
+    """gate/annealing 共通フロントエンド"""
 
     @classmethod
-    def input(cls, prob: Optional[Dict[str, Any]] = None) -> QdAnnIR:
+    def input(cls, prob: Optional[Dict[str, Any]] = None, mode: str = "annealing") -> Union[QdAnnealingIR, QdGateIR]:
         """
-        新IR (QdAnnIR) を返却するラッパー。旧API互換のために残してある。
+        新IR (QdAnnealingIR) を返却するラッパー。旧API互換のために残してある。
         """
-        if prob is None:
-            return QdAnnIR()
-        if isinstance(prob, dict):
-            return QdAnnIR(prob)
-        raise TypeError(f"{type(prob)}は対応していない型です。")
+        if mode == "annealing":
+            return QdAnnealingIR(prob if prob else {})
+        elif mode == "gate":
+            return QdGateIR(prob if prob else {})
+        else:
+            raise TypeError(f"{type(prob)}は対応していない型です。")
 
     @classmethod
     def output(
         cls,
-        # 新 API
-        results: Optional[Dict[str, Dict[str, Any]]] = None,
-        # 旧 API
         result: Optional[Dict[str, Any]] = None,
         result_type: Optional[str] = None,
+        mode: str = "annealing",
         **kwargs,
-    ) -> QdAnnealingOutput:
+    ) -> Union[QdAnnealingOutput, QdGateOutput]:
         """新しい出力クラス (QuDataAnnealingOutput) を返却する。
 
         旧 API の `result`/`result_type` でも呼び出せるように互換を維持する。
         """
 
-        return QdAnnealingOutput(
-            results=results,
-            result=result,
-            result_type=result_type,
-            **kwargs,
-        )
-
-# 旧クラス名のエイリアス（互換性維持）
-QuDataInput = QdAnnIR
-QuDataOutput = QdAnnealingOutput
+        if mode == "annealing":
+            return QdAnnealingOutput(results={"block0": result}, **kwargs)
+        elif mode == "gate":
+            return QdGateOutput(results={"block0": result}, **kwargs)
+        else:
+            raise TypeError(f"{type(result)}は対応していない型です。")

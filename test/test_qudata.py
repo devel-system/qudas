@@ -480,6 +480,16 @@ class TestQudata(unittest.TestCase):
         self.assertEqual(qdo.result_type, 'pulp')
 
     def test_from_amplify(self):
+        """Amplify形式の結果を受け取るメソッドのテスト"""
+        try:
+            from amplify import VariableGenerator, Model, FixstarsClient, solve
+        except Exception:
+            self.skipTest("Amplifyがインストールされていないためテストをスキップします。")
+
+        from amplify import VariableGenerator, Model, FixstarsClient, solve
+        from datetime import timedelta
+        import os
+
         # Amplify形式の結果
         gen = VariableGenerator()
         q = gen.array("Binary", shape=(3))
@@ -488,6 +498,9 @@ class TestQudata(unittest.TestCase):
         # ソルバーの設定
         client = FixstarsClient()
         client.token = os.getenv("AMPLIFY_TOKEN")
+        if client.token is None:
+            self.skipTest("Amplifyのトークンが設定されていないためテストをスキップします。")
+
         client.parameters.timeout = timedelta(milliseconds=100)
 
         # 最小化を実行
@@ -555,12 +568,12 @@ class TestQudata(unittest.TestCase):
 
         # 検証
         self.assertEqual(qdo.result, expected_result)
-        self.assertEqual(qdo.result_type, 'sympy')
+        self.assertEqual(qdo.result_type, 'scipy')
 
     def test_to_dimod(self):
         # Dimod形式の結果に変換
         qdo = QuData.output(
-            result={'variables': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0}, 'objective': -2}
+            result={'solution': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0}, 'energy': -2}
         )
         dimod_result = qdo.to_dimod()
 
@@ -574,7 +587,7 @@ class TestQudata(unittest.TestCase):
     def test_to_scipy(self):
         # SciPy形式の結果に変換
         qdo = QuData.output(
-            result={'variables': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0}, 'objective': -2}
+            result={'solution': {'q0': 0.0, 'q1': 1.0, 'q2': 1.0}, 'energy': -2}
         )
         scipy_result = qdo.to_scipy()
 
@@ -603,4 +616,5 @@ class TestQudata(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    runner = unittest.TextTestRunner(verbosity=2)
+    unittest.main(testRunner=runner)
