@@ -266,16 +266,10 @@ print(counts)
 
 ---
 
-### 1-4. アニーリング実行 API 変更点 (v0.1 → v0.2)
-古いバージョンをお使いの方は以下の表を参考にマイグレーションしてください。
+### 1-4. **NEW** アニーリング実行 API (v0.2 系で追加)
+v0.1 にはアニーリング実行 API は存在しません。v0.2 で新規に追加されました。以下の使用例をご参照ください。
 
-| v0.1 系 | v0.2 系 |
-|---------|---------|
-| `from qudas.annealing.executor import AnnealingExecutor` | `from qudas.annealing import QdAnnealingExecutor` |
-| `AnnealingExecutor().execute(qubo)` | `QdAnnealingExecutor().run(QdAnnealingInput(qubo))` |
-| (戻り値) dict | (戻り値) `QdAnnealingOutput` オブジェクト |
-
-#### 新しい使用例
+#### 使用例
 ```python
 from qudas.annealing import QdAnnealingInput, QdAnnealingBlock, QdAnnealingExecutor
 
