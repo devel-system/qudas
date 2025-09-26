@@ -24,7 +24,7 @@ class QdGateExecutor(QdExecutorBase):
         provider: str = "default",
         provider_config: Optional[Dict[str, Any]] = None,
         provider_map: Optional[Dict[str, str]] = None,
-        provider_config_map: Optional[Dict[str, Dict[str, Any]]] = None
+        provider_config_map: Optional[Dict[str, Dict[str, Any]]] = None,
     ) -> None:
         """Parameters
         ----------
@@ -42,7 +42,9 @@ class QdGateExecutor(QdExecutorBase):
     # --------------------------------------------------------------
     # パブリック API
     # --------------------------------------------------------------
-    def run(self, input_data: QdGateInput) -> QdGateOutput:  # noqa: D401 – simple method name
+    def run(
+        self, input_data: QdGateInput
+    ) -> QdGateOutput:  # noqa: D401 – simple method name
         """単一の :class:`QdGateInput` を実行し、 ``QdGateOutput`` を返却。"""
         block = input_data.block
         provider = self.resolve_provider(block.label)
@@ -50,7 +52,9 @@ class QdGateExecutor(QdExecutorBase):
         _, result = self._run_single_block(block, provider, config)
         return QdGateOutput({block.label: result})
 
-    def run_split(self, input_data: QdGateInput) -> QdGateOutput:  # noqa: D401 – simple method name
+    def run_split(
+        self, input_data: QdGateInput
+    ) -> QdGateOutput:  # noqa: D401 – simple method name
         """入力をブロックごとに分割して並列実行します。
 
         Parameters

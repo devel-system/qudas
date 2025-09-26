@@ -75,7 +75,9 @@ class TestAnnealingExecutor(unittest.TestCase):
             import networkx as nx  # noqa: F401
             import dimod  # noqa: F401
         except ImportError:
-            self.skipTest('networkx または dimod がインストールされていないためスキップ')
+            self.skipTest(
+                'networkx または dimod がインストールされていないためスキップ'
+            )
 
         import networkx as nx
 

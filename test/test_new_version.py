@@ -16,9 +16,7 @@ superposition = QdGateBlock(
 # オラクル
 oracle = QdGateBlock(
     label="oracle",
-    gates=[
-        QdGateIR(gate="cz", targets=[0, 1])
-    ],
+    gates=[QdGateIR(gate="cz", targets=[0, 1])],
     num_qubits=2,
 )
 

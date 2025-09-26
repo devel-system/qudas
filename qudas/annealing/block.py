@@ -1,6 +1,7 @@
 from typing import Union
 from qudas.annealing.ir import QdAnnealingIR
 
+
 class QdAnnealingBlock:
     """量子アニーリング用のブロッククラス。"""
 
@@ -24,5 +25,6 @@ class QdAnnealingBlock:
         else:
             raise TypeError(f"{type(qubo)} はサポートされていません。")
         self.label = label
+
 
 QdAnnBlock = QdAnnealingBlock

@@ -2,10 +2,12 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Optional, Dict
 
+
 @dataclass
 class QdOutputBaseData:
     solution: Any
     device: str
+
 
 class QdOutputBase(ABC):
     """qudas Executor から返却される結果データの基底クラス。

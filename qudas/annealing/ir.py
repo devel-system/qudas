@@ -1,5 +1,6 @@
 from collections.abc import Mapping
 
+
 class QdAnnealingIR(Mapping):
     """量子アニーリング用の中間表現 (QUBO) を表すクラス。
 
@@ -34,10 +35,14 @@ class QdAnnealingIR(Mapping):
         return result
 
     def __add__(self, other: "QdAnnealingIR") -> "QdAnnealingIR":
-        return QdAnnealingIR(self._merge_dict(self.qubo, other.qubo, lambda x, y: x + y))
+        return QdAnnealingIR(
+            self._merge_dict(self.qubo, other.qubo, lambda x, y: x + y)
+        )
 
     def __sub__(self, other: "QdAnnealingIR") -> "QdAnnealingIR":
-        return QdAnnealingIR(self._merge_dict(self.qubo, other.qubo, lambda x, y: x - y))
+        return QdAnnealingIR(
+            self._merge_dict(self.qubo, other.qubo, lambda x, y: x - y)
+        )
 
     def __mul__(self, other: "QdAnnealingIR") -> "QdAnnealingIR":
         qubo = {}
@@ -84,6 +89,7 @@ class QdAnnealingIR(Mapping):
 
     def from_pulp(self, prob: "LpProblem") -> "QdAnnealingIR":  # type: ignore[name-defined]
         from pulp import LpProblem  # local import to avoid heavy dep if未使用
+
         if isinstance(prob, LpProblem):
             qubo = {}
             for var in prob.objective.to_dict():
@@ -94,6 +100,7 @@ class QdAnnealingIR(Mapping):
 
     def from_amplify(self, prob: "Poly") -> "QdAnnealingIR":  # type: ignore[name-defined]
         from amplify import Poly  # type: ignore
+
         if isinstance(prob, Poly):
             variables = prob.variables
             qubo: dict = {}
@@ -112,6 +119,7 @@ class QdAnnealingIR(Mapping):
 
     def from_pyqubo(self, prob: "Base") -> "QdAnnealingIR":  # type: ignore[name-defined]
         from pyqubo import Base  # type: ignore
+
         if isinstance(prob, Base):
             qubo = prob.compile().to_qubo()
             self.qubo = qubo[0]
@@ -120,6 +128,7 @@ class QdAnnealingIR(Mapping):
 
     def from_array(self, prob: "np.ndarray") -> "QdAnnealingIR":  # type: ignore[name-defined]
         import numpy as np  # noqa
+
         if isinstance(prob, np.ndarray):
             qubo: dict = {}
             for i, ai in enumerate(prob):
@@ -136,6 +145,7 @@ class QdAnnealingIR(Mapping):
 
     def from_csv(self, path: str, encoding: str = "utf-8-sig") -> "QdAnnealingIR":
         import csv  # local import
+
         try:
             with open(path, encoding=encoding, newline="") as f:
                 qubo: dict = {}
@@ -155,6 +165,7 @@ class QdAnnealingIR(Mapping):
 
     def from_json(self, path: str) -> "QdAnnealingIR":
         import json  # local import
+
         try:
             with open(path) as f:
                 qubo: dict = {}
@@ -168,6 +179,7 @@ class QdAnnealingIR(Mapping):
 
     def from_networkx(self, prob: "nx.Graph") -> "QdAnnealingIR":  # type: ignore[name-defined]
         import networkx as nx  # noqa
+
         if isinstance(prob, nx.Graph):
             qubo: dict = {}
             for e in prob.edges():
@@ -181,6 +193,7 @@ class QdAnnealingIR(Mapping):
 
     def from_pandas(self, prob: "pd.DataFrame") -> "QdAnnealingIR":  # type: ignore[name-defined]
         import pandas as pd  # noqa
+
         if isinstance(prob, pd.DataFrame):
             key1_list = prob.columns.tolist()
             key2_list = prob.index.tolist()
@@ -199,6 +212,7 @@ class QdAnnealingIR(Mapping):
 
     def from_dimod_bqm(self, prob: "dimod.BinaryQuadraticModel") -> "QdAnnealingIR":  # type: ignore[name-defined]
         import dimod  # noqa
+
         if isinstance(prob, dimod.BinaryQuadraticModel):
             qubo = dict(prob.quadratic).copy()
             for k, v in prob.linear.items():
@@ -211,6 +225,7 @@ class QdAnnealingIR(Mapping):
 
     def from_sympy(self, prob: "sympy.core.expr.Expr") -> "QdAnnealingIR":  # type: ignore[name-defined]
         import sympy  # noqa
+
         if isinstance(prob, sympy.core.expr.Expr):
             qubo: dict = {}
             for term in prob.as_ordered_terms():
@@ -230,8 +245,11 @@ class QdAnnealingIR(Mapping):
     # ------------------------------
     def to_pulp(self):
         from pulp import LpVariable, LpProblem, LpMinimize  # local import
+
         variables = list(set(k for key in self.qubo.keys() for k in key))
-        q = [LpVariable(name, lowBound=0, upBound=1, cat='Binary') for name in variables]
+        q = [
+            LpVariable(name, lowBound=0, upBound=1, cat='Binary') for name in variables
+        ]
         qubo_prob = LpProblem('QUBO', LpMinimize)
         _qubo = 0
         for key, value in self.qubo.items():
@@ -245,10 +263,13 @@ class QdAnnealingIR(Mapping):
 
     def to_amplify(self):
         from amplify import VariableGenerator  # type: ignore
+
         variables = sorted(set(k for key in self.qubo.keys() for k in key))
 
         gen = VariableGenerator()
-        labeled_q = {str(name): gen.scalar("Binary", name=str(name)) for name in variables}
+        labeled_q = {
+            str(name): gen.scalar("Binary", name=str(name)) for name in variables
+        }
 
         qubo_poly = 0
         for key, value in self.qubo.items():
@@ -260,6 +281,7 @@ class QdAnnealingIR(Mapping):
 
     def to_pyqubo(self):
         from pyqubo import Binary  # type: ignore
+
         variables = list(set(k for key in self.qubo.keys() for k in key))
         q = [Binary(str(variable)) for variable in variables]
         qubo_expr = 0
@@ -273,6 +295,7 @@ class QdAnnealingIR(Mapping):
 
     def to_array(self):
         import numpy as np  # noqa
+
         variables = sorted(list(set(k for key in self.qubo.keys() for k in key)))
         qubo_arr = np.zeros((len(variables), len(variables)))
         for key, value in self.qubo.items():
@@ -286,6 +309,7 @@ class QdAnnealingIR(Mapping):
 
     def to_csv(self, name: str = "qudata") -> None:
         import csv  # noqa
+
         qubo_arr = self.to_array()
         try:
             with open(f"{name}.csv", 'w') as f:
@@ -296,6 +320,7 @@ class QdAnnealingIR(Mapping):
 
     def to_json(self, name: str = "qudata") -> None:
         import json  # noqa
+
         qubo_json = [
             {"key": list(key), "value": value} for key, value in self.qubo.items()
         ]
@@ -307,6 +332,7 @@ class QdAnnealingIR(Mapping):
 
     def to_networkx(self):
         import networkx as nx  # noqa
+
         variables = list(set(k for key in self.qubo.keys() for k in key))
         G = nx.Graph()
         G.add_nodes_from(variables)
@@ -317,6 +343,7 @@ class QdAnnealingIR(Mapping):
 
     def to_pandas(self):
         import pandas as pd  # noqa
+
         variables = sorted(set(k for key in self.qubo.keys() for k in key))
         df = pd.DataFrame(0.0, index=variables, columns=variables)
         for key, value in self.qubo.items():
@@ -325,6 +352,7 @@ class QdAnnealingIR(Mapping):
 
     def to_dimod_bqm(self):
         import dimod  # noqa
+
         linear = {}
         quadratic = {}
         for key, value in self.qubo.items():
@@ -336,6 +364,7 @@ class QdAnnealingIR(Mapping):
 
     def to_sympy(self):
         import sympy  # noqa
+
         expr = 0
         for (i, j), value in self.qubo.items():
             if i == j:
@@ -378,5 +407,6 @@ class QdAnnealingIR(Mapping):
 
     def __getitem__(self, key):
         return self.qubo[key]
+
 
 QdAnnIR = QdAnnealingIR

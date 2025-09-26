@@ -7,9 +7,11 @@ from typing import Dict, Any, Optional
 #   - 旧: `result`/`solution` 単一ブロック辞書を保持し `.result`, `.solution`, `.result_type`
 #   - 新: 複数ブロックを `results` 辞書で保持
 
+
 @dataclass
 class QdAnnealingOutputData(QdOutputBaseData):
     energy: float
+
 
 class QdAnnealingOutput(QdOutputBase):
     """アニーリング系の計算結果を保持するアウトプットクラス。
@@ -103,7 +105,9 @@ class QdAnnealingOutput(QdOutputBase):
     # ------------------------------------------------------------------
     # from_* 系 (外部ライブラリ → QuDataAnnealingOutput)
     # ------------------------------------------------------------------
-    def _set_block(self, block_label: str, variables: Dict[str, Any], objective: Any, **extras):
+    def _set_block(
+        self, block_label: str, variables: Dict[str, Any], objective: Any, **extras
+    ):
         """内部ユーティリティ: 1 ブロック分の結果を書き込む。"""
         self.results[block_label] = {
             'solution': variables,
@@ -139,19 +143,25 @@ class QdAnnealingOutput(QdOutputBase):
 
     def from_pulp(self, problem, block_label: str = 'block0'):
         from pulp import value  # local import
+
         objective_value = value(problem.objective)
         variables = {var.name: var.value() for var in problem.variables()}
         return self._set_block(block_label, variables, objective_value, device='pulp')
 
     def from_amplify(self, result, block_label: str = 'block0'):
         variables = {str(k): v for k, v in result.best.values.items()}
-        return self._set_block(block_label, variables, result.best.objective, device='amplify')
+        return self._set_block(
+            block_label, variables, result.best.objective, device='amplify'
+        )
 
     def from_dimod(self, result, block_label: str = 'block0'):
-        return self._set_block(block_label, result.first.sample, result.first.energy, device='dimod')
+        return self._set_block(
+            block_label, result.first.sample, result.first.energy, device='dimod'
+        )
 
     def from_scipy(self, result, block_label: str = 'block0'):
         import numpy as np  # noqa: F401 – 型検査用に保持
+
         variables = {f"q{i}": v for i, v in enumerate(result.x)}
         return self._set_block(block_label, variables, result.fun, device='scipy')
 
@@ -180,6 +190,7 @@ class QdAnnealingOutput(QdOutputBase):
 
     def to_dimod(self, block_label: str = 'block0'):
         import dimod
+
         if block_label not in self.results:
             raise KeyError(f"block_label '{block_label}' は存在しません。")
         block = self.results[block_label]
@@ -193,6 +204,7 @@ class QdAnnealingOutput(QdOutputBase):
     def to_scipy(self, block_label: str = 'block0'):
         from scipy.optimize import OptimizeResult
         import numpy as np
+
         if block_label not in self.results:
             raise KeyError(f"block_label '{block_label}' は存在しません。")
         block = self.results[block_label]
@@ -213,7 +225,11 @@ class QdAnnealingOutput(QdOutputBase):
         try:
             import matplotlib.pyplot as plt  # type: ignore
 
-            for idx, (label, res) in enumerate(self.results.items() if isinstance(self.results, dict) else [("", self.results)]):
+            for idx, (label, res) in enumerate(
+                self.results.items()
+                if isinstance(self.results, dict)
+                else [("", self.results)]
+            ):
                 plt.figure(idx)
                 if "counts" in res:
                     plt.bar(res["counts"].keys(), res["counts"].values())
@@ -221,7 +237,9 @@ class QdAnnealingOutput(QdOutputBase):
             plt.show()
         except Exception:
             # matplotlib 無い場合、テキスト表示にフォールバック
-            print("QuDataGateOutput.visualize(): matplotlib が見つからないためテキスト出力します。")
+            print(
+                "QuDataGateOutput.visualize(): matplotlib が見つからないためテキスト出力します。"
+            )
             print(self.results)
 
 

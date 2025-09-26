@@ -2,11 +2,13 @@ from qudas.core.output_base import QdOutputBase, QdOutputBaseData
 from dataclasses import dataclass
 from typing import Dict, Any, Optional
 
+
 @dataclass
 class QdGateOutputData(QdOutputBaseData):
     counts: Dict[str, int]
     expectation_value: Optional[float] = None
     shots: Optional[int] = None
+
 
 class QdGateOutput(QdOutputBase):
     """量子ゲート方式の計算結果を保持するアウトプットクラス。
@@ -36,6 +38,7 @@ class QdGateOutput(QdOutputBase):
     >>> qd_out.get_block_solution("blockA")
     {'x0': 1, 'x1': 0}
     """
+
     def __init__(self, results: Optional[Dict[str, QdGateOutputData]] = None):
         self.results = results or {}
 
@@ -63,7 +66,11 @@ class QdGateOutput(QdOutputBase):
         try:
             import matplotlib.pyplot as plt  # type: ignore
 
-            for idx, (label, res) in enumerate(self.results.items() if isinstance(self.results, dict) else [("", self.results)]):
+            for idx, (label, res) in enumerate(
+                self.results.items()
+                if isinstance(self.results, dict)
+                else [("", self.results)]
+            ):
                 plt.figure(idx)
                 if "counts" in res:
                     plt.bar(res["counts"].keys(), res["counts"].values())
@@ -71,7 +78,9 @@ class QdGateOutput(QdOutputBase):
             plt.show()
         except Exception:
             # matplotlib 無い場合、テキスト表示にフォールバック
-            print("QuDataGateOutput.visualize(): matplotlib が見つからないためテキスト出力します。")
+            print(
+                "QuDataGateOutput.visualize(): matplotlib が見つからないためテキスト出力します。"
+            )
             print(self.results)
 
 

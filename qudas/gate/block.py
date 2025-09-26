@@ -6,7 +6,12 @@ from qudas.gate.gate_ir import QdGateIR
 class QdGateBlock:
     """量子回路ブロック（SDK 非依存・構造表現用）。"""
 
-    def __init__(self, gates: List[QdGateIR], num_qubits: Optional[int] = None, label: str = "block"):
+    def __init__(
+        self,
+        gates: List[QdGateIR],
+        num_qubits: Optional[int] = None,
+        label: str = "block",
+    ):
         """量子回路ブロック（SDK 非依存・構造表現用）。
 
         Parameters

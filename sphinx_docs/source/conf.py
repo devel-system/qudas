@@ -39,7 +39,7 @@ extensions = [
     'sphinx.ext.viewcode',  # ハイライト済みのソースコードへのリンクを追加
     'sphinx.ext.todo',  # ToDoアイテムのサポート
     'sphinx.ext.napoleon',  # googleスタイルやNumpyスタイルでdocstringを記述した際に必要
-    'sphinx.ext.githubpages'
+    'sphinx.ext.githubpages',
 ]
 
 templates_path = ['_templates']

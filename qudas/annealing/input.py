@@ -22,13 +22,17 @@ class QdAnnealingInput(QdInputBase):
         ・省略 / None                 … 空ブロックリストで初期化。
     """
 
-    def __init__(self, blocks: Union[List[QdAnnealingBlock], QdAnnealingIR, None] = None):
+    def __init__(
+        self, blocks: Union[List[QdAnnealingBlock], QdAnnealingIR, None] = None
+    ):
         if blocks is None:
             self.blocks: List[QdAnnealingBlock] = []
         # 新 API: list[QdAnnealingBlock]
         elif isinstance(blocks, list):
             if not all(isinstance(b, QdAnnealingBlock) for b in blocks):
-                raise TypeError("blocks には QdAnnealingBlock のリストを渡してください。")
+                raise TypeError(
+                    "blocks には QdAnnealingBlock のリストを渡してください。"
+                )
             self.blocks = blocks
         # 旧 API: 単一 QdAnnealingIR
         elif isinstance(blocks, QdAnnealingIR):
@@ -61,7 +65,9 @@ class QdAnnealingInput(QdInputBase):
 
     @classmethod
     def from_dict(cls, data: Dict[str, Dict]) -> "QdAnnealingInput":
-        return cls(blocks=[QdAnnealingBlock(qubo, label=label) for label, qubo in data.items()])
+        return cls(
+            blocks=[QdAnnealingBlock(qubo, label=label) for label, qubo in data.items()]
+        )
 
 
 # エイリアス (旧クラス名)

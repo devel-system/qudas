@@ -37,7 +37,10 @@ class QdGateInput(QdInputBase):
         return self.blocks[0]
 
     def to_dict(self):
-        return {block.label: {"gates": block.gates, "num_qubits": block.num_qubits} for block in self.blocks}
+        return {
+            block.label: {"gates": block.gates, "num_qubits": block.num_qubits}
+            for block in self.blocks
+        }
 
     # --------------------------------------------------------------
     # ゲート用ユーティリティ (IR 変換)

@@ -405,7 +405,9 @@ class QuDataInput(QuDataBase):
 
         variables = list(set(k for key in self.prob.keys() for k in key))
         gen = VariableGenerator()
-        labeled_q = {str(name): gen.scalar("Binary", name=str(name)) for name in variables} # default は name="q"
+        labeled_q = {
+            str(name): gen.scalar("Binary", name=str(name)) for name in variables
+        }  # default は name="q"
 
         qubo = 0
         for key, value in self.prob.items():

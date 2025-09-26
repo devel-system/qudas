@@ -19,6 +19,7 @@ import os
 # 環境変数の読み込み
 load_dotenv()
 
+
 def dicts_are_equal(dict1, dict2):
     """辞書のキーの順序を無視して等価性を比較する関数"""
     if len(dict1) != len(dict2):
@@ -484,7 +485,9 @@ class TestQudata(unittest.TestCase):
         try:
             from amplify import VariableGenerator, Model, FixstarsClient, solve
         except Exception:
-            self.skipTest("Amplifyがインストールされていないためテストをスキップします。")
+            self.skipTest(
+                "Amplifyがインストールされていないためテストをスキップします。"
+            )
 
         from amplify import VariableGenerator, Model, FixstarsClient, solve
         from datetime import timedelta
@@ -499,7 +502,9 @@ class TestQudata(unittest.TestCase):
         client = FixstarsClient()
         client.token = os.getenv("AMPLIFY_TOKEN")
         if client.token is None:
-            self.skipTest("Amplifyのトークンが設定されていないためテストをスキップします。")
+            self.skipTest(
+                "Amplifyのトークンが設定されていないためテストをスキップします。"
+            )
 
         client.parameters.timeout = timedelta(milliseconds=100)
 

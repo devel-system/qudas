@@ -7,7 +7,9 @@ class QuData:
     """gate/annealing 共通フロントエンド"""
 
     @classmethod
-    def input(cls, prob: Optional[Dict[str, Any]] = None, mode: str = "annealing") -> Union[QdAnnealingIR, QdGateIR]:
+    def input(
+        cls, prob: Optional[Dict[str, Any]] = None, mode: str = "annealing"
+    ) -> Union[QdAnnealingIR, QdGateIR]:
         """
         新IR (QdAnnealingIR) を返却するラッパー。旧API互換のために残してある。
         """

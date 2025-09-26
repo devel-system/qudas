@@ -16,7 +16,13 @@ class QdAnnealingExecutor(QdExecutorBase):
     # --------------------------------------------------------------
     # コンストラクタ / パラメータ
     # --------------------------------------------------------------
-    def __init__(self, provider: str = "default", provider_config: Optional[Dict[str, Any]] = None, provider_map: Optional[Dict[str, str]] = None, provider_config_map: Optional[Dict[str, Dict[str, Any]]] = None):
+    def __init__(
+        self,
+        provider: str = "default",
+        provider_config: Optional[Dict[str, Any]] = None,
+        provider_map: Optional[Dict[str, str]] = None,
+        provider_config_map: Optional[Dict[str, Dict[str, Any]]] = None,
+    ):
         """Parameters
         ----------
         provider : str, optional
@@ -33,7 +39,9 @@ class QdAnnealingExecutor(QdExecutorBase):
     # --------------------------------------------------------------
     # パブリック API
     # --------------------------------------------------------------
-    def run(self, input_data: QdAnnealingInput) -> QdAnnealingOutput:  # noqa: D401 – simple method name
+    def run(
+        self, input_data: QdAnnealingInput
+    ) -> QdAnnealingOutput:  # noqa: D401 – simple method name
         """単一の :class:`QdAnnealingInput` を実行し、 ``QdAnnealingOutput`` を返却。
 
         Parameters
@@ -52,7 +60,9 @@ class QdAnnealingExecutor(QdExecutorBase):
         _, result = self._run_single_block(block, provider, config)
         return QdAnnealingOutput({block.label: result})
 
-    def run_split(self, input_data: QdAnnealingInput) -> QdAnnealingOutput:  # noqa: D401 – simple method name
+    def run_split(
+        self, input_data: QdAnnealingInput
+    ) -> QdAnnealingOutput:  # noqa: D401 – simple method name
         """与えられた複数ブロックを並列実行し、結果を ``QdAnnealingOutput`` で返却。
 
         Parameters
@@ -79,8 +89,7 @@ class QdAnnealingExecutor(QdExecutorBase):
                     block,
                     self.resolve_provider(block.label),
                     self.resolve_provider_config(block.label),
-                ):
-                block.label
+                ): block.label
                 for block in input_data.blocks
             }
 
@@ -166,7 +175,11 @@ class QdAnnealingExecutor(QdExecutorBase):
             sampler = dimod.ExactSolver()
             sampleset = sampler.sample(bqm)
             best = sampleset.first
-            return {"solution": dict(best.sample), "energy": best.energy, "device": "dimod"}
+            return {
+                "solution": dict(best.sample),
+                "energy": best.energy,
+                "device": "dimod",
+            }
 
         except Exception:  # noqa: BLE001 – ImportError or others
             return QdAnnealingExecutor._run_naive(qubo, device="dimod(fallback)", **kwargs)  # type: ignore

@@ -1,6 +1,7 @@
 from qudas.gate.gate_ir import QdGateIR
 from typing import List, Iterable
 
+
 class QdAlgorithmIR:
     def __init__(self, gates: List[QdGateIR]):
         self.gates = gates
@@ -51,7 +52,7 @@ class QdAlgorithmIR:
                 gate=inst.name,
                 targets=targets,
                 controls=[],
-                params=list(inst.parameters) if hasattr(inst, "parameters") else []
+                params=list(inst.parameters) if hasattr(inst, "parameters") else [],
             )
             gates.append(gate_ir)
 
@@ -69,9 +70,7 @@ class QdAlgorithmIR:
         # 回路に必要な量子ビット数を取得
         max_index = max(
             (
-                max(g.targets + g.controls)
-                if (g.targets or g.controls)
-                else -1
+                max(g.targets + g.controls) if (g.targets or g.controls) else -1
                 for g in self.gates
             )
         )
@@ -80,7 +79,9 @@ class QdAlgorithmIR:
         # 測定ゲートがあるかどうか確認
         has_measure = any(g.gate == "measure" for g in self.gates)
         if has_measure:
-            qc = QuantumCircuit(num_qubits, num_qubits)  # qubits と同数の classical bits
+            qc = QuantumCircuit(
+                num_qubits, num_qubits
+            )  # qubits と同数の classical bits
         else:
             qc = QuantumCircuit(num_qubits)
 
@@ -106,7 +107,9 @@ class QdAlgorithmIR:
 
             else:
                 if g.gate in gate_map:
-                    gate = gate_map[g.gate](*g.params) if g.params else gate_map[g.gate]()
+                    gate = (
+                        gate_map[g.gate](*g.params) if g.params else gate_map[g.gate]()
+                    )
                     qc.append(gate, [qc.qubits[i] for i in qubit_indices])
                 else:
                     raise ValueError(f"Unsupported gate: {g.gate}")
