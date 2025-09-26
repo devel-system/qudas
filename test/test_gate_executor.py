@@ -79,7 +79,7 @@ class TestGateExecutor(unittest.TestCase):
     def test_qiskit_to_qasm_to_qiskit_execution(self):
         """qiskit から qasm 文字列へ変換し、再度 qiskit への実行。"""
         try:
-            from qiskit import QuantumCircuit  # noqa: F401
+            from qiskit import QuantumCircuit, qasm2  # noqa: F401
             from qiskit.primitives import Sampler
         except Exception:
             self.skipTest('qiskit がインストールされていないためスキップ')

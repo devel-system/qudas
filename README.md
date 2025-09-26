@@ -63,7 +63,7 @@ prob = (q0 + q1) ** 2
 
 # QuData に Pyqubo の問題を渡す
 qudata = QuData.input().from_pyqubo(prob)
-print(qudata.prob)  # 出力: {('q0', 'q0'): 1.0, ('q0', 'q1'): 2.0, ('q1', 'q1'): 1.0}
+print(qudata.qubo)  # 出力: {('q0', 'q0'): 1.0, ('q0', 'q1'): 2.0, ('q1', 'q1'): 1.0}
 
 # Amplify 形式に変換
 amplify_prob = qudata.to_amplify()
@@ -84,7 +84,7 @@ prob = np.array([
 
 # QuData に配列を渡す
 qudata = QuData.input().from_array(prob)
-print(qudata.prob)  # 出力: {('q_0', 'q_0'): 1, ('q_0', 'q_1'): 1, ('q_1', 'q_1'): 2, ('q_2', 'q_2'): -1}
+print(qudata.qubo)  # 出力: {('q_0', 'q_0'): 1, ('q_0', 'q_1'): 1, ('q_1', 'q_1'): 2, ('q_2', 'q_2'): -1}
 
 # BQM 形式に変換
 bqm_prob = qudata.to_dimod_bqm()
@@ -101,7 +101,7 @@ csv_file_path = './data/qudata.csv'
 
 # QuData に CSV を渡す
 qudata = QuData.input().from_csv(csv_file_path)
-print(qudata.prob)  # 出力: {('q_0', 'q_0'): 1.0, ('q_0', 'q_2'): 2.0, ...}
+print(qudata.qubo)  # 出力: {('q_0', 'q_0'): 1.0, ('q_0', 'q_2'): 2.0, ...}
 
 # PuLP 形式に変換
 pulp_prob = qudata.to_pulp()
@@ -125,7 +125,7 @@ prob.solve()
 
 # QuDataOutputのインスタンスを生成し、from_pulpメソッドで問題を変換
 qudata = QuData.output().from_pulp(prob)
-print(qudata.prob)  # 出力: {'x': 2.0, 'y': -1.0}
+print(qudata.qubo)  # 出力: {'x': 2.0, 'y': -1.0}
 
 # Amplify形式に変換
 amplify_prob = qudata.to_amplify()
@@ -159,7 +159,7 @@ res = minimize(lambda q: f(q[0], q[1], q[2]), q, method='SLSQP', bounds=bounds)
 
 # QuDataOutputのインスタンスを生成し、from_scipyメソッドをテスト
 qudata = QuData.output().from_scipy(res)
-print(qudata.prob)  # 出力: {'q0': 2, 'q1': -1, 'q2': -1}
+print(qudata.qubo)  # 出力: {'q0': 2, 'q1': -1, 'q2': -1}
 
 # Dimod形式に変換
 dimod_prob = qudata.to_dimod_bqm()
@@ -189,8 +189,9 @@ block = QdCircuitBlock(name='bell', gates=gates, num_qubits=2)
 qd_input = QdGateInput(blocks=[block])
 
 # 実行
-result = QdGateExecutor().run(qd_input)
-print(result.results)  # => {'counts': {'00': 512, '11': 512}, 'device': 'qiskit_simulator'}
+executor = QdGateExecutor(provider='default')
+output = executor.run(qd_input)
+print(output.results['bell'])  # => {'counts': {'00': 512, '11': 512}, 'device': 'qiskit'}
 ```
 
 #### 1-3-2. Qudas の回路 → Qiskit へ変換して実行
@@ -199,7 +200,7 @@ from qudas.gate import (
     QdGateIR, QdCircuitBlock,
     QdGateInput, QdGateExecutor,
 )
-from qiskit import Aer, execute
+from qiskit.primitives import Sampler
 
 # H + CX でベル状態を生成する 2qubit 回路
 gates = [
@@ -210,9 +211,11 @@ block = QdCircuitBlock(name='bell', gates=gates, num_qubits=2)
 
 ir = block.to_ir()               # QdCircuitBlock → QdAlgorithmIR
 qc = ir.to_qiskit()              # → qiskit.QuantumCircuit
+qc.measure_all()
 
-backend = Aer.get_backend('qasm_simulator')
-counts = execute(qc, backend=backend, shots=256).result().get_counts()
+sampler = Sampler()
+result = sampler.run([qc], shots=256).result()
+counts = result.quasi_dists[0]
 print(counts)
 ```
 
@@ -224,19 +227,20 @@ qc.h(0)
 qc.measure(0, 0)
 
 # Qiskit → QdAlgorithmIR
-from qudas.gate import QdAlgorithmIR
+from qudas.gate.ir import QdAlgorithmIR
 ir = QdAlgorithmIR.from_qasm(qc)
 
 # QdAlgorithmIR → QdCircuitBlock → Qudas 実行
-block = QdCircuitBlock(name='load', gates=ir.gates, num_qubits=1)
+block = QdCircuitBlock(name='block0', gates=ir.gates, num_qubits=1)
 qd_input = QdGateInput(blocks=[block])
-result = QdGateExecutor().run(qd_input)
-print(result.results)
+output = QdGateExecutor().run(qd_input)
+print(output.results["block0"])
 ```
 
 #### 1-3-4. 外部フレームワーク → さらに別フレームワークへ変換して実行
 ```python
-from qiskit import QuantumCircuit, Aer, execute
+from qiskit import QuantumCircuit, qasm2
+from qiskit.primitives import Sampler
 
 # オリジナル回路
 qc_original = QuantumCircuit(1, 1)
@@ -244,16 +248,17 @@ qc_original.x(0)
 qc_original.measure(0, 0)
 
 # Qiskit → OpenQASM 文字列
-qasm_str = qc_original.qasm()
+qasm_str = qasm2.dumps(qc_original)
 
 # OpenQASM → QdAlgorithmIR (qudas) → Qiskit 再生成
-from qudas.gate import QdAlgorithmIR
+from qudas.gate.ir import QdAlgorithmIR
 ir = QdAlgorithmIR.from_qasm(qasm_str)
 qc_converted = ir.to_qiskit()
 
 # 別 backend (再度 Qiskit シミュレータ) で実行
-backend = Aer.get_backend('qasm_simulator')
-counts = execute(qc_converted, backend=backend, shots=128).result().get_counts()
+sampler = Sampler()
+result = sampler.run([qc_converted], shots=128).result()
+counts = result.quasi_dists[0]
 print(counts)
 ```
 
@@ -272,15 +277,22 @@ print(counts)
 
 #### 新しい使用例
 ```python
-from qudas.annealing import QdAnnealingInput, QdAnnealingExecutor
+from qudas.annealing import QdAnnealingInput, QdAnnealingBlock, QdAnnealingExecutor
 
-# QUBO を用意
+# QUBO と Block を用意
 qubo = {('q0', 'q1'): 1.0, ('q1', 'q1'): -1.0}
+block = QdAnnealingBlock(qubo, label='block0')
 
-# 入力 IR 化 & 実行
-inp = QdAnnealingInput.from_dict(qubo)
-result = QdAnnealingExecutor().run(inp)
-print(result.solution, result.energy)
+# 入力 & 実行
+qd_input = QdAnnealingInput([block])
+executor = QdAnnealingExecutor(provider='default')
+output = executor.run(qd_input)
+
+# 結果
+solution = output.results["block0"]["solution"]
+energy = output.results["block0"]["energy"]
+device = output.results["block0"]["device"]
+print(solution, energy, device)
 ```
 
 ## ライセンス
