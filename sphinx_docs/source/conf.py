@@ -64,9 +64,6 @@ html_sidebars = {
 }
 html_static_path = ['_static']
 
-html_baseurl = "https://devel-system.github.io/qudas/"
-html_use_relative_paths = True
-
 # コードテーマ
 # pygments_style = 'autumn'
 # pygments_dark_style = 'autumn'
