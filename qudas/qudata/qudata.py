@@ -1,35 +1,41 @@
-from .qudata_input import QuDataInput
-from .qudata_output import QuDataOutput
-from typing import Optional, Dict, Any
+from qudas.annealing import QdAnnealingIR, QdAnnealingOutput
+from qudas.gate import QdGateIR, QdGateOutput
+from typing import Optional, Dict, Any, Union
 
 
 class QuData:
+    """gate/annealing 共通フロントエンド"""
 
     @classmethod
-    def input(cls, prob: Optional[Dict[str, Any]] = None) -> QuDataInput:
+    def input(
+        cls, prob: Optional[Dict[str, Any]] = None, mode: str = "annealing"
+    ) -> Union[QdAnnealingIR, QdGateIR]:
         """
-        クラスメソッドとして QuDataInput のインスタンスを作成し、引数を受け取る。
-
-        Args:
-            prob (dict, optional): QuDataInput の引数となる最適化問題データ。
-
-        Returns:
-            QuDataInput のインスタンス。
+        新IR (QdAnnealingIR) を返却するラッパー。旧API互換のために残してある。
         """
-        return QuDataInput(prob)
+        if mode == "annealing":
+            return QdAnnealingIR(prob if prob else {})
+        elif mode == "gate":
+            return QdGateIR(prob if prob else {})
+        else:
+            raise TypeError(f"{type(prob)}は対応していない型です。")
 
     @classmethod
     def output(
-        cls, result: Optional[Dict[str, Any]] = None, result_type: Optional[str] = None
-    ) -> QuDataOutput:
-        """
-        クラスメソッドとして QuDataOutput のインスタンスを作成し、引数を受け取る。
+        cls,
+        result: Optional[Dict[str, Any]] = None,
+        result_type: Optional[str] = None,
+        mode: str = "annealing",
+        **kwargs,
+    ) -> Union[QdAnnealingOutput, QdGateOutput]:
+        """新しい出力クラス (QuDataAnnealingOutput) を返却する。
 
-        Args:
-            result (dict, optional): QuDataOutput の引数となる計算結果データ。
-            result_type (str, optional): 結果の形式。
-
-        Returns:
-            QuDataOutput のインスタンス。
+        旧 API の `result`/`result_type` でも呼び出せるように互換を維持する。
         """
-        return QuDataOutput(result, result_type)
+
+        if mode == "annealing":
+            return QdAnnealingOutput(results={"block0": result}, **kwargs)
+        elif mode == "gate":
+            return QdGateOutput(results={"block0": result}, **kwargs)
+        else:
+            raise TypeError(f"{type(result)}は対応していない型です。")

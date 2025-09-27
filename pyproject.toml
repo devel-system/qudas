@@ -85,7 +85,6 @@ dependencies = [
     "sympy==1.12",
     "threadpoolctl==3.3.0",
     "tomli==2.0.2",
-    "torch==2.2.0",
     "tqdm==4.66.2",
     "typing_extensions==4.9.0",
     "tzdata==2023.4",
@@ -110,10 +109,16 @@ dev = [
     "twine==5.1.1",
     "readme_renderer==43.0"
 ]
+test = [
+    "torch==2.2.0"
+]
 
 [build-system]
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["qudas"]
 
 [tool.black]
 line-length = 88

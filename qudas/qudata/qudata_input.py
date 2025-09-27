@@ -116,8 +116,12 @@ class QuDataInput(QuDataBase):
             qubo = {}
             for key, value in prob.as_dict().items():
 
+                # 定数
+                if len(key) == 0:
+                    pass
+
                 # 1変数
-                if len(key) == 1:
+                elif len(key) == 1:
                     qubo[(variables[key[0]].name, variables[key[0]].name)] = value
 
                 # 2変数
@@ -401,8 +405,9 @@ class QuDataInput(QuDataBase):
 
         variables = list(set(k for key in self.prob.keys() for k in key))
         gen = VariableGenerator()
-        q = gen.array("Binary", len(variables))  # default は name="q"
-        labeled_q = {_q.name: _q for _q in q}
+        labeled_q = {
+            str(name): gen.scalar("Binary", name=str(name)) for name in variables
+        }  # default は name="q"
 
         qubo = 0
         for key, value in self.prob.items():
@@ -422,7 +427,7 @@ class QuDataInput(QuDataBase):
         """
 
         variables = list(set(k for key in self.prob.keys() for k in key))
-        q = [Binary(variable) for variable in variables]
+        q = [Binary(str(variable)) for variable in variables]
 
         qubo = 0
         for key, value in self.prob.items():
