@@ -176,7 +176,7 @@ print(dimod_prob)  # 出力: DimodのBQM形式
 #### 1-3-1. 純粋な Qudas での実行
 ```python
 from qudas.gate import (
-    QdGateIR, QdCircuitBlock,
+    QdGateIR, QdGateBlock,
     QdGateInput, QdGateExecutor,
 )
 
@@ -185,7 +185,7 @@ gates = [
     QdGateIR(gate='h', targets=[0]),
     QdGateIR(gate='cx', targets=[1], controls=[0]),
 ]
-block = QdCircuitBlock(name='bell', gates=gates, num_qubits=2)
+block = QdGateBlock(name='bell', gates=gates, num_qubits=2)
 qd_input = QdGateInput(blocks=[block])
 
 # 実行
@@ -197,7 +197,7 @@ print(output.results['bell'])  # => {'counts': {'00': 512, '11': 512}, 'device':
 #### 1-3-2. Qudas の回路 → Qiskit へ変換して実行
 ```python
 from qudas.gate import (
-    QdGateIR, QdCircuitBlock,
+    QdGateIR, QdGateBlock,
     QdGateInput, QdGateExecutor,
 )
 from qiskit.primitives import Sampler
@@ -207,9 +207,9 @@ gates = [
     QdGateIR(gate='h', targets=[0]),
     QdGateIR(gate='cx', targets=[1], controls=[0]),
 ]
-block = QdCircuitBlock(name='bell', gates=gates, num_qubits=2)
+block = QdGateBlock(label='bell', gates=gates, num_qubits=2)
 
-ir = block.to_ir()               # QdCircuitBlock → QdAlgorithmIR
+ir = block.to_ir()               # QdGateBlock → QdAlgorithmIR
 qc = ir.to_qiskit()              # → qiskit.QuantumCircuit
 qc.measure_all()
 
@@ -230,8 +230,8 @@ qc.measure(0, 0)
 from qudas.gate.ir import QdAlgorithmIR
 ir = QdAlgorithmIR.from_qasm(qc)
 
-# QdAlgorithmIR → QdCircuitBlock → Qudas 実行
-block = QdCircuitBlock(name='block0', gates=ir.gates, num_qubits=1)
+# QdAlgorithmIR → QdGateBlock → Qudas 実行
+block = QdGateBlock(label='block0', gates=ir.gates, num_qubits=1)
 qd_input = QdGateInput(blocks=[block])
 output = QdGateExecutor().run(qd_input)
 print(output.results["block0"])
