@@ -3,6 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+        <link rel="canonical" href="https://devel-system.github.io/qudas/_modules/qudas/gate/block.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
         <title>qudas.gate.block - Qudas 0.2.0 documentation</title>
@@ -252,7 +253,12 @@
 <div class="viewcode-block" id="QdGateBlock"><a class="viewcode-back" href="../../../gate/block.html#qudas.gate.block.QdGateBlock">[docs]</a><span class="k">class</span> <span class="nc">QdGateBlock</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;量子回路ブロック（SDK 非依存・構造表現用）。&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gates</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QdGateIR</span><span class="p">],</span> <span class="n">num_qubits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;block&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">gates</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QdGateIR</span><span class="p">],</span>
+        <span class="n">num_qubits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;block&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;量子回路ブロック（SDK 非依存・構造表現用）。</span>
 
 <span class="sd">        Parameters</span>

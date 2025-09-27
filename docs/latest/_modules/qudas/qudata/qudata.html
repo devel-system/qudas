@@ -3,6 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+        <link rel="canonical" href="https://devel-system.github.io/qudas/_modules/qudas/qudata/qudata.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
         <title>qudas.qudata.qudata - Qudas 0.2.0 documentation</title>
@@ -253,7 +254,9 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;gate/annealing 共通フロントエンド&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="QuData.input"><a class="viewcode-back" href="../../../qudata/main.html#qudas.qudata.QuData.input">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">prob</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;annealing&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">QdAnnealingIR</span><span class="p">,</span> <span class="n">QdGateIR</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">prob</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;annealing&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">QdAnnealingIR</span><span class="p">,</span> <span class="n">QdGateIR</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        新IR (QdAnnealingIR) を返却するラッパー。旧API互換のために残してある。</span>
 <span class="sd">        &quot;&quot;&quot;</span>

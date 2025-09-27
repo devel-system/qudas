@@ -3,6 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+        <link rel="canonical" href="https://devel-system.github.io/qudas/_modules/qudas/gate/ir.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
         <title>qudas.gate.ir - Qudas 0.2.0 documentation</title>
@@ -247,6 +248,7 @@
 <span></span><span class="kn">from</span> <span class="nn">qudas.gate.gate_ir</span> <span class="kn">import</span> <span class="n">QdGateIR</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Iterable</span>
 
+
 <div class="viewcode-block" id="QdAlgorithmIR"><a class="viewcode-back" href="../../../gate/ir.html#qudas.gate.ir.QdAlgorithmIR">[docs]</a><span class="k">class</span> <span class="nc">QdAlgorithmIR</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gates</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QdGateIR</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gates</span> <span class="o">=</span> <span class="n">gates</span>
@@ -297,7 +299,7 @@
                 <span class="n">gate</span><span class="o">=</span><span class="n">inst</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span>
                 <span class="n">controls</span><span class="o">=</span><span class="p">[],</span>
-                <span class="n">params</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="s2">&quot;parameters&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="p">[]</span>
+                <span class="n">params</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="s2">&quot;parameters&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="p">[],</span>
             <span class="p">)</span>
             <span class="n">gates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gate_ir</span><span class="p">)</span>
 
@@ -315,9 +317,7 @@
         <span class="c1"># 回路に必要な量子ビット数を取得</span>
         <span class="n">max_index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
             <span class="p">(</span>
-                <span class="nb">max</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">targets</span> <span class="o">+</span> <span class="n">g</span><span class="o">.</span><span class="n">controls</span><span class="p">)</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">targets</span> <span class="ow">or</span> <span class="n">g</span><span class="o">.</span><span class="n">controls</span><span class="p">)</span>
-                <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="nb">max</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">targets</span> <span class="o">+</span> <span class="n">g</span><span class="o">.</span><span class="n">controls</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">targets</span> <span class="ow">or</span> <span class="n">g</span><span class="o">.</span><span class="n">controls</span><span class="p">)</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
                 <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gates</span>
             <span class="p">)</span>
         <span class="p">)</span>
@@ -326,7 +326,9 @@
         <span class="c1"># 測定ゲートがあるかどうか確認</span>
         <span class="n">has_measure</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">gate</span> <span class="o">==</span> <span class="s2">&quot;measure&quot;</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gates</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">has_measure</span><span class="p">:</span>
-            <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">num_qubits</span><span class="p">,</span> <span class="n">num_qubits</span><span class="p">)</span>  <span class="c1"># qubits と同数の classical bits</span>
+            <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span>
+                <span class="n">num_qubits</span><span class="p">,</span> <span class="n">num_qubits</span>
+            <span class="p">)</span>  <span class="c1"># qubits と同数の classical bits</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">num_qubits</span><span class="p">)</span>
 
@@ -352,7 +354,9 @@
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">gate</span> <span class="ow">in</span> <span class="n">gate_map</span><span class="p">:</span>
-                    <span class="n">gate</span> <span class="o">=</span> <span class="n">gate_map</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">gate</span><span class="p">](</span><span class="o">*</span><span class="n">g</span><span class="o">.</span><span class="n">params</span><span class="p">)</span> <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">params</span> <span class="k">else</span> <span class="n">gate_map</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">gate</span><span class="p">]()</span>
+                    <span class="n">gate</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">gate_map</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">gate</span><span class="p">](</span><span class="o">*</span><span class="n">g</span><span class="o">.</span><span class="n">params</span><span class="p">)</span> <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">params</span> <span class="k">else</span> <span class="n">gate_map</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">gate</span><span class="p">]()</span>
+                    <span class="p">)</span>
                     <span class="n">qc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gate</span><span class="p">,</span> <span class="p">[</span><span class="n">qc</span><span class="o">.</span><span class="n">qubits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">qubit_indices</span><span class="p">])</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported gate: </span><span class="si">{</span><span class="n">g</span><span class="o">.</span><span class="n">gate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>

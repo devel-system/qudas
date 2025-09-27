@@ -3,6 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+        <link rel="canonical" href="https://devel-system.github.io/qudas/_modules/qudas/core/output_base.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
         <title>qudas.core.output_base - Qudas 0.2.0 documentation</title>
@@ -248,10 +249,12 @@
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span>
 
+
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">QdOutputBaseData</span><span class="p">:</span>
     <span class="n">solution</span><span class="p">:</span> <span class="n">Any</span>
     <span class="n">device</span><span class="p">:</span> <span class="nb">str</span>
+
 
 <div class="viewcode-block" id="QdOutputBase"><a class="viewcode-back" href="../../../core/base.html#qudas.core.output_base.QdOutputBase">[docs]</a><span class="k">class</span> <span class="nc">QdOutputBase</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;qudas Executor から返却される結果データの基底クラス。</span>

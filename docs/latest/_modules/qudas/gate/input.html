@@ -3,6 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+        <link rel="canonical" href="https://devel-system.github.io/qudas/_modules/qudas/gate/input.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
         <title>qudas.gate.input - Qudas 0.2.0 documentation</title>
@@ -283,7 +284,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 <div class="viewcode-block" id="QdGateInput.to_dict"><a class="viewcode-back" href="../../../gate/input.html#qudas.gate.input.QdGateInput.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">block</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;gates&quot;</span><span class="p">:</span> <span class="n">block</span><span class="o">.</span><span class="n">gates</span><span class="p">,</span> <span class="s2">&quot;num_qubits&quot;</span><span class="p">:</span> <span class="n">block</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">}</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">}</span></div>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">block</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;gates&quot;</span><span class="p">:</span> <span class="n">block</span><span class="o">.</span><span class="n">gates</span><span class="p">,</span> <span class="s2">&quot;num_qubits&quot;</span><span class="p">:</span> <span class="n">block</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span>
+        <span class="p">}</span></div>
 
     <span class="c1"># --------------------------------------------------------------</span>
     <span class="c1"># ゲート用ユーティリティ (IR 変換)</span>

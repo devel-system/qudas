@@ -3,6 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+        <link rel="canonical" href="https://devel-system.github.io/qudas/_modules/qudas/gate/executor.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
         <title>qudas.gate.executor - Qudas 0.2.0 documentation</title>
@@ -270,7 +271,7 @@
         <span class="n">provider</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
         <span class="n">provider_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">provider_map</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">provider_config_map</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">provider_config_map</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parameters</span>
 <span class="sd">        ----------</span>
@@ -288,7 +289,9 @@
     <span class="c1"># --------------------------------------------------------------</span>
     <span class="c1"># パブリック API</span>
     <span class="c1"># --------------------------------------------------------------</span>
-<div class="viewcode-block" id="QdGateExecutor.run"><a class="viewcode-back" href="../../../gate/executor.html#qudas.gate.executor.QdGateExecutor.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">:</span> <span class="n">QdGateInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QdGateOutput</span><span class="p">:</span>  <span class="c1"># noqa: D401 – simple method name</span>
+<div class="viewcode-block" id="QdGateExecutor.run"><a class="viewcode-back" href="../../../gate/executor.html#qudas.gate.executor.QdGateExecutor.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">:</span> <span class="n">QdGateInput</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QdGateOutput</span><span class="p">:</span>  <span class="c1"># noqa: D401 – simple method name</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;単一の :class:`QdGateInput` を実行し、 ``QdGateOutput`` を返却。&quot;&quot;&quot;</span>
         <span class="n">block</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">block</span>
         <span class="n">provider</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_provider</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
@@ -296,7 +299,9 @@
         <span class="n">_</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_single_block</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">provider</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">QdGateOutput</span><span class="p">({</span><span class="n">block</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="n">result</span><span class="p">})</span></div>
 
-<div class="viewcode-block" id="QdGateExecutor.run_split"><a class="viewcode-back" href="../../../gate/executor.html#qudas.gate.executor.QdGateExecutor.run_split">[docs]</a>    <span class="k">def</span> <span class="nf">run_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">:</span> <span class="n">QdGateInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QdGateOutput</span><span class="p">:</span>  <span class="c1"># noqa: D401 – simple method name</span>
+<div class="viewcode-block" id="QdGateExecutor.run_split"><a class="viewcode-back" href="../../../gate/executor.html#qudas.gate.executor.QdGateExecutor.run_split">[docs]</a>    <span class="k">def</span> <span class="nf">run_split</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">:</span> <span class="n">QdGateInput</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QdGateOutput</span><span class="p">:</span>  <span class="c1"># noqa: D401 – simple method name</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;入力をブロックごとに分割して並列実行します。</span>
 
 <span class="sd">        Parameters</span>
