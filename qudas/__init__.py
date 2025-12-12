@@ -31,11 +31,11 @@ from .annealing import (
     QdAnnealingBlock,
 )
 from .qudata import QuData
-from .pipeline import Pipeline
+from .pipeline import QdPipeline
 
 __all__ = [
     "QuData",
-    "Pipeline",
+    "QdPipeline",
     "QdGateInput",
     "QdGateOutput",
     "QdGateExecutor",

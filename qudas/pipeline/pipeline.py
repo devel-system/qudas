@@ -1,23 +1,45 @@
-from typing import Sequence, Dict, Any, Tuple, Optional
+# qudas/pipeline/pipeline.py
+from __future__ import annotations
+
+from typing import Sequence, Dict, Any, Tuple, Optional, Iterable
 from .steps import IteratorMixin
+from .base import QdBaseEstimator, QdBaseStep
 
 
-class Pipeline:
+StepTuple = Tuple[str, QdBaseStep]
+
+
+class QdPipeline(QdBaseEstimator):
+    """
+    scikit-learn 風の Pipeline 実装。
+
+    - steps: List[Tuple[str, QdBaseStep]]
+    - named_steps: dict アクセス
+    - set_params(step__param=value) でステップのハイパーパラメータを一括設定
+    - fit / transform / fit_transform / predict / optimize を提供
+    - 実行時コンテキスト (context) は QdBaseEstimator の set_context で注入
+    """
+
     def __init__(
-        self, steps: Sequence[Tuple[str, Any]], iterator: Optional[IteratorMixin] = None
+        self,
+        steps: Iterable[StepTuple],
+        # memory: Optional[Any] = None,
+        **kwargs: Any,
     ) -> None:
         """
-        Pipelineクラスは一連のステップを受け取り、それぞれのステップを順に実行する。
-
-        Args:
-            steps (Sequence[Tuple[str, Any]]): ステップのリスト。各ステップは (名前, オブジェクト) のタプル形式。
-            iterator (Optional[IteratorMixin]): Pipeline全体を繰り返すイテレータ。イテレータは IteratorMixin 形式。デフォルト値はNone。
+        Parameters
+        ----------
+        steps:
+            (name, step) のタプル列。name はユニークな識別子。
+        memory:
+            将来用。joblib.Memory 等のキャッシュを想定（現状未使用）。
+        kwargs:
+            QdBaseEstimator の追加引数（必要なら）。
         """
-        self.steps = steps
-        self.models = {step_name: None for step_name, _ in steps}
-        self.results = {step_name: None for step_name, _ in steps}
-        self.global_params = {}
-        self.global_iterator = iterator
+        super().__init__(**kwargs)
+        self.steps: List[StepTuple] = self._validate_steps(list(steps))
+        self.named_steps: MutableMapping[str, QdBaseStep] = {n: s for n, s in self.steps}
+        # self.memory = memory
 
     def set_global_params(self, params: Dict[str, Any]) -> None:
         """
@@ -67,6 +89,30 @@ class Pipeline:
             Any: ステップまたはモデルによって処理されたデータ。
         """
         step_name, step_instance = step
+
+        # ============================================================
+        # Pipeline Block（QuantumBlock / ClassicalBlock）
+        # ============================================================
+        if isinstance(step_instance, BaseBlock):
+            # 入力が Artifact でない場合はそのままエラーにする
+            if not isinstance(X, ArtifactBase):
+                raise TypeError(
+                    f"Block '{step_name}' expects ArtifactBase input, "
+                    f"but got {type(X).__name__}"
+                )
+
+            expected_type = step_instance.expected_input_type
+
+            # Artifact の自動変換
+            X_converted = ArtifactConverterRegistry.convert(X, expected_type)
+
+            # Block 実行（artifact -> artifact）
+            return step_instance.run(X_converted)
+
+
+        # ============================================================
+        # 既存の pipeline の挙動
+        # ============================================================
         model = self.models.get(step_name)
 
         # モデルが存在し、transformまたはpredictを実行可能な場合
@@ -90,6 +136,47 @@ class Pipeline:
             return step_instance.optimize(X, y)
 
         return None
+
+    def _validate_steps(self, steps: List[tuple]) -> List[tuple]:
+        """
+        steps の最小バリデーション。
+        - (name, step) 形式
+        - name は str でユニーク
+        - step は None でない
+        - step は fit/transform/predict/optimize/run のいずれかを持つ
+        """
+        if not isinstance(steps, list):
+            raise TypeError("steps must be a list of (name, step) tuples.")
+
+        names = []
+        validated = []
+
+        for i, item in enumerate(steps):
+            if not (isinstance(item, tuple) and len(item) == 2):
+                raise TypeError(f"steps[{i}] must be a tuple (name, step).")
+
+            name, step = item
+
+            if not isinstance(name, str) or not name:
+                raise TypeError(f"steps[{i}].name must be a non-empty str.")
+            if step is None:
+                raise TypeError(f"steps[{i}].step must not be None.")
+
+            # 実行可能性の最低限チェック（Step/Block 両対応）
+            if not any(hasattr(step, m) for m in ("fit", "transform", "predict", "optimize", "run")):
+                raise TypeError(
+                    f"steps[{i}] '{name}' must implement at least one of "
+                    f"fit/transform/predict/optimize/run."
+                )
+
+            names.append(name)
+            validated.append((name, step))
+
+        dup = {n for n in names if names.count(n) > 1}
+        if dup:
+            raise ValueError(f"step names must be unique. duplicated: {sorted(dup)}")
+
+        return validated
 
     def fit(self, X: Any, y: Any = None) -> 'Pipeline':
         """

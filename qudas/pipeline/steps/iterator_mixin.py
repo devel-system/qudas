@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Any, Tuple
-from .base import BaseStep
+from qudas.pipeline.base import QdBaseStep
 
 
-class IteratorMixin(BaseStep, ABC):
+class IteratorMixin(QdBaseStep, ABC):
     """
     パイプラインステップ内で使用するイテレータ用のMixinクラス。
     このMixinクラスは次のパラメータセットを生成する `next_params` メソッドの実装を要求します。

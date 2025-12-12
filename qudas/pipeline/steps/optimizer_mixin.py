@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Any
-from .base import BaseStep
+from qudas.pipeline.base import QdBaseStep
 
 
-class OptimizerMixin(BaseStep, ABC):
+class OptimizerMixin(QdBaseStep, ABC):
     """
     パイプラインステップ内で使用する最適化処理用のMixinクラス。
     このMixinクラスは、`transform` および `optimize` メソッドをサポートし、`optimize` メソッドの実装を必須とします。
