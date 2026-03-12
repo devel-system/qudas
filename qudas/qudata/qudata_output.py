@@ -1,12 +1,6 @@
 from .qudata_base import QuDataBase
 from typing import Dict, Any
-from pulp import LpVariable, LpProblem, LpMinimize, value
-from amplify import Model, Result
-
-# from datetime import timedelta
-import dimod
 import numpy as np
-from scipy.optimize import OptimizeResult
 
 
 class QuDataOutput(QuDataBase):
@@ -23,7 +17,9 @@ class QuDataOutput(QuDataBase):
         self.result_type = result_type
 
     # PuLPの計算結果を受け取る
-    def from_pulp(self, problem: LpProblem) -> "QuDataOutput":
+    def from_pulp(self, problem) -> "QuDataOutput":
+        from pulp import value
+
         # 目的関数の値を取得
         objective_value = value(problem.objective)
 
@@ -34,14 +30,16 @@ class QuDataOutput(QuDataBase):
         return self
 
     # Amplifyの計算結果を受け取る
-    def from_amplify(self, result: Result) -> "QuDataOutput":
+    def from_amplify(self, result) -> "QuDataOutput":
         variables = {str(k): v for k, v in result.best.values.items()}
         self.result = {'variables': variables, 'objective': result.best.objective}
         self.result_type = 'amplify'
         return self
 
     # Dimodの計算結果を受け取る
-    def from_dimod(self, result: dimod.SampleSet) -> "QuDataOutput":
+    def from_dimod(self, result) -> "QuDataOutput":
+        import dimod
+
         self.result = {
             'variables': result.first.sample,
             'objective': result.first.energy,
@@ -50,7 +48,7 @@ class QuDataOutput(QuDataBase):
         return self
 
     # SciPyの計算結果を受け取る
-    def from_scipy(self, result: OptimizeResult) -> "QuDataOutput":
+    def from_scipy(self, result) -> "QuDataOutput":
         variables = {f"q{i}": v for i, v in enumerate(result.x)}
         self.result = {'variables': variables, 'objective': result.fun}
         self.result_type = 'sympy'
@@ -77,7 +75,9 @@ class QuDataOutput(QuDataBase):
     #     return result
 
     # Dimod形式に変換
-    def to_dimod(self) -> dimod.SampleSet:
+    def to_dimod(self):
+        import dimod
+
         sampleset = dimod.SampleSet.from_samples(
             samples_like=dimod.as_samples(self.result["variables"]),
             vartype='BINARY',
@@ -86,7 +86,9 @@ class QuDataOutput(QuDataBase):
         return sampleset
 
     # SciPy形式に変換
-    def to_scipy(self) -> OptimizeResult:
+    def to_scipy(self):
+        from scipy.optimize import OptimizeResult
+
         # 最適化後の結果（例: 最適解とその他の情報を仮定）
         solution = self.result["variables"]  # 手動で得た最適化後の変数
         fun_value = self.result["objective"]  # 目的関数の最小値

@@ -1,14 +1,7 @@
 from .qudata_base import QuDataBase
-from amplify import VariableGenerator, Poly
 import csv
 import json
-from pulp import LpProblem, LpVariable, LpMinimize
-import dimod
-from pyqubo import Binary, Base
-import networkx as nx
 import numpy as np
-import pandas as pd
-import sympy
 
 
 class QuDataInput(QuDataBase):
@@ -76,7 +69,7 @@ class QuDataInput(QuDataBase):
         else:
             raise TypeError(f"{type(other)}は対応していない型です。")
 
-    def from_pulp(self, prob: LpProblem):
+    def from_pulp(self, prob):
         """pulpデータを読み込む
 
         Args:
@@ -88,6 +81,8 @@ class QuDataInput(QuDataBase):
         Returns:
             Qudata: 量子データ
         """
+        from pulp import LpProblem
+
         if isinstance(prob, LpProblem):
 
             qubo = {}
@@ -99,7 +94,7 @@ class QuDataInput(QuDataBase):
         else:
             raise TypeError(f"{type(prob)}は対応していない型です。")
 
-    def from_amplify(self, prob: Poly):
+    def from_amplify(self, prob):
         """amplifyデータを読み込む
 
         Args:
@@ -111,6 +106,8 @@ class QuDataInput(QuDataBase):
         Returns:
             Qudata: 量子データ
         """
+        from amplify import Poly
+
         if isinstance(prob, Poly):
             variables = prob.variables
             qubo = {}
@@ -137,7 +134,7 @@ class QuDataInput(QuDataBase):
         else:
             raise TypeError(f"{type(prob)}は対応していない型です。")
 
-    def from_pyqubo(self, prob: Base):
+    def from_pyqubo(self, prob):
         """pyquboデータを読み込む
 
         Args:
@@ -149,6 +146,8 @@ class QuDataInput(QuDataBase):
         Returns:
             Qudata: 量子データ
         """
+        from pyqubo import Base
+
         if isinstance(prob, Base):
             qubo = prob.compile().to_qubo()
             self.prob = qubo[0]
@@ -245,7 +244,7 @@ class QuDataInput(QuDataBase):
         except Exception as e:
             raise ValueError("読み取りエラー") from e
 
-    def from_networkx(self, prob: nx.Graph):
+    def from_networkx(self, prob):
         """グラフデータを読み込む
 
         Args:
@@ -257,6 +256,7 @@ class QuDataInput(QuDataBase):
         Returns:
             Qudata: 量子データ
         """
+        import networkx as nx
 
         if isinstance(prob, nx.Graph):
             qubo = {}
@@ -271,7 +271,7 @@ class QuDataInput(QuDataBase):
         else:
             raise TypeError(f"{type(prob)}は対応していない型です。")
 
-    def from_pandas(self, prob: pd.DataFrame):
+    def from_pandas(self, prob):
         """pandasデータを読み込む
 
         Args:
@@ -283,6 +283,7 @@ class QuDataInput(QuDataBase):
         Returns:
             Qudata: 量子データ
         """
+        import pandas as pd
 
         if isinstance(prob, pd.DataFrame):
             key1_list = prob.columns.tolist()
@@ -305,7 +306,7 @@ class QuDataInput(QuDataBase):
         else:
             raise TypeError(f"{type(prob)}は対応していない型です。")
 
-    def from_dimod_bqm(self, prob: dimod.BinaryQuadraticModel):
+    def from_dimod_bqm(self, prob):
         """dimodのbqmデータを読み込む
 
         Args:
@@ -317,6 +318,7 @@ class QuDataInput(QuDataBase):
         Returns:
             Qudata: 量子データ
         """
+        import dimod
 
         if isinstance(prob, dimod.BinaryQuadraticModel):
             qubo = dict(prob.quadratic).copy()
@@ -332,7 +334,7 @@ class QuDataInput(QuDataBase):
         else:
             raise TypeError(f"{type(prob)}は対応していない型です。")
 
-    def from_sympy(self, prob: sympy.core.expr.Expr):
+    def from_sympy(self, prob):
         """sympyデータを読み込む
 
         Args:
@@ -344,6 +346,7 @@ class QuDataInput(QuDataBase):
         Returns:
             Qudata: 量子データ
         """
+        import sympy
 
         if isinstance(prob, sympy.core.expr.Expr):
             qubo = {}
@@ -365,7 +368,7 @@ class QuDataInput(QuDataBase):
         else:
             raise TypeError(f"{type(prob)}は対応していない型です。")
 
-    def to_pulp(self) -> LpProblem:
+    def to_pulp(self):
         """pulp形式に変換
 
         Raises:
@@ -374,6 +377,7 @@ class QuDataInput(QuDataBase):
         Returns:
             LpProblem: 線形計画問題
         """
+        from pulp import LpProblem, LpVariable, LpMinimize
 
         variables = list(set(k for key in self.prob.keys() for k in key))
         q = [
@@ -396,12 +400,13 @@ class QuDataInput(QuDataBase):
         qubo += _qubo
         return qubo
 
-    def to_amplify(self) -> Poly:
+    def to_amplify(self):
         """amplify形式に変換
 
         Returns:
             Poly: 組み合わせ最適化問題
         """
+        from amplify import VariableGenerator
 
         variables = list(set(k for key in self.prob.keys() for k in key))
         gen = VariableGenerator()
@@ -419,12 +424,13 @@ class QuDataInput(QuDataBase):
 
         return qubo
 
-    def to_pyqubo(self) -> Base:
+    def to_pyqubo(self):
         """pyqubo形式に変換
 
         Returns:
             Base: 組み合わせ最適化問題
         """
+        from pyqubo import Binary
 
         variables = list(set(k for key in self.prob.keys() for k in key))
         q = [Binary(str(variable)) for variable in variables]
@@ -505,7 +511,7 @@ class QuDataInput(QuDataBase):
         except Exception as e:
             raise ValueError("書き出しエラー") from e
 
-    def to_networkx(self) -> nx.Graph:
+    def to_networkx(self):
         """networkx形式に変換
 
         Raises:
@@ -514,6 +520,7 @@ class QuDataInput(QuDataBase):
         Returns:
             nx.Graph: networkxのグラフデータ
         """
+        import networkx as nx
 
         variables = list(set(k for key in self.prob.keys() for k in key))
         G = nx.Graph()
@@ -532,12 +539,13 @@ class QuDataInput(QuDataBase):
 
         return G
 
-    def to_pandas(self) -> pd.DataFrame:
+    def to_pandas(self):
         """pandas形式に変換
 
         Returns:
             pd.DataFrame: pandasデータ
         """
+        import pandas as pd
 
         # 変数の順序を保持したリストを作成
         variables = sorted(list(set(k for key in self.prob.keys() for k in key)))
@@ -545,24 +553,26 @@ class QuDataInput(QuDataBase):
 
         return pd.DataFrame(array, columns=variables, index=variables)
 
-    def to_dimod_bqm(self) -> dimod.BinaryQuadraticModel:
+    def to_dimod_bqm(self):
         """dimodのbqm形式に変換
 
         Returns:
             dimod.BinaryQuadraticModel: dimodのbqmデータ
         """
+        import dimod
 
         linear = {k[0]: v for k, v in self.prob.items() if k[0] == k[1]}
         quadratic = {k: v for k, v in self.prob.items() if k[0] != k[1]}
 
         return dimod.BinaryQuadraticModel(linear, quadratic, vartype='BINARY')
 
-    def to_sympy(self) -> sympy.core.expr.Expr:
+    def to_sympy(self):
         """sympy形式に変換
 
         Returns:
             sympy.core.expr.Expr: sympyの多項式データ
         """
+        import sympy
 
         sympy_prob = sum(
             (

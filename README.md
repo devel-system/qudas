@@ -16,10 +16,16 @@ Qudasは、量子計算における最適化問題の入出力データを変換
 
 ### 1-1. インストール
 ```bash
-pip install qudas  # PyPI 版 (推奨)
+pip install qudas  # コアのみ（numpy + matplotlib）
 # or
 pip install git+https://github.com/devel-system/qudas.git@v0.2.0  # 開発版
 ```
+
+**オプション**
+- `pip install qudas` … コアのみ（numpy + matplotlib）
+- `pip install qudas[gate]` … 量子ゲート（Qiskit）
+- `pip install qudas[annealing]` … アニーリング・データ変換一式（dimod, Amplify, PyQUBO, PuLP, pandas, networkx, sympy, scipy）
+- `pip install qudas[all]` … 上記 gate + annealing の全パッケージ
 
 ### 1-2. クイックスタート
 以下では代表的なユースケースを抜粋します。詳細は [examples/](examples/) も参照してください。

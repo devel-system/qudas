@@ -1,4 +1,5 @@
 from collections.abc import Mapping
+from typing import Optional
 
 
 class QdAnnealingIR(Mapping):
@@ -11,8 +12,6 @@ class QdAnnealingIR(Mapping):
     # ------------------------------
     # コンストラクタ & 演算子オーバーロード
     # ------------------------------
-    from typing import Optional  # type: ignore
-
     def __init__(self, qubo: Optional[dict] = None):
         self.qubo: dict = {}
         if qubo is None:
@@ -75,18 +74,6 @@ class QdAnnealingIR(Mapping):
     # ------------------------------
     # 変換 (from_*)
     # ------------------------------
-    # 外部ライブラリ読み込み
-    from typing import Any, Dict, Optional
-    import csv, json
-    import numpy as np
-    import networkx as nx
-    import pandas as pd
-    import sympy
-    import dimod
-    from amplify import Poly
-    from pulp import LpProblem
-    from pyqubo import Base
-
     def from_pulp(self, prob: "LpProblem") -> "QdAnnealingIR":  # type: ignore[name-defined]
         from pulp import LpProblem  # local import to avoid heavy dep if未使用
 
