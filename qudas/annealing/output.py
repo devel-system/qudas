@@ -1,4 +1,5 @@
 from qudas.core.output_base import QdOutputBase, QdOutputBaseData
+from qudas.core.statistics import energy_statistics
 from dataclasses import dataclass
 from typing import Dict, Any, Optional
 
@@ -11,6 +12,7 @@ from typing import Dict, Any, Optional
 @dataclass
 class QdAnnealingOutputData(QdOutputBaseData):
     energy: float
+    statistics: Optional[Dict[str, Any]] = None
 
 
 class QdAnnealingOutput(QdOutputBase):
@@ -106,7 +108,11 @@ class QdAnnealingOutput(QdOutputBase):
     # from_* 系 (外部ライブラリ → QuDataAnnealingOutput)
     # ------------------------------------------------------------------
     def _set_block(
-        self, block_label: str, variables: Dict[str, Any], objective: Any, **extras
+        self,
+        block_label: str,
+        variables: Dict[str, Any],
+        objective: Any,
+        **extras
     ):
         """内部ユーティリティ: 1 ブロック分の結果を書き込む。"""
         self.results[block_label] = {
@@ -130,40 +136,87 @@ class QdAnnealingOutput(QdOutputBase):
         Returns:
             QdAnnealingOutput: インスタンス。
         """
+
+        # フォールバック dict を直接受ける（statistics が入っていればそのまま）
+        if isinstance(sdk_obj, dict) and "solution" in sdk_obj and "energy" in sdk_obj:
+            out = cls()
+            out._set_block(
+                "block0",
+                sdk_obj["solution"],
+                sdk_obj["energy"],
+                energies=sdk_obj.get("energies"),
+                statistics=sdk_obj.get("statistics"),
+                device=sdk_obj.get("device", target),
+            )
+            return out
+
         if target == "pulp":
             return cls.from_pulp(sdk_obj)
         elif target == "amplify":
             return cls.from_amplify(sdk_obj)
-        elif target == "dimod":
+        elif target == "dimod" or target == "default":
             return cls.from_dimod(sdk_obj)
         elif target == "scipy":
             return cls.from_scipy(sdk_obj)
         else:
             raise ValueError(f"Unsupported SDK target: {target}")
 
-    def from_pulp(self, problem, block_label: str = 'block0'):
+    @classmethod
+    def from_pulp(cls, problem, block_label: str = 'block0') -> "QdAnnealingOutput":
         from pulp import value  # local import
 
+        out = cls()
         objective_value = value(problem.objective)
         variables = {var.name: var.value() for var in problem.variables()}
-        return self._set_block(block_label, variables, objective_value, device='pulp')
+        return out._set_block(block_label, variables, objective_value, device='pulp')
 
-    def from_amplify(self, result, block_label: str = 'block0'):
+    @classmethod
+    def from_amplify(cls, result, block_label: str = 'block0') -> "QdAnnealingOutput":
+        out = cls()
+
         variables = {str(k): v for k, v in result.best.values.items()}
-        return self._set_block(
-            block_label, variables, result.best.objective, device='amplify'
+        energies = [float(e) for e in result.energies]
+
+        stats = {
+            "energy": energy_statistics(energies),
+            "bitstring": {"unique": len(getattr(result, "solutions", energies))},
+        }
+
+        return out._set_block(
+            block_label,
+            variables,
+            float(result.best.objective),
+            energies=energies,
+            statistics=stats,
+            device='amplify'
         )
 
-    def from_dimod(self, result, block_label: str = 'block0'):
-        return self._set_block(
-            block_label, result.first.sample, result.first.energy, device='dimod'
+    @classmethod
+    def from_dimod(cls, result, block_label: str = 'block0') -> "QdAnnealingOutput":
+        out = cls()
+
+        energies = [float(e) for e in result.record.energy.tolist()]
+        stats = {
+            "energy": energy_statistics(energies),
+            "bitstring": {
+                "unique": len(result)
+            }
+        }
+
+        return out._set_block(
+            block_label,
+            dict(result.first.sample),
+            float(result.first.energy),
+            energies=energies,
+            statistics=stats,
+            device='dimod'
         )
 
-    def from_scipy(self, result, block_label: str = 'block0'):
-        import numpy as np  # noqa: F401 – 型検査用に保持
-
+    @classmethod
+    def from_scipy(cls, result, block_label: str = 'block0') -> "QdAnnealingOutput":
+        out = cls()
         variables = {f"q{i}": v for i, v in enumerate(result.x)}
-        return self._set_block(block_label, variables, result.fun, device='scipy')
+        return out._set_block(block_label, variables, float(result.fun), device='scipy')
 
     # ------------------------------------------------------------------
     # to_* 系 (QdAnnealingOutput → 外部ライブラリ)
@@ -225,21 +278,82 @@ class QdAnnealingOutput(QdOutputBase):
         try:
             import matplotlib.pyplot as plt  # type: ignore
 
-            for idx, (label, res) in enumerate(
-                self.results.items()
-                if isinstance(self.results, dict)
-                else [("", self.results)]
-            ):
-                plt.figure(idx)
-                if "counts" in res:
-                    plt.bar(res["counts"].keys(), res["counts"].values())
-                    plt.title(f"Counts for {label}")
+            for label, res in self.results.items():
+                plt.figure()
+
+                energies = res.get("energies")
+                stats = res.get("statistics", {}).get("energy")
+
+                # -----------------------------
+                # ヒストグラム描画
+                # -----------------------------
+                if energies is not None and len(energies) > 0:
+                    # plt.hist(
+                    #     energies,
+                    #     bins="auto",
+                    #     color="skyblue",
+                    #     edgecolor="black",
+                    #     alpha=0.7,
+                    #     label="energy distribution",
+                    # )
+                    plt.hist(
+                        energies,
+                        bins="auto",
+                        edgecolor="black",
+                        alpha=0.7,
+                        label="energy distribution",
+                    )
+
+                    title = f"{label} energy histogram"
+
+                    if stats:
+                        mu = stats.get("mean")
+                        sd = stats.get("std")
+
+                        if mu is not None:
+                            plt.axvline(
+                                mu,
+                                color="red",
+                                linewidth=2,
+                                label="mean",
+                            )
+                        if mu is not None and sd is not None:
+                            plt.axvline(
+                                mu - sd,
+                                color="green",
+                                linestyle="--",
+                                linewidth=2,
+                                label="-1 std",
+                            )
+                            plt.axvline(
+                                mu + sd,
+                                color="green",
+                                linestyle="--",
+                                linewidth=2,
+                                label="+1 std",
+                            )
+                            title += f" (mean={mu:.3f}, std={sd:.3f})"
+
+                    plt.title(title)
+                    plt.xlabel("energy")
+                    plt.ylabel("frequency")
+                    continue
+
+                # energies が無い場合は従来通り1本バー（フォールバック表示）
+                energy = res.get("energy")
+                if energy is not None:
+                    yerr = stats["std"] if stats else None
+                    plt.bar(["energy"], [energy], yerr=yerr)
+                    title = label
+                    if stats:
+                        title += f" (std={stats['std']:.3f})"
+                    plt.title(title)
+
             plt.show()
+
         except Exception:
             # matplotlib 無い場合、テキスト表示にフォールバック
-            print(
-                "QuDataGateOutput.visualize(): matplotlib が見つからないためテキスト出力します。"
-            )
+            print("Annealing visualize fallback:")
             print(self.results)
 
 

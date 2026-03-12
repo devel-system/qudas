@@ -1,4 +1,5 @@
 from qudas.core.output_base import QdOutputBase, QdOutputBaseData
+from qudas.core.statistics import probability_statistics
 from dataclasses import dataclass
 from typing import Dict, Any, Optional
 
@@ -8,6 +9,7 @@ class QdGateOutputData(QdOutputBaseData):
     counts: Dict[str, int]
     expectation_value: Optional[float] = None
     shots: Optional[int] = None
+    statistics: Optional[Dict[str, Any]] = None
 
 
 class QdGateOutput(QdOutputBase):
@@ -41,9 +43,25 @@ class QdGateOutput(QdOutputBase):
 
     def __init__(self, results: Optional[Dict[str, QdGateOutputData]] = None):
         self.results = results or {}
+        self._attach_statistics()
 
     def to_dict(self):
         return self.results
+
+    # ------------------------------------------------------------------
+    # 統計付与
+    # ------------------------------------------------------------------
+    def _attach_statistics(self):
+        for res in self.results.values():
+            counts = res.get("counts")
+            if not counts:
+                continue
+
+            stats = {
+                "probability": probability_statistics(counts),
+                "bitstring": {"unique": len(counts)},
+            }
+            res["statistics"] = stats
 
     # --------------------------------------------------------------
     # 抽象メソッド実装
@@ -64,23 +82,26 @@ class QdGateOutput(QdOutputBase):
         """結果を簡易可視化 (テキスト出力)。"""
 
         try:
-            import matplotlib.pyplot as plt  # type: ignore
+            import matplotlib.pyplot as plt
 
-            for idx, (label, res) in enumerate(
-                self.results.items()
-                if isinstance(self.results, dict)
-                else [("", self.results)]
-            ):
-                plt.figure(idx)
-                if "counts" in res:
-                    plt.bar(res["counts"].keys(), res["counts"].values())
-                    plt.title(f"Counts for {label}")
+            for label, res in self.results.items():
+                counts = res.get("counts")
+                if not counts:
+                    continue
+
+                plt.figure()
+                plt.bar(counts.keys(), counts.values())
+
+                stats = res.get("statistics", {}).get("probability")
+                title = label
+                if stats:
+                    title += f" (std={stats['std']:.3f})"
+                plt.title(title)
+
             plt.show()
+
         except Exception:
-            # matplotlib 無い場合、テキスト表示にフォールバック
-            print(
-                "QuDataGateOutput.visualize(): matplotlib が見つからないためテキスト出力します。"
-            )
+            print("Gate visualize fallback:")
             print(self.results)
 
 

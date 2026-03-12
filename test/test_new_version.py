@@ -43,16 +43,30 @@ grover_blocks = [
 # 実行
 grover_input = QdGateInput(blocks=grover_blocks)
 
-# qiskitに変換
-ir = grover_input.to_ir()
+# # qiskitに変換
+# ir = grover_input.to_ir()
 
-# qiskitに変換して回路を描画
-qiskit_circuit = ir.to_qiskit()
-qiskit_circuit.measure_all()
-qiskit_circuit.draw(output="mpl")
-plt.show()
+# # qiskitに変換して回路を描画
+# qiskit_circuit = ir.to_qiskit()
+# qiskit_circuit.measure_all()
+# qiskit_circuit.draw(output="mpl")
+# plt.show()
 
 # 実行
-# executor = QdGateExecutor(backend="qiskit_simulator")
-# output = executor.run(grover_input)
-# print(output.results)
+executor = QdGateExecutor(provider="qiskit", provider_config={"backend": "qiskit_simulator"})
+output = executor.run(grover_input)
+print(output.results)
+
+# === Raw results ===
+print("=== Raw results ===")
+print(output.to_dict())
+
+# === 統計情報 ===
+stats = output.results["superposition"]["statistics"]
+print("\n=== Statistics ===")
+print("Probability std :", stats["probability"]["std"])
+print("Unique bitstrings :", stats["bitstring"]["unique"])
+
+# === 可視化 ===
+# counts の histogram + std 表示
+output.visualize()

@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Dict, Any, Tuple, Optional
+from typing import Dict, Any, Tuple, Optional, List
 
 from qudas.core.base import QdExecutorBase
+from qudas.core.statistics import energy_statistics
 
 from .input import QdAnnealingInput
 from .output import QdAnnealingOutput
@@ -57,8 +58,13 @@ class QdAnnealingExecutor(QdExecutorBase):
         block = input_data.block
         provider = self.resolve_provider(block.label)
         config = self.resolve_provider_config(block.label)
-        _, result = self._run_single_block(block, provider, config)
-        return QdAnnealingOutput({block.label: result})
+
+        _, raw = self._run_single_block(block, provider, config)
+        out = QdAnnealingOutput.from_sdk_format(raw, target=provider)
+        if block.label != "block0" and "block0" in out.results:
+            out.results[block.label] = out.results.pop("block0")
+
+        return out
 
     def run_split(
         self, input_data: QdAnnealingInput
@@ -94,8 +100,16 @@ class QdAnnealingExecutor(QdExecutorBase):
             }
 
             for future in as_completed(future_map):
-                label, result = future.result()
-                results[label] = result
+                label = future_map[future]
+                _, raw = future.result()
+                provider = self.resolve_provider(label)
+
+                out = QdAnnealingOutput.from_sdk_format(raw, target=provider)
+                # label に揃える
+                if label != "block0" and "block0" in out.results:
+                    out.results[label] = out.results.pop("block0")
+
+                results.update(out.results)
 
         return QdAnnealingOutput(results)
 
@@ -106,13 +120,13 @@ class QdAnnealingExecutor(QdExecutorBase):
         """1 ブロック分の QUBO を指定バックエンドで解く。"""
 
         if provider == "amplify":
-            result = self._run_amplify(block.qubo, **kwargs)
-        elif provider == "dimod" or provider == "default":
-            result = self._run_dimod(block.qubo, **kwargs)
+            raw = self._run_amplify(block.qubo, **kwargs)
+        elif provider in ("dimod", "default"):
+            raw = self._run_dimod(block.qubo, **kwargs)
         else:
             raise NotImplementedError(f"Provider '{provider}' は未サポートです。")
 
-        return block.label, result
+        return block.label, raw
 
     # ------------------------------------------------------------------
     # backend 実装
@@ -145,16 +159,12 @@ class QdAnnealingExecutor(QdExecutorBase):
             token = os.getenv("AMPLIFY_TOKEN")
             if token:
                 client.token = token
-            # timeout 等はデフォルト
 
-            result = solve(model, client)
-            solution = {str(k): v for k, v in result.best.values.items()}
-            energy = result.best.objective
-            return {"solution": solution, "energy": energy, "device": "amplify"}
+            return solve(model, client)
 
         except Exception:  # noqa: BLE001 – Any failure → フォールバック
             # Amplify が使えない場合は naive 解法にフォールバック
-            return QdAnnealingExecutor._run_naive(qubo, device="amplify(fallback)", **kwargs)  # type: ignore
+            return QdAnnealingExecutor._run_naive_with_stats(qubo, device="amplify(fallback)")
 
     @staticmethod
     def _run_dimod(qubo: Dict[Tuple[str, str], float], **kwargs):
@@ -173,28 +183,30 @@ class QdAnnealingExecutor(QdExecutorBase):
 
             bqm = dimod.BinaryQuadraticModel(linear, quadratic, 0.0, vartype="BINARY")
             sampler = dimod.ExactSolver()
-            sampleset = sampler.sample(bqm)
-            best = sampleset.first
-            return {
-                "solution": dict(best.sample),
-                "energy": best.energy,
-                "device": "dimod",
-            }
+            return sampler.sample(bqm)
 
         except Exception:  # noqa: BLE001 – ImportError or others
-            return QdAnnealingExecutor._run_naive(qubo, device="dimod(fallback)", **kwargs)  # type: ignore
+            return QdAnnealingExecutor._run_naive_with_stats(qubo, device="dimod(fallback)")
+
 
     # ------------------------------------------------------------------
     # フォールバック: 単純評価 (すべて 0 に固定)
     # ------------------------------------------------------------------
     @staticmethod
-    def _run_naive(qubo: Dict[Tuple[str, str], float], device="naive", **kwargs):
+    def _run_naive_with_stats(qubo: Dict[Tuple[str, str], float], device="naive", energies: Optional[List[float]] = None, **kwargs):
         vars_set = set()
         for key in qubo.keys():
             vars_set.update(key)
         solution = {v: 0 for v in vars_set}
         energy = 0.0
-        return {"solution": solution, "energy": energy, "device": device}
+        energies_list = energies if energies is not None else [energy]
+
+        stats = {
+            "energy": energy_statistics(energies_list),
+            "bitstring": {"unique": 1},
+        }
+
+        return {"solution": solution, "energy": energy, "energies": energies_list, "statistics": stats, "device": device}
 
 
 # エイリアス
