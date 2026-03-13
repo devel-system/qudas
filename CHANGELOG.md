@@ -36,6 +36,23 @@
 
 ---
 
+## [0.2.1] - 2026-03-13
+### Added
+- パイプラインを拡張: `artifacts`、`base`、`blocks`（`base_block` / `classical_block` / `quantum_block`）、`converter` を追加し、パイプライン基盤を整備。
+- アニーリング・ゲート両方の出力（`QdAnnealingOutput` / ゲート出力）に統計情報を追加。`qudas.core.statistics` を新設。
+- VQE 用サンプルコードを追加（`examples/vqe/run_vqe.py`、`examples/vqe/vqe_steps.py`）。
+
+### Changed
+- パイプライン構造を更新（`pipeline.py` の拡張、ステップ関連の整理）。
+- `README.md` およびドキュメントを修正。
+- import 周りを整理（`qudas/__init__.py`、`qudas/annealing/ir.py`、`qudata_input.py`、`qudata_output.py`、`pyproject.toml` の依存定義など）。
+
+### Fixed
+- バージョン表記の修正（`pyproject.toml`）。
+- `.gitignore` に必要な無視パターンを追加。
+
+---
+
 ## 今後のバージョン（0.1.0 以降）の予定
 ### Planned for Future Release
 - 新しい機能や修正内容を記載していきます。

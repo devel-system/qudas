@@ -18,7 +18,7 @@ Qudasは、量子計算における最適化問題の入出力データを変換
 ```bash
 pip install qudas  # コアのみ（numpy + matplotlib）
 # or
-pip install git+https://github.com/devel-system/qudas.git@v0.2.0  # 開発版
+pip install git+https://github.com/devel-system/qudas.git@v0.2.1  # 開発版
 ```
 
 **オプション**
