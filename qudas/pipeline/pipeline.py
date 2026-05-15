@@ -1,9 +1,13 @@
 # qudas/pipeline/pipeline.py
 from __future__ import annotations
 
-from typing import Sequence, Dict, Any, Tuple, Optional, Iterable
-from .steps import IteratorMixin
+from typing import Sequence, Dict, Any, Tuple, Optional, Iterable, List, MutableMapping
+
+from .artifacts import ArtifactBase
+from .blocks.base_block import BaseBlock
+from .converter import ArtifactConverterRegistry
 from .base import QdBaseEstimator, QdBaseStep
+from .steps import IteratorMixin
 
 
 StepTuple = Tuple[str, QdBaseStep]
@@ -23,7 +27,6 @@ class QdPipeline(QdBaseEstimator):
     def __init__(
         self,
         steps: Iterable[StepTuple],
-        # memory: Optional[Any] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -35,11 +38,26 @@ class QdPipeline(QdBaseEstimator):
             将来用。joblib.Memory 等のキャッシュを想定（現状未使用）。
         kwargs:
             QdBaseEstimator の追加引数（必要なら）。
+            旧 API 互換のため ``iterator=...`` は ``global_iterator`` として扱う。
         """
+        if "iterator" in kwargs and "global_iterator" not in kwargs:
+            kwargs["global_iterator"] = kwargs.pop("iterator")
         super().__init__(**kwargs)
         self.steps: List[StepTuple] = self._validate_steps(list(steps))
         self.named_steps: MutableMapping[str, QdBaseStep] = {n: s for n, s in self.steps}
-        # self.memory = memory
+
+        if not hasattr(self, "models") or getattr(self, "models", None) is None:
+            self.models = {}
+        if not hasattr(self, "results") or getattr(self, "results", None) is None:
+            self.results = {}
+        if not hasattr(self, "global_params"):
+            self.global_params = {}
+
+        class _DefaultGlobalIterator:
+            loop_num = 1
+
+        if not hasattr(self, "global_iterator"):
+            self.global_iterator = _DefaultGlobalIterator()
 
     def set_global_params(self, params: Dict[str, Any]) -> None:
         """
@@ -221,6 +239,11 @@ class QdPipeline(QdBaseEstimator):
                         # パラメータをstepと共有（処理後）
                         step_instance.results = self.results
                         self._update_params(step_instance)
+
+                    else:
+                        # optimize を持たないステップ（例: 素の Estimator）では結果スロットを明示的に None
+                        self.results[step_name] = None
+                        step_instance.results = self.results
 
                     if (
                         global_loop_num == 1

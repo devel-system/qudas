@@ -1,6 +1,7 @@
-QuData
+QuData クラス
 =================================
-量子データの形式を変換させるクラスです。
+
+``QuData.input()`` / ``QuData.output()`` から各 ``from_*`` / ``to_*`` を呼び出し、最適化・QUBO 系の表現を相互に変換します。全体像は :doc:`index` の図（QuData ハブ）を参照してください。
 
 .. autoclass:: qudas.qudata.QuData
    :members:

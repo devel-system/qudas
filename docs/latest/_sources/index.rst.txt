@@ -5,49 +5,68 @@
 
 Welcome to Qudas's documentation!
 =================================
-Qudasは量子計算と古典計算を組み合わせたアルゴリズムを効率よく実行するためのライブラリとなっています。
 
-役割としては大きく2点あります。
+**Qudas** は、量子計算と古典最適化をまたいだワークフローを組み立てるための Python ライブラリです。役割は大きく次の三つに分かれます。
 
-- 量子計算と古典計算を行うパイプライン処理
-- 量子計算のデータ形式と古典形式のデータ形式の変換
+1. **パイプライン（:class:`~qudas.pipeline.QdPipeline`）**  
+   scikit-learn に近い慣習（名前付きステップ、``get_params`` / ``set_params``、ランタイムへの ``set_context``）で、前処理・符号化・古典側モデル・後処理といった **古典 CPU 上のステップ列** を記述します。ステップが量子／アニーリング実行へ問題を委譲し、結果（カウント・エネルギーなど）を後段へ返す流れを想定した構成です。外側の反復（``IteratorMixin`` 系）や、ハイパーパラメータ探索（``OptimizerMixin`` / ``OptimizerStep`` 系）から準備段へ戻る経路も置けます。
 
-量子計算と古典計算を行うパイプライン処理
-------------------------------------------------------------
+2. **QuData（形式変換ハブ）**  
+   最適化・QUBO まわりで使う表現（NumPy、pandas、CSV／JSON、PyQUBO、Amplify、SymPy、NetworkX、dimod BQM、PuLP など）の間を、``QuData.input()`` と ``QuData.output()``、および ``from_*``／``to_*`` で行き来させます。量子回路そのものを QuData が変換するわけではありません（回路は下記ゲートスタック側で扱います）。
 
-scikit learnやpytorchには前処理やモデルのフローを定義する pipline の仕組みが存在する。
-これに着想を得て、量子・AIのpipelineを開発した。
+3. **ゲート方式・アニーリング方式（オプションの追加パッケージ）**  
+   ``qudas[gate]`` ではゲート用の Input / Block・IR / Executor / Output（主に Qiskit 連携）。``qudas[annealing]`` ではアニーリング用の同様のパイプライン層と、QUBO 辞書ベースの IR です。いずれも **QuData のファイル／ソルバ変換 API とは別レイヤー** ですが、ドメインとしてはアニーリング周りで併用しやすい構成になっています。
 
-.. image:: ./img/fmqa_pipeline.png
-   :scale: 50%
+インストールの目安:
 
-上図は量子とAIを用いたブラックボックス最適化を行うためのフローである。
+* ``pip install qudas`` … コア（NumPy + matplotlib）
+* ``pip install qudas[annealing]`` … QuData 変換に使うライブラリ一式（dimod、Amplify、PyQUBO など）
+* ``pip install qudas[gate]`` … Qiskit ベースのゲート実行
+* ``pip install qudas[all]`` … 上記をまとめて
 
-フローを記述するためのベースクラスを駆使することで、量子とAIのそれぞれのJobを切り分けることができる。
+詳しい手順とコード例は :doc:`quickstart` を参照してください。
 
+パイプラインの概念図
+--------------------
 
-量子計算のデータ形式と古典形式のデータ形式の変換
-------------------------------------------------------------
+.. figure:: ./img/fmqa_pipeline.png
+   :align: center
+   :width: 85%
 
-以下のように各データ形式とそれらを扱うフレームワークを整理した。
+   **QdPipeline** のイメージ。左のランタイムコンテキスト（パラメータ、乱数、ロガー、共有成果物）を ``set_context`` で受け取り、古典ステップの列のなかで量子／アニーリング Executor への委譲や、最適化ループからのフィードバックを表現します。
 
-.. image:: ./img/data_abstract.png
+QuData とゲート／アニーリングの関係
+------------------------------------
 
-各モデル毎に対応するオブジェクト形式が異なるので、ライブラリを用いて任意のオブジェクト形式からモデルを変換することができる。\
-また、一部のモデルを変換することができる。
+.. figure:: ./img/data_abstract.png
+   :align: center
+   :width: 95%
+
+   **QuData** を中心としたデータの流れ（v0.2.1 時点の整理）。緑のハブが最適化・QUBO 側の相互変換、青・紫はそれぞれゲート用・アニーリング用のワークフロー（IR／実行）で、ゲートスタックは QuData の行列ハブを経由しません。
 
 .. toctree::
    :maxdepth: 2
-   :caption: クイックスタート
+   :caption: はじめに
 
    quickstart
 
 .. toctree::
    :maxdepth: 2
-   :caption: 入出力変換
+   :caption: コアとデータ変換
 
    core/index
+   qudata/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: ゲート方式（オプション）
+
    gate/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: アニーリング方式（オプション）
+
    annealing/index
 
 .. toctree::
@@ -58,9 +77,9 @@ scikit learnやpytorchには前処理やモデルのフローを定義する pip
 
 .. toctree::
    :maxdepth: 2
-   :caption: その他
+   :caption: リリースノート
 
-   qudata/index
+   whatsnew_0_2_1
 
 .. toctree::
    :maxdepth: 2

@@ -4,10 +4,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="QdAnnealingBlock" href="block.html" /><link rel="prev" title="QdAnnealingOutput" href="output.html" />
-        <link rel="canonical" href="https://devel-system.github.io/qudas/annealing/executor.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
-        <title>QdAnnealingExecutor - Qudas 0.2.0 documentation</title>
+        <title>QdAnnealingExecutor - Qudas 0.2.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -124,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qudas 0.2.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">Qudas 0.2.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -150,7 +149,7 @@
 >
    
   <span class="sidebar-brand-text"
-    >Qudas 0.2.0 documentation</span
+    >Qudas 0.2.1 documentation</span
   > 
 </a><form
   class="sidebar-search-container"
@@ -163,19 +162,30 @@
   <input type="hidden" name="check_keywords" value="yes" />
   <input type="hidden" name="area" value="default" />
 </form>
-<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree"><p class="caption" role="heading"><span class="caption-text">クイックスタート</span></p>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree"><p class="caption" role="heading"><span class="caption-text">はじめに</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">入出力変換</span></p>
-<ul class="current">
+<p class="caption" role="heading"><span class="caption-text">コアとデータ変換</span></p>
+<ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../core/index.html">Core</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Core</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../core/base.html">QdInputBase</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../core/base.html#qdoutputbase">QdOutputBase</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../core/base.html#qdexecutorbase">QdExecutorBase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../core/statistics.html">Statistics (<code class="docutils literal notranslate"><span class="pre">qudas.core.statistics</span></code>)</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../gate/index.html">Gate</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Gate</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../qudata/index.html">QuData</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of QuData</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../qudata/base.html">QuDataBase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qudata/input.html">QuDataInput</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qudata/output.html">QuDataOutput</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qudata/main.html">QuData クラス</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ゲート方式（オプション）</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../gate/index.html">Gate</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Gate</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../gate/input.html">QdGateInput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../gate/output.html">QdGateOutput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../gate/executor.html">QdGateExecutor</a></li>
@@ -184,7 +194,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../gate/ir.html#qdgateir">QdGateIR</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Annealing</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Annealing</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+</ul>
+<p class="caption" role="heading"><span class="caption-text">アニーリング方式（オプション）</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Annealing</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Annealing</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="input.html">QdAnnealingInput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="output.html">QdAnnealingOutput</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">QdAnnealingExecutor</a></li>
@@ -195,22 +208,16 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">パイプライン</span></p>
 <ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../pipeline/index.html">Pipeline</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Pipeline</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../pipeline/index.html">パイプライン</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of パイプライン</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../pipeline/steps/base.html">BaseStep</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../pipeline/steps/iterator_mixin.html">IteratorMixin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../pipeline/steps/optimizer_mixin.html">OptimizerMixin</a></li>
 </ul>
 </li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">その他</span></p>
+<p class="caption" role="heading"><span class="caption-text">リリースノート</span></p>
 <ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../qudata/index.html">QuData</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of QuData</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../qudata/base.html">QuDataBase</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../qudata/input.html">QuDataInput</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../qudata/output.html">QuDataOutput</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../qudata/main.html">QuData</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_1.html">Qudas 0.2.1 の新機能・変更点</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">参照</span></p>
 <ul>
@@ -363,7 +370,7 @@
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b1f64a84"></script>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=158ece9d"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

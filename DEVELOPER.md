@@ -16,8 +16,11 @@ make clean && make html
 
 ## 2. テスト
 
+開発用依存とオプション機能一式を入れたうえで実行してください。
+
 ```bash
-pytest tests/
+pip install -e ".[dev,all]"
+pytest
 ```
 
 ---
