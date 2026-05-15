@@ -27,7 +27,7 @@ pip install "qudas[annealing]"  # zsh 等では角括弧をクォート推奨
 pip install "qudas[gate]"
 pip install "qudas[all]"
 # or
-pip install git+https://github.com/devel-system/qudas.git@v0.2.1  # 開発版
+pip install git+https://github.com/devel-system/qudas.git@v0.2.2  # 開発版
 ```
 
 **オプション**（zsh などでは角括弧をクォートしてください。上記コードブロック参照）
@@ -38,7 +38,7 @@ pip install git+https://github.com/devel-system/qudas.git@v0.2.1  # 開発版
 
 ### 1-2. ライブラリの全体像（構成図）
 
-v0.2.1 時点でドキュメントと揃えた概念図です（GitHub 上の README では下記パスの画像が表示されます）。
+v0.2.2 時点でドキュメントと揃えた概念図です（GitHub 上の README では下記パスの画像が表示されます）。
 
 **QdPipeline** … ランタイムコンテキスト、古典ステップ列、Executor への委譲、最適化ループのフィードバックなどの関係。
 
@@ -316,7 +316,7 @@ print(solution, energy, device)
 
 ### 1-6. パイプライン（`QdPipeline` / `Pipeline`）
 
-古典・量子ステップを名前付きでつなぐパイプラインは `qudas.pipeline` の `QdPipeline`（互換別名 `Pipeline`）を利用します。具体例は [examples/fmqa/main.py](examples/fmqa/main.py)、[examples/vqe/run_vqe.py](examples/vqe/run_vqe.py)、[examples/qsvm-gate/main.py](examples/qsvm-gate/main.py) および [tests/test_pipeline.py](tests/test_pipeline.py) を参照してください。v0.2.1 では実行結果への統計情報（`qudas.core.statistics`）なども拡張されています。
+古典・量子ステップを名前付きでつなぐパイプラインは `qudas.pipeline` の `QdPipeline`（互換別名 `Pipeline`）を利用します。具体例は [examples/fmqa/main.py](examples/fmqa/main.py)、[examples/vqe/run_vqe.py](examples/vqe/run_vqe.py)、[examples/qsvm-gate/main.py](examples/qsvm-gate/main.py) および [tests/test_pipeline.py](tests/test_pipeline.py) を参照してください。実行結果への統計情報（`qudas.core.statistics`）は v0.2.1 で追加され、本版でも利用できます。
 
 ---
 

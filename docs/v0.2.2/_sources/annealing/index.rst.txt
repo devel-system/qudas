@@ -1,0 +1,13 @@
+Annealing
+=============================
+量子アニーリング（QUBO）問題を扱うための入出力・実行クラス群を提供します。全体配置は :doc:`../index` の「QuData とゲート／アニーリングの関係」図の右（アニーリング）を参照してください。QuData のファイル／ソルバ変換 API とは別のワークフロー層ですが、QUBO 表現まわりで併用しやすい構成です。
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Contents:
+
+   input
+   output
+   executor
+   block
+   ir

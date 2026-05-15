@@ -1,0 +1,13 @@
+QuData
+=================================
+
+最適化・QUBO まわりの **表現どうしを橋渡しするハブ** が :class:`~qudas.qudata.QuData` です。DSL（PyQUBO 等）、配列・表（NumPy / pandas）、ファイル（CSV / JSON）、グラフ（NetworkX）、ソルバ型（dimod BQM、PuLP）などとの相互変換は、``QuData.input()`` / ``QuData.output()`` と ``from_*`` / ``to_*`` で行います。量子ゲート回路の IR 変換はここではなく :doc:`../gate/index` 側のスタックを参照してください。
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Contents:
+
+   base
+   input
+   output
+   main

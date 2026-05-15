@@ -1,0 +1,17 @@
+パイプライン
+=================================
+
+量子・古典をまたぐ処理の骨格は :class:`~qudas.pipeline.QdPipeline`（エイリアス名 ``Pipeline``）です。名前付きステップ、パラメータの取得／設定、ランタイムコンテキスト（``set_context``）など、scikit-learn に倣った操作でフローを記述できます。ステップ実装のベースや反復・最適化用のミキサンは下記 toctree を参照してください。
+
+.. autoclass:: qudas.pipeline.Pipeline
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   steps/base
+   steps/iterator_mixin
+   steps/optimizer_mixin
