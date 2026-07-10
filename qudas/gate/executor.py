@@ -138,14 +138,23 @@ class QdGateExecutor(QdExecutorBase):
                     # 未対応ゲートはスキップ (必要に応じて追加実装)
                     continue
 
+                # measure は Qiskit 1.x で qargs/cargs が分離されるため個別処理
+                if gate_name == "measure":
+                    if len(qargs) == 1:
+                        qc.measure(qargs[0], qargs[0])
+                    else:
+                        qc.measure(qargs[0], qargs[1])
+                    continue
+
                 # 呼び出し引数を組み立て
                 if gate_ir.params:
                     method(*gate_ir.params, *qargs)
                 else:
                     method(*qargs)
 
-            # 省略した classical register への測定を追加 (デフォルト: 全量子ビット)
-            qc.measure_all()
+            # 測定ゲートが無い場合のみ measure_all を追加
+            if not any(g.gate.lower() == "measure" for g in block.gates):
+                qc.measure_all()
 
             return qc
         except Exception:
@@ -157,15 +166,16 @@ class QdGateExecutor(QdExecutorBase):
     # ------------------------------------------------------------------
     @staticmethod
     def _run_qiskit(circuit, **kwargs):
-        """Qiskit Aer/Basics を用いて回路をシミュレーション。"""
+        """Qiskit Aer を用いて回路をシミュレーション。"""
 
         try:
-            # lazy import – qiskit が入っていない環境でも動作させるため
-            from qiskit import Aer, execute  # type: ignore
+            from qiskit_aer import AerSimulator  # type: ignore
 
-            backend = Aer.get_backend(kwargs.get("backend", "qasm_simulator"))
-            job = execute(circuit, backend=backend, **kwargs)
-            counts = job.result().get_counts()
+            run_kwargs = {k: v for k, v in kwargs.items() if k != "backend"}
+            shots = run_kwargs.pop("shots", 1024)
+            backend = AerSimulator()
+            result = backend.run(circuit, shots=shots, **run_kwargs).result()
+            counts = result.get_counts()
             return {"counts": dict(counts), "device": "qiskit_simulator"}
 
         except Exception:  # noqa: BLE001 – ImportError or runtime errors
