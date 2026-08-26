@@ -1,12 +1,74 @@
 from qudas.core.output_base import QdOutputBase, QdOutputBaseData
 from qudas.core.statistics import energy_statistics
 from dataclasses import dataclass
-from typing import Dict, Any, Optional
+from typing import Any, Dict, List, Optional, Sequence
 
 # 依存ライブラリはローカル import で遅延読み込み
 # NOTE: 旧 API 互換を保ちつつ多ブロック対応させる。
 #   - 旧: `result`/`solution` 単一ブロック辞書を保持し `.result`, `.solution`, `.result_type`
 #   - 新: 複数ブロックを `results` 辞書で保持
+
+
+def _amplify_solution_energy(solution: Any) -> float:
+    """Amplify 解オブジェクトからエネルギー / 目的関数値を取得する。
+
+    Amplify SDK v1 は ``objective``、v0 系は ``energy`` を使う。
+    """
+    if hasattr(solution, "objective"):
+        return float(solution.objective)
+    if hasattr(solution, "energy"):
+        return float(solution.energy)
+    raise AttributeError(
+        "Amplify solution has neither 'objective' nor 'energy' attribute"
+    )
+
+
+def _amplify_best_solution(result: Any) -> Any:
+    """Amplify 結果から最良解を取得する（v0 / v1 両対応）。"""
+    best = getattr(result, "best", None)
+    if best is not None:
+        return best
+
+    solutions = getattr(result, "solutions", None)
+    if solutions is not None and len(solutions) > 0:
+        return solutions[0]
+
+    try:
+        return result[0]
+    except Exception as exc:  # noqa: BLE001
+        raise ValueError("Amplify result has no accessible solutions") from exc
+
+
+def _amplify_iter_solutions(result: Any) -> Optional[Sequence[Any]]:
+    """結果から解一覧を取り出す。取れなければ None。"""
+    solutions = getattr(result, "solutions", None)
+    if solutions is not None:
+        return solutions
+    try:
+        as_list = list(result)
+    except TypeError:
+        return None
+    return as_list if as_list else None
+
+
+def _amplify_energies(result: Any) -> List[float]:
+    """Amplify 結果からエネルギー一覧を取得する（v0 / v1 両対応）。
+
+    優先順位:
+    1. ``result.energies``（一部の旧 API / ラッパー）
+    2. ``result.solutions``（または Result 自体のイテレーション）の各解の
+       ``objective`` / ``energy``
+    3. 最良解のエネルギー 1 件
+    """
+    energies_attr = getattr(result, "energies", None)
+    if energies_attr is not None:
+        return [float(e) for e in energies_attr]
+
+    solutions = _amplify_iter_solutions(result)
+    if solutions:
+        return [_amplify_solution_energy(sol) for sol in solutions]
+
+    return [_amplify_solution_energy(_amplify_best_solution(result))]
 
 
 @dataclass
@@ -174,18 +236,28 @@ class QdAnnealingOutput(QdOutputBase):
     def from_amplify(cls, result, block_label: str = 'block0') -> "QdAnnealingOutput":
         out = cls()
 
-        variables = {str(k): v for k, v in result.best.values.items()}
-        energies = [float(e) for e in result.energies]
+        best = _amplify_best_solution(result)
+        variables = {str(k): v for k, v in best.values.items()}
+        energies = _amplify_energies(result)
+
+        solutions = getattr(result, "solutions", None)
+        if solutions is not None:
+            n_unique = len(solutions)
+        else:
+            try:
+                n_unique = len(result)
+            except TypeError:
+                n_unique = len(energies)
 
         stats = {
             "energy": energy_statistics(energies),
-            "bitstring": {"unique": len(getattr(result, "solutions", energies))},
+            "bitstring": {"unique": n_unique},
         }
 
         return out._set_block(
             block_label,
             variables,
-            float(result.best.objective),
+            _amplify_solution_energy(best),
             energies=energies,
             statistics=stats,
             device='amplify'

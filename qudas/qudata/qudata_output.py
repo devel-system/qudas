@@ -31,8 +31,25 @@ class QuDataOutput(QuDataBase):
 
     # Amplifyの計算結果を受け取る
     def from_amplify(self, result) -> "QuDataOutput":
-        variables = {str(k): v for k, v in result.best.values.items()}
-        self.result = {'variables': variables, 'objective': result.best.objective}
+        # Amplify v1: result.best.objective / v0: result.best.energy または solutions[0]
+        best = getattr(result, "best", None)
+        if best is None:
+            solutions = getattr(result, "solutions", None)
+            if not solutions:
+                raise ValueError("Amplify result has no accessible solutions")
+            best = solutions[0]
+
+        variables = {str(k): v for k, v in best.values.items()}
+        if hasattr(best, "objective"):
+            objective = best.objective
+        elif hasattr(best, "energy"):
+            objective = best.energy
+        else:
+            raise AttributeError(
+                "Amplify solution has neither 'objective' nor 'energy' attribute"
+            )
+
+        self.result = {'variables': variables, 'objective': objective}
         self.result_type = 'amplify'
         return self
 
