@@ -122,7 +122,15 @@ class QdGateExecutor(QdExecutorBase):
         try:
             from qiskit import QuantumCircuit  # type: ignore
 
-            qc = QuantumCircuit(block.num_qubits, block.num_qubits)
+            has_measure = any(
+                g.gate.lower() == "measure" for g in block.gates
+            )
+            # measure_all() は classical レジスタ未確保時のみ呼ぶ。
+            # 先に c レジスタを作ると meas レジスタが追加され二重測定になる。
+            if has_measure:
+                qc = QuantumCircuit(block.num_qubits, block.num_qubits)
+            else:
+                qc = QuantumCircuit(block.num_qubits)
 
             for gate_ir in block.gates:
                 # ゲート名に応じてダイナミックにメソッド呼び出し
@@ -153,7 +161,7 @@ class QdGateExecutor(QdExecutorBase):
                     method(*qargs)
 
             # 測定ゲートが無い場合のみ measure_all を追加
-            if not any(g.gate.lower() == "measure" for g in block.gates):
+            if not has_measure:
                 qc.measure_all()
 
             return qc

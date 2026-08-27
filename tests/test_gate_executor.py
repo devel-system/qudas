@@ -24,6 +24,9 @@ class TestGateExecutor(unittest.TestCase):
         output = executor.run(qd_input)
         self.assertIn('counts', output.results['block0'])
         self.assertIn('device', output.results['block0'])
+        # measure_all() による二重測定（例: '11 00'）が起きないこと
+        for bitstring in output.results['block0']['counts']:
+            self.assertNotIn(' ', bitstring)
 
     def test_qudas_to_qiskit_execution(self):
         try:
