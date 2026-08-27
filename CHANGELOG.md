@@ -1,8 +1,14 @@
 # Changelog
 
-## 今後のバージョン（0.2.4 以降）の予定
+## 今後のバージョン（0.2.5 以降）の予定
 ### Planned for Future Release
 - 新しい機能や修正内容を記載していきます。
+
+---
+
+## [0.2.5] - 2026-08-27
+### Fixed
+- 量子ゲート Executor（`QdGateExecutor`）の qiskit 実行時、測定ゲートありの回路で `measure_all()` による二重測定が起きる問題を修正。
 
 ---
 
