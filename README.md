@@ -36,7 +36,16 @@ pip install git+https://github.com/devel-system/qudas.git@v0.2.6  # 開発版
 - `pip install qudas[annealing]` … データ変換 + アニーリング実行（dimod, Amplify, PyQUBO, PuLP, pandas, networkx, sympy, scipy）
 - `pip install qudas[all]` … 上記 gate + annealing の全パッケージ
 
-変換だけ使う場合も、現状は形式変換用 SDK が `annealing` extra に含まれます（実行用 Amplify との分離は今後検討）。
+**変換だけ使う場合の依存（0.2.x）**
+
+形式変換（`QuData` / `QdAnnealingIR`）に必要な SDK は現状 `annealing` extra にまとまっています。コア（numpy / matplotlib）に加え、変換で使うパッケージの目安は次のとおりです。
+
+| 用途 | パッケージ |
+|------|------------|
+| 行列・表・グラフ・数式・古典最適化まわり | `dimod`, `PuLP`, `pyqubo`, `pandas`, `networkx`, `sympy`, `scipy` |
+| Amplify の Poly 入出力（`from_amplify` / `to_amplify`）およびクラウド実行 | `amplify`（`qudas[annealing]` に含まれる） |
+
+Amplify 形式やアニーリング実行が不要なら、上記の変換用パッケージだけを個別に入れても構いません。インストール一式が欲しければ従来どおり `qudas[annealing]` を使ってください。変換用 extra の分離は将来の非破壊追加として検討中です。
 
 ### 1-2. ライブラリの全体像（構成図）
 
