@@ -74,9 +74,7 @@ class TestPipeline(unittest.TestCase):
 
     def test_iterator(self):
         steps = [('SimpleOptimizerStep', SimpleOptimizerStep())]
-        pipeline = QdPipeline(
-            steps, global_iterator=SimpleIteratorStep(loop_num=2)
-        )
+        pipeline = QdPipeline(steps, global_iterator=SimpleIteratorStep(loop_num=2))
         X = 10
         result = pipeline.optimize(X)
         self.assertEqual(result['SimpleOptimizerStep'], 26)
@@ -84,9 +82,7 @@ class TestPipeline(unittest.TestCase):
     def test_global_params(self):
         params = {'alpha': 0.1}
         steps = [('SimpleOptimizerStep', SimpleOptimizerStep())]
-        pipeline = QdPipeline(
-            steps, global_iterator=SimpleIteratorStep(loop_num=2)
-        )
+        pipeline = QdPipeline(steps, global_iterator=SimpleIteratorStep(loop_num=2))
         pipeline.set_global_params(params)
         self.assertEqual(pipeline.get_global_params(), params)
 

@@ -1,4 +1,4 @@
-"""QuDataInput（QUBO 入出力・各フォーマット変換）のテスト。"""
+"""レガシー QuDataInput 互換テスト（Deprecated。正の契約は facade テスト）。"""
 
 from __future__ import annotations
 
@@ -10,29 +10,23 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import pulp
+import pytest
 from amplify import VariableGenerator
 from sympy import Symbol
 
 from qudas.annealing import QdAnnealingIR
 from qudas.qudata import QuDataInput
 
-_DATA = Path(__file__).resolve().parent.parent / "data"
+pytestmark = pytest.mark.legacy
+
+_DATA = Path(__file__).resolve().parents[2] / "data"
 
 
 def dicts_are_equal(dict1, dict2):
     """辞書のキーの順序を無視して等価性を比較する。"""
-    if len(dict1) != len(dict2):
-        return False
+    from tests.helpers import qubo_dicts_equal
 
-    for k1, v1 in dict1.items():
-        found = False
-        for k2, v2 in dict2.items():
-            if set(k1) == set(k2) and v1 == v2:
-                found = True
-                break
-        if not found:
-            return False
-    return True
+    return qubo_dicts_equal(dict1, dict2)
 
 
 class TestQuDataInput(unittest.TestCase):

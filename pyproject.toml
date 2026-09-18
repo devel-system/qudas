@@ -82,6 +82,9 @@ python_files = ["test_*.py"]
 addopts = "-ra"
 # リポジトリ直下のソースを先に読み、.venv 内の古い pip 版 qudas より優先する
 pythonpath = ["."]
+markers = [
+    "legacy: Deprecated QuDataInput/QuDataOutput 互換テスト（正の契約は facade）",
+]
 
 [tool.black]
 line-length = 88

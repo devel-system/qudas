@@ -1,4 +1,4 @@
-"""QuDataOutput（最適化結果の取り込み・変換）のテスト。"""
+"""レガシー QuDataOutput 互換テスト（Deprecated。正の契約は facade テスト）。"""
 
 from __future__ import annotations
 
@@ -8,12 +8,15 @@ from datetime import timedelta
 
 import dimod
 import numpy as np
+import pytest
 from amplify import FixstarsClient, Model, VariableGenerator, solve
 from pulp import LpMinimize, LpProblem, LpVariable
 from scipy.optimize import Bounds, minimize
 from sympy import lambdify, symbols
 
 from qudas.qudata import QuDataOutput
+
+pytestmark = pytest.mark.legacy
 
 
 class TestQuDataOutput(unittest.TestCase):
@@ -69,7 +72,9 @@ class TestQuDataOutput(unittest.TestCase):
         f = lambdify([q0, q1, q2], objective_function, 'numpy')
         q = [0.5, 0.5, 0.5]
         bounds = Bounds([0, 0, 0], [1, 1, 1])
-        res = minimize(lambda qv: f(qv[0], qv[1], qv[2]), q, method='SLSQP', bounds=bounds)
+        res = minimize(
+            lambda qv: f(qv[0], qv[1], qv[2]), q, method='SLSQP', bounds=bounds
+        )
 
         qdo = QuDataOutput().from_scipy(res)
         expected_result = {
@@ -100,7 +105,9 @@ class TestQuDataOutput(unittest.TestCase):
         f = lambdify([q0, q1, q2], objective_function, 'numpy')
         q = [0.5, 0.5, 0.5]
         bounds = Bounds([0, 0, 0], [1, 1, 1])
-        res = minimize(lambda qv: f(qv[0], qv[1], qv[2]), q, method='SLSQP', bounds=bounds)
+        res = minimize(
+            lambda qv: f(qv[0], qv[1], qv[2]), q, method='SLSQP', bounds=bounds
+        )
 
         np.testing.assert_array_equal(scipy_result.x, res.x)
         self.assertEqual(scipy_result.fun, res.fun)

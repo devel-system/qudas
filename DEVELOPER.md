@@ -34,6 +34,20 @@ pip install -e ".[dev,all]"
 pytest
 ```
 
+### レイヤ
+
+| レイヤ | 場所 | 備考 |
+|--------|------|------|
+| 正の契約（推奨） | `tests/qudata/test_qudata_*.py`、`tests/test_*.py` | facade / Executor / Pipeline |
+| レガシー互換 | `tests/qudata/legacy/` | Deprecated `QuDataInput`/`Output`。`pytest -m legacy` |
+| 手動スモーク | `examples/manual/` | pytest 対象外 |
+
+レガシーを除いて正経路だけ回す例:
+
+```bash
+pytest -m "not legacy"
+```
+
 ---
 
 ## 3. フォーマット / Lint
