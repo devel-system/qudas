@@ -35,7 +35,6 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt || true  # requirements.txt のインストールで失敗しても続行
         pip install -e ".[dev,all]"
 
     # pytest を実行してテストを行うステップ
@@ -66,7 +65,6 @@ jobs:
     # 必要な依存パッケージをインストールするステップ
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt || true  # requirements.txt のインストールで失敗しても続行
         pip install -e ".[dev,all]"
 
     # パッケージをビルドするステップ

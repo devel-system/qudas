@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Quickstart" href="quickstart.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
-        <title>Qudas 0.2.2 documentation</title>
+        <title>Qudas 0.2.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">Qudas 0.2.2 documentation</div></a>
+      <a href="#"><div class="brand">Qudas 0.2.6 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -149,7 +149,7 @@
 >
    
   <span class="sidebar-brand-text"
-    >Qudas 0.2.2 documentation</span
+    >Qudas 0.2.6 documentation</span
   > 
 </a><form
   class="sidebar-search-container"
@@ -176,10 +176,10 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="qudata/index.html">QuData</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of QuData</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="qudata/base.html">QuDataBase</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qudata/input.html">QuDataInput</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qudata/output.html">QuDataOutput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qudata/main.html">QuData クラス</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qudata/base.html">QuDataBase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qudata/input.html">QuDataInput（Deprecated）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qudata/output.html">QuDataOutput（Deprecated）</a></li>
 </ul>
 </li>
 </ul>
@@ -198,11 +198,11 @@
 <p class="caption" role="heading"><span class="caption-text">アニーリング方式（オプション）</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="annealing/index.html">Annealing</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Annealing</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="annealing/ir.html">QdAnnealingIR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="annealing/input.html">QdAnnealingInput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="annealing/output.html">QdAnnealingOutput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="annealing/executor.html">QdAnnealingExecutor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="annealing/block.html">QdAnnealingBlock</a></li>
-<li class="toctree-l2"><a class="reference internal" href="annealing/ir.html">QdAnnealingIR</a></li>
 </ul>
 </li>
 </ul>
@@ -217,6 +217,10 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">リリースノート</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_6.html">Qudas 0.2.6 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_5.html">Qudas 0.2.5 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_4.html">Qudas 0.2.4 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_3.html">Qudas 0.2.3 の変更点</a></li>
 <li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_2.html">Qudas 0.2.2 の変更点</a></li>
 <li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_1.html">Qudas 0.2.1 の新機能・変更点</a></li>
 </ul>
@@ -258,36 +262,38 @@
 <h1>Welcome to Qudas’s documentation!<a class="headerlink" href="#welcome-to-qudas-s-documentation" title="Permalink to this heading">#</a></h1>
 <p><strong>Qudas</strong> は、量子計算と古典最適化をまたいだワークフローを組み立てるための Python ライブラリです。役割は大きく次の三つに分かれます。</p>
 <ol class="arabic simple">
-<li><p><strong>パイプライン（:class:`~qudas.pipeline.QdPipeline`）</strong>
-scikit-learn に近い慣習（名前付きステップ、<code class="docutils literal notranslate"><span class="pre">get_params</span></code> / <code class="docutils literal notranslate"><span class="pre">set_params</span></code>、ランタイムへの <code class="docutils literal notranslate"><span class="pre">set_context</span></code>）で、前処理・符号化・古典側モデル・後処理といった <strong>古典 CPU 上のステップ列</strong> を記述します。ステップが量子／アニーリング実行へ問題を委譲し、結果（カウント・エネルギーなど）を後段へ返す流れを想定した構成です。外側の反復（<code class="docutils literal notranslate"><span class="pre">IteratorMixin</span></code> 系）や、ハイパーパラメータ探索（<code class="docutils literal notranslate"><span class="pre">OptimizerMixin</span></code> / <code class="docutils literal notranslate"><span class="pre">OptimizerStep</span></code> 系）から準備段へ戻る経路も置けます。</p></li>
-<li><p><strong>QuData（形式変換ハブ）</strong>
-最適化・QUBO まわりで使う表現（NumPy、pandas、CSV／JSON、PyQUBO、Amplify、SymPy、NetworkX、dimod BQM、PuLP など）の間を、<code class="docutils literal notranslate"><span class="pre">QuData.input()</span></code> と <code class="docutils literal notranslate"><span class="pre">QuData.output()</span></code>、および <code class="docutils literal notranslate"><span class="pre">from_*</span></code>／<code class="docutils literal notranslate"><span class="pre">to_*</span></code> で行き来させます。量子回路そのものを QuData が変換するわけではありません（回路は下記ゲートスタック側で扱います）。</p></li>
-<li><p><strong>ゲート方式・アニーリング方式（オプションの追加パッケージ）</strong>
-<code class="docutils literal notranslate"><span class="pre">qudas[gate]</span></code> ではゲート用の Input / Block・IR / Executor / Output（主に Qiskit 連携）。<code class="docutils literal notranslate"><span class="pre">qudas[annealing]</span></code> ではアニーリング用の同様のパイプライン層と、QUBO 辞書ベースの IR です。いずれも <strong>QuData のファイル／ソルバ変換 API とは別レイヤー</strong> ですが、ドメインとしてはアニーリング周りで併用しやすい構成になっています。</p></li>
+<li><p><strong>パイプライン</strong> （<a class="reference internal" href="pipeline/index.html#qudas.pipeline.QdPipeline" title="qudas.pipeline.QdPipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">QdPipeline</span></code></a>）
+名前付きステップと <code class="docutils literal notranslate"><span class="pre">set_context</span></code> によるランタイム注入で、前処理・古典モデル・後処理などの <strong>古典ステップ列</strong> を記述します。ステップが量子／アニーリング Executor へ問題を委譲し、結果を後段へ返す流れを想定しています。外側の反復（<code class="docutils literal notranslate"><span class="pre">IteratorMixin</span></code>）や最適化（<code class="docutils literal notranslate"><span class="pre">OptimizerMixin</span></code> / <code class="docutils literal notranslate"><span class="pre">OptimizerStep</span></code>）から準備段へ戻る経路も置けます。
+<strong>サポートする主な操作:</strong> <code class="docutils literal notranslate"><span class="pre">fit</span></code> / <code class="docutils literal notranslate"><span class="pre">optimize</span></code> / <code class="docutils literal notranslate"><span class="pre">predict</span></code> / <code class="docutils literal notranslate"><span class="pre">get_results</span></code> / <code class="docutils literal notranslate"><span class="pre">get_models</span></code> / context 系。
+<strong>未サポート:</strong> 公開メソッドとしての <code class="docutils literal notranslate"><span class="pre">transform</span></code> / <code class="docutils literal notranslate"><span class="pre">fit_transform</span></code>、および <code class="docutils literal notranslate"><span class="pre">set_params</span></code> の step ネスト指定。</p></li>
+<li><p><strong>形式変換</strong> （<a class="reference internal" href="qudata/main.html#qudas.qudata.QuData" title="qudas.qudata.QuData"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuData</span></code></a>）
+最適化・QUBO まわりの表現を <code class="docutils literal notranslate"><span class="pre">QuData.input()</span></code> / <code class="docutils literal notranslate"><span class="pre">QuData.output()</span></code> で行き来させる <strong>変換専用の Public 入口</strong> です。実装の正は <code class="xref py py-class docutils literal notranslate"><span class="pre">QdAnnealingIR</span></code> / <code class="xref py py-class docutils literal notranslate"><span class="pre">QdAnnealingOutput</span></code> であり、Executor による実行は不要です。量子回路そのものの変換は行いません（回路はゲートスタック側）。</p></li>
+<li><p><strong>ゲート方式・アニーリング方式（オプション）</strong>
+<code class="docutils literal notranslate"><span class="pre">qudas[gate]</span></code> ではゲート用 Input / Block・IR / Executor / Output（主に Qiskit）。<code class="docutils literal notranslate"><span class="pre">qudas[annealing]</span></code> ではアニーリング実行用の同様の層に加え、QUBO 変換の canonical 実装（<code class="docutils literal notranslate"><span class="pre">QdAnnealingIR</span></code>）を提供します。変換 API と実行 API は別経路です。</p></li>
 </ol>
 <p>インストールの目安:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qudas</span></code> … コア（NumPy + matplotlib）</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qudas[annealing]</span></code> … QuData 変換に使うライブラリ一式（dimod、Amplify、PyQUBO など）</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qudas[gate]</span></code> … Qiskit ベースのゲート実行</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qudas[all]</span></code> … 上記をまとめて</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qudas</span></code> … コア（NumPy + matplotlib）。<code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">qudas</span></code> はサブモジュールを eager load します（SDK は遅延 import）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;qudas[annealing]&quot;</span></code> … データ変換 + アニーリング実行用ライブラリ一式</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;qudas[gate]&quot;</span></code> … Qiskit ベースのゲート実行</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;qudas[all]&quot;</span></code> … 上記をまとめて</p></li>
 </ul>
 <p>詳しい手順とコード例は <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart</span></a> を参照してください。</p>
 <section id="id1">
 <h2>パイプラインの概念図<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
-<figure class="align-center" id="id2">
+<figure class="align-center" id="id3">
 <a class="reference internal image-reference" href="_images/fmqa_pipeline.png"><img alt="_images/fmqa_pipeline.png" src="_images/fmqa_pipeline.png" style="width: 85%;" /></a>
 <figcaption>
-<p><span class="caption-text"><strong>QdPipeline</strong> のイメージ。左のランタイムコンテキスト（パラメータ、乱数、ロガー、共有成果物）を <code class="docutils literal notranslate"><span class="pre">set_context</span></code> で受け取り、古典ステップの列のなかで量子／アニーリング Executor への委譲や、最適化ループからのフィードバックを表現します。</span><a class="headerlink" href="#id2" title="Permalink to this image">#</a></p>
+<p><span class="caption-text"><strong>QdPipeline</strong> のイメージ。左のランタイムコンテキスト（パラメータ、乱数、ロガー、共有成果物）を <code class="docutils literal notranslate"><span class="pre">set_context</span></code> で受け取り、古典ステップの列のなかで量子／アニーリング Executor への委譲や、最適化ループからのフィードバックを表現します。</span><a class="headerlink" href="#id3" title="Permalink to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="qudata">
-<h2>QuData とゲート／アニーリングの関係<a class="headerlink" href="#qudata" title="Permalink to this heading">#</a></h2>
-<figure class="align-center" id="id3">
+<section id="id2">
+<h2>変換と実行の関係<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h2>
+<figure class="align-center" id="id4">
 <a class="reference internal image-reference" href="_images/data_abstract.png"><img alt="_images/data_abstract.png" src="_images/data_abstract.png" style="width: 95%;" /></a>
 <figcaption>
-<p><span class="caption-text"><strong>QuData</strong> を中心としたデータの流れ（v0.2.2 時点の整理）。緑のハブが最適化・QUBO 側の相互変換、青・紫はそれぞれゲート用・アニーリング用のワークフロー（IR／実行）で、ゲートスタックは QuData の行列ハブを経由しません。</span><a class="headerlink" href="#id3" title="Permalink to this image">#</a></p>
+<p><span class="caption-text"><strong>変換と実行</strong> （現行整理）。<code class="docutils literal notranslate"><span class="pre">QuData</span></code> / <code class="docutils literal notranslate"><span class="pre">QdAnnealingIR</span></code> が QUBO 系の相互変換、青・紫はゲート／アニーリングの実行スタックです。変換のみの利用に Executor は不要です。</span><a class="headerlink" href="#id4" title="Permalink to this image">#</a></p>
 </figcaption>
 </figure>
 <div class="toctree-wrapper compound">
@@ -295,8 +301,9 @@ scikit-learn に近い慣習（名前付きステップ、<code class="docutils 
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#id1">インストール</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#qudatainput">データ変換例（QuDataInput）</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#qudataoutput">データ変換例（QuDataOutput）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#id2">データ変換例（入力・変換専用）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#id3">データ変換例（出力・変換専用）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#id4">アニーリング実行例</a></li>
 </ul>
 </li>
 </ul>
@@ -312,10 +319,10 @@ scikit-learn に近い慣習（名前付きステップ、<code class="docutils 
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="qudata/index.html">QuData</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="qudata/base.html">QuDataBase</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qudata/input.html">QuDataInput</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qudata/output.html">QuDataOutput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qudata/main.html">QuData クラス</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qudata/base.html">QuDataBase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qudata/input.html">QuDataInput（Deprecated）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qudata/output.html">QuDataOutput（Deprecated）</a></li>
 </ul>
 </li>
 </ul>
@@ -338,11 +345,11 @@ scikit-learn に近い慣習（名前付きステップ、<code class="docutils 
 <p class="caption" role="heading"><span class="caption-text">アニーリング方式（オプション）</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="annealing/index.html">Annealing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="annealing/ir.html">QdAnnealingIR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="annealing/input.html">QdAnnealingInput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="annealing/output.html">QdAnnealingOutput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="annealing/executor.html">QdAnnealingExecutor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="annealing/block.html">QdAnnealingBlock</a></li>
-<li class="toctree-l2"><a class="reference internal" href="annealing/ir.html">QdAnnealingIR</a></li>
 </ul>
 </li>
 </ul>
@@ -351,7 +358,7 @@ scikit-learn に近い慣習（名前付きステップ、<code class="docutils 
 <p class="caption" role="heading"><span class="caption-text">パイプライン</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pipeline/index.html">パイプライン</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pipeline/index.html#qudas.pipeline.Pipeline"><code class="docutils literal notranslate"><span class="pre">Pipeline</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline/index.html#qudas.pipeline.QdPipeline"><code class="docutils literal notranslate"><span class="pre">QdPipeline</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pipeline/steps/base.html">BaseStep</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pipeline/steps/iterator_mixin.html">IteratorMixin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pipeline/steps/optimizer_mixin.html">OptimizerMixin</a></li>
@@ -362,6 +369,25 @@ scikit-learn に近い慣習（名前付きステップ、<code class="docutils 
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">リリースノート</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_6.html">Qudas 0.2.6 の変更点</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew_0_2_6.html#id1">追加</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew_0_2_6.html#id2">変更</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew_0_2_6.html#id3">非推奨</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew_0_2_6.html#id4">修正</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_5.html">Qudas 0.2.5 の変更点</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew_0_2_5.html#id1">修正</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_4.html">Qudas 0.2.4 の変更点</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew_0_2_4.html#id1">修正</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_3.html">Qudas 0.2.3 の変更点</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew_0_2_3.html#id1">修正</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_2.html">Qudas 0.2.2 の変更点</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="whatsnew_0_2_2.html#id1">ドキュメント</a></li>
 <li class="toctree-l2"><a class="reference internal" href="whatsnew_0_2_2.html#id2">0.2.1 からの利用者向けメモ</a></li>
@@ -405,7 +431,7 @@ scikit-learn に近い慣習（名前付きステップ、<code class="docutils 
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2024 - 2025, DEVEL Co., Ltd.
+                Copyright &#169; 2024 - 2026, DEVEL Co., Ltd.
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -433,7 +459,7 @@ scikit-learn に近い慣習（名前付きステップ、<code class="docutils 
             <ul>
 <li><a class="reference internal" href="#">Welcome to Qudas’s documentation!</a><ul>
 <li><a class="reference internal" href="#id1">パイプラインの概念図</a></li>
-<li><a class="reference internal" href="#qudata">QuData とゲート／アニーリングの関係</a><ul>
+<li><a class="reference internal" href="#id2">変換と実行の関係</a><ul>
 </ul>
 </li>
 </ul>
@@ -447,7 +473,7 @@ scikit-learn に近い慣習（名前付きステップ、<code class="docutils 
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=227644f7"></script>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=de075e50"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>

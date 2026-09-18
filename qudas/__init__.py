@@ -1,19 +1,35 @@
 # __init__.py
 
-# バージョン情報をVERSIONファイルから読み込む
+from __future__ import annotations
+
 import os
 
-# VERSIONファイルのパスを絶対パスで取得
-VERSION_FILE_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), '..', 'VERSION'
-)
 
-# VERSIONファイルからバージョンを読み込む
-try:
-    with open(VERSION_FILE_PATH) as version_file:
-        __version__ = version_file.read().strip()
-except FileNotFoundError:
-    __version__ = '0.0.1'  # デフォルトバージョンを設定
+def _read_version() -> str:
+    """開発ツリーの VERSION を優先し、無ければインストールメタデータを使う。"""
+    version_file_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "VERSION"
+    )
+    try:
+        with open(version_file_path, encoding="utf-8") as version_file:
+            text = version_file.read().strip()
+            if text:
+                return text
+    except FileNotFoundError:
+        pass
+
+    try:
+        from importlib.metadata import PackageNotFoundError, version
+    except ImportError:  # pragma: no cover
+        from importlib_metadata import PackageNotFoundError, version  # type: ignore
+
+    try:
+        return version("qudas")
+    except PackageNotFoundError:
+        return "0.0.0+unknown"
+
+
+__version__ = _read_version()
 
 from .gate import (
     QdGateInput,
@@ -47,4 +63,5 @@ __all__ = [
     "QdAnnealingExecutor",
     "QdAnnealingIR",
     "QdAnnealingBlock",
+    "__version__",
 ]

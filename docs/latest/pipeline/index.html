@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BaseStep" href="steps/base.html" /><link rel="prev" title="QdAnnealingIR" href="../annealing/ir.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BaseStep" href="steps/base.html" /><link rel="prev" title="QdAnnealingBlock" href="../annealing/block.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
-        <title>パイプライン - Qudas 0.2.2 documentation</title>
+        <title>パイプライン - Qudas 0.2.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qudas 0.2.2 documentation</div></a>
+      <a href="../index.html"><div class="brand">Qudas 0.2.6 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -149,7 +149,7 @@
 >
    
   <span class="sidebar-brand-text"
-    >Qudas 0.2.2 documentation</span
+    >Qudas 0.2.6 documentation</span
   > 
 </a><form
   class="sidebar-search-container"
@@ -176,10 +176,10 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../qudata/index.html">QuData</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of QuData</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../qudata/base.html">QuDataBase</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../qudata/input.html">QuDataInput</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../qudata/output.html">QuDataOutput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../qudata/main.html">QuData クラス</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qudata/base.html">QuDataBase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qudata/input.html">QuDataInput（Deprecated）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qudata/output.html">QuDataOutput（Deprecated）</a></li>
 </ul>
 </li>
 </ul>
@@ -198,11 +198,11 @@
 <p class="caption" role="heading"><span class="caption-text">アニーリング方式（オプション）</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../annealing/index.html">Annealing</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Annealing</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../annealing/ir.html">QdAnnealingIR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../annealing/input.html">QdAnnealingInput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../annealing/output.html">QdAnnealingOutput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../annealing/executor.html">QdAnnealingExecutor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../annealing/block.html">QdAnnealingBlock</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../annealing/ir.html">QdAnnealingIR</a></li>
 </ul>
 </li>
 </ul>
@@ -217,6 +217,10 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">リリースノート</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_6.html">Qudas 0.2.6 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_5.html">Qudas 0.2.5 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_4.html">Qudas 0.2.4 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_3.html">Qudas 0.2.3 の変更点</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_2.html">Qudas 0.2.2 の変更点</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_1.html">Qudas 0.2.1 の新機能・変更点</a></li>
 </ul>
@@ -256,11 +260,155 @@
         <article role="main">
           <section id="id1">
 <h1>パイプライン<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h1>
-<p>量子・古典をまたぐ処理の骨格は <code class="xref py py-class docutils literal notranslate"><span class="pre">QdPipeline`（エイリアス名</span> <span class="pre">``Pipeline`</span></code>）です。名前付きステップ、パラメータの取得／設定、ランタイムコンテキスト（<code class="docutils literal notranslate"><span class="pre">set_context</span></code>）など、scikit-learn に倣った操作でフローを記述できます。ステップ実装のベースや反復・最適化用のミキサンは下記 toctree を参照してください。</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="qudas.pipeline.Pipeline">
-<span class="sig-prename descclassname"><span class="pre">qudas.pipeline.</span></span><span class="sig-name descname"><span class="pre">Pipeline</span></span><a class="headerlink" href="#qudas.pipeline.Pipeline" title="Permalink to this definition">#</a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">QdPipeline</span></code></p>
+<p>量子・古典をまたぐ処理の骨格は <code class="xref py py-class docutils literal notranslate"><span class="pre">QdPipeline`（エイリアス名</span> <span class="pre">``Pipeline`</span></code>）です。</p>
+<p><strong>サポートする主な操作</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fit</span></code> / <code class="docutils literal notranslate"><span class="pre">optimize</span></code> / <code class="docutils literal notranslate"><span class="pre">predict</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_results</span></code> / <code class="docutils literal notranslate"><span class="pre">get_models</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_context</span></code> / <code class="docutils literal notranslate"><span class="pre">get_context</span></code> （および互換の global_params 系）</p></li>
+</ul>
+<p><strong>未サポート</strong></p>
+<ul class="simple">
+<li><p>公開メソッドとしての <code class="docutils literal notranslate"><span class="pre">transform</span></code> / <code class="docutils literal notranslate"><span class="pre">fit_transform</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_params</span></code> の step ネスト指定（例: step 名とパラメータ名の結合形式）</p></li>
+</ul>
+<p>ステップ実装のベースや反復・最適化用のミキサンは下記 toctree を参照してください。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qudas.pipeline.QdPipeline">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qudas.pipeline.</span></span><span class="sig-name descname"><span class="pre">QdPipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">QdBaseStep</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qudas/pipeline/pipeline.html#QdPipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qudas.pipeline.QdPipeline" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QdBaseEstimator</span></code></p>
+<p>名前付きステップ列のオーケストレータ（sklearn に近い一部 API を提供）。</p>
+<p>公式にサポートする操作:</p>
+<ul class="simple">
+<li><p>steps / named_steps</p></li>
+<li><p>fit / optimize / predict / get_results / get_models</p></li>
+<li><p>set_context / get_context（および互換の global_params 系）</p></li>
+</ul>
+<p>未サポート（実装しない）:</p>
+<ul class="simple">
+<li><p>公開メソッドとしての transform / fit_transform</p></li>
+<li><p>set_params(step__param=…) 形式のネスト解決</p></li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="qudas.pipeline.QdPipeline.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Pipeline</span></span></span><a class="reference internal" href="../_modules/qudas/pipeline/pipeline.html#QdPipeline.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qudas.pipeline.QdPipeline.fit" title="Permalink to this definition">#</a></dt>
+<dd><p>各ステップを順に適用してデータを訓練する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>Any</em>) – 入力データ。</p></li>
+<li><p><strong>y</strong> (<em>Any</em>) – ターゲットデータ。</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>パイプラインオブジェクト自身。</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Pipeline</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – 最後のステップに fit メソッドがない場合。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qudas.pipeline.QdPipeline.get_global_params">
+<span class="sig-name descname"><span class="pre">get_global_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/qudas/pipeline/pipeline.html#QdPipeline.get_global_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qudas.pipeline.QdPipeline.get_global_params" title="Permalink to this definition">#</a></dt>
+<dd><p>パイプライン全体に適用されたグローバルパラメータを取得する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>グローバルパラメータ。</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qudas.pipeline.QdPipeline.get_models">
+<span class="sig-name descname"><span class="pre">get_models</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/qudas/pipeline/pipeline.html#QdPipeline.get_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qudas.pipeline.QdPipeline.get_models" title="Permalink to this definition">#</a></dt>
+<dd><p>学習されたモデルを取得する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>各ステップごとのモデル。</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qudas.pipeline.QdPipeline.get_results">
+<span class="sig-name descname"><span class="pre">get_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/qudas/pipeline/pipeline.html#QdPipeline.get_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qudas.pipeline.QdPipeline.get_results" title="Permalink to this definition">#</a></dt>
+<dd><p>最適化結果を取得する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>各ステップごとの最適化結果。</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qudas.pipeline.QdPipeline.optimize">
+<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/qudas/pipeline/pipeline.html#QdPipeline.optimize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qudas.pipeline.QdPipeline.optimize" title="Permalink to this definition">#</a></dt>
+<dd><p>各ステップを順に適用して最適化を実行する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>Any</em>) – 入力データ。</p></li>
+<li><p><strong>y</strong> (<em>Any</em>) – ターゲットデータ。</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>各ステップの最適化結果。</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – 最後のステップに optimize メソッドがない場合。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qudas.pipeline.QdPipeline.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/qudas/pipeline/pipeline.html#QdPipeline.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qudas.pipeline.QdPipeline.predict" title="Permalink to this definition">#</a></dt>
+<dd><p>各ステップを順に適用してデータを予測する。予測を行うためには、最後のステップで
+IteratorMixin でないステップが predict メソッドを持っている必要がある。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>Any</em>) – 入力データ。</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>予測結果。</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – 最後のステップに predict メソッドがない場合。最後のステップで model が作成されていない場合。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qudas.pipeline.QdPipeline.set_global_params">
+<span class="sig-name descname"><span class="pre">set_global_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/qudas/pipeline/pipeline.html#QdPipeline.set_global_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qudas.pipeline.QdPipeline.set_global_params" title="Permalink to this definition">#</a></dt>
+<dd><p>パイプライン全体に適用するグローバルパラメータを設定する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – グローバルパラメータ。</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <div class="toctree-wrapper compound">
@@ -296,14 +444,14 @@
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../annealing/ir.html">
+          <a class="prev-page" href="../annealing/block.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">QdAnnealingIR</div>
+                <div class="title">QdAnnealingBlock</div>
                 
               </div>
             </a>
@@ -311,7 +459,7 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2024 - 2025, DEVEL Co., Ltd.
+                Copyright &#169; 2024 - 2026, DEVEL Co., Ltd.
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -338,7 +486,16 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">パイプライン</a><ul>
-<li><a class="reference internal" href="#qudas.pipeline.Pipeline"><code class="docutils literal notranslate"><span class="pre">Pipeline</span></code></a></li>
+<li><a class="reference internal" href="#qudas.pipeline.QdPipeline"><code class="docutils literal notranslate"><span class="pre">QdPipeline</span></code></a><ul>
+<li><a class="reference internal" href="#qudas.pipeline.QdPipeline.fit"><code class="docutils literal notranslate"><span class="pre">QdPipeline.fit()</span></code></a></li>
+<li><a class="reference internal" href="#qudas.pipeline.QdPipeline.get_global_params"><code class="docutils literal notranslate"><span class="pre">QdPipeline.get_global_params()</span></code></a></li>
+<li><a class="reference internal" href="#qudas.pipeline.QdPipeline.get_models"><code class="docutils literal notranslate"><span class="pre">QdPipeline.get_models()</span></code></a></li>
+<li><a class="reference internal" href="#qudas.pipeline.QdPipeline.get_results"><code class="docutils literal notranslate"><span class="pre">QdPipeline.get_results()</span></code></a></li>
+<li><a class="reference internal" href="#qudas.pipeline.QdPipeline.optimize"><code class="docutils literal notranslate"><span class="pre">QdPipeline.optimize()</span></code></a></li>
+<li><a class="reference internal" href="#qudas.pipeline.QdPipeline.predict"><code class="docutils literal notranslate"><span class="pre">QdPipeline.predict()</span></code></a></li>
+<li><a class="reference internal" href="#qudas.pipeline.QdPipeline.set_global_params"><code class="docutils literal notranslate"><span class="pre">QdPipeline.set_global_params()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -350,7 +507,7 @@
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=227644f7"></script>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=de075e50"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="QuDataOutput" href="output.html" /><link rel="prev" title="QuDataBase" href="base.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="QuDataOutput（Deprecated）" href="output.html" /><link rel="prev" title="QuDataBase" href="base.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
-        <title>QuDataInput - Qudas 0.2.2 documentation</title>
+        <title>QuDataInput（Deprecated） - Qudas 0.2.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qudas 0.2.2 documentation</div></a>
+      <a href="../index.html"><div class="brand">Qudas 0.2.6 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -149,7 +149,7 @@
 >
    
   <span class="sidebar-brand-text"
-    >Qudas 0.2.2 documentation</span
+    >Qudas 0.2.6 documentation</span
   > 
 </a><form
   class="sidebar-search-container"
@@ -176,10 +176,10 @@
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">QuData</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of QuData</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="base.html">QuDataBase</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">QuDataInput</a></li>
-<li class="toctree-l2"><a class="reference internal" href="output.html">QuDataOutput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="main.html">QuData クラス</a></li>
+<li class="toctree-l2"><a class="reference internal" href="base.html">QuDataBase</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">QuDataInput（Deprecated）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output.html">QuDataOutput（Deprecated）</a></li>
 </ul>
 </li>
 </ul>
@@ -198,11 +198,11 @@
 <p class="caption" role="heading"><span class="caption-text">アニーリング方式（オプション）</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../annealing/index.html">Annealing</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Annealing</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../annealing/ir.html">QdAnnealingIR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../annealing/input.html">QdAnnealingInput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../annealing/output.html">QdAnnealingOutput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../annealing/executor.html">QdAnnealingExecutor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../annealing/block.html">QdAnnealingBlock</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../annealing/ir.html">QdAnnealingIR</a></li>
 </ul>
 </li>
 </ul>
@@ -217,6 +217,10 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">リリースノート</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_6.html">Qudas 0.2.6 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_5.html">Qudas 0.2.5 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_4.html">Qudas 0.2.4 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_3.html">Qudas 0.2.3 の変更点</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_2.html">Qudas 0.2.2 の変更点</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_1.html">Qudas 0.2.1 の新機能・変更点</a></li>
 </ul>
@@ -254,14 +258,18 @@
           </label>
         </div>
         <article role="main">
-          <section id="qudatainput">
-<h1>QuDataInput<a class="headerlink" href="#qudatainput" title="Permalink to this heading">#</a></h1>
-<p>量子デバイスへの入力データを変換するクラスです。</p>
+          <section id="qudatainput-deprecated">
+<h1>QuDataInput（Deprecated）<a class="headerlink" href="#qudatainput-deprecated" title="Permalink to this heading">#</a></h1>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.2.6: </span><a class="reference internal" href="#qudas.qudata.QuDataInput" title="qudas.qudata.QuDataInput"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuDataInput</span></code></a> は非推奨です。新規コードでは <code class="docutils literal notranslate"><span class="pre">QuData.input()</span></code> または
+<code class="xref py py-class docutils literal notranslate"><span class="pre">QdAnnealingIR</span></code> を使用してください。v0.3 で削除予定です。</p>
+</div>
 <dl class="py class">
 <dt class="sig sig-object py" id="qudas.qudata.QuDataInput">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qudas.qudata.</span></span><span class="sig-name descname"><span class="pre">QuDataInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prob</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qudas/qudata/qudata_input.html#QuDataInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qudas.qudata.QuDataInput" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="base.html#qudas.qudata.QuDataBase" title="qudas.qudata.qudata_base.QuDataBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuDataBase</span></code></a></p>
-<p>量子データ</p>
+<p>レガシー QUBO 変換クラス（Deprecated）。</p>
+<p>新規コードでは <code class="docutils literal notranslate"><span class="pre">QuData.input()</span></code> または <code class="docutils literal notranslate"><span class="pre">QdAnnealingIR</span></code> を使用すること。</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qudas.qudata.QuDataInput.__abstractmethods__">
 <span class="sig-name descname"><span class="pre">__abstractmethods__</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">frozenset({})</span></em><a class="headerlink" href="#qudas.qudata.QuDataInput.__abstractmethods__" title="Permalink to this definition">#</a></dt>
@@ -666,7 +674,7 @@
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">QuDataOutput</div>
+                <div class="title">QuDataOutput（Deprecated）</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -685,7 +693,7 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2024 - 2025, DEVEL Co., Ltd.
+                Copyright &#169; 2024 - 2026, DEVEL Co., Ltd.
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -711,7 +719,7 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">QuDataInput</a><ul>
+<li><a class="reference internal" href="#">QuDataInput（Deprecated）</a><ul>
 <li><a class="reference internal" href="#qudas.qudata.QuDataInput"><code class="docutils literal notranslate"><span class="pre">QuDataInput</span></code></a><ul>
 <li><a class="reference internal" href="#qudas.qudata.QuDataInput.__abstractmethods__"><code class="docutils literal notranslate"><span class="pre">QuDataInput.__abstractmethods__</span></code></a></li>
 <li><a class="reference internal" href="#qudas.qudata.QuDataInput.__add__"><code class="docutils literal notranslate"><span class="pre">QuDataInput.__add__()</span></code></a></li>
@@ -753,7 +761,7 @@
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=227644f7"></script>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=de075e50"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

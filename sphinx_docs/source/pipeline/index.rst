@@ -1,9 +1,22 @@
 パイプライン
 =================================
 
-量子・古典をまたぐ処理の骨格は :class:`~qudas.pipeline.QdPipeline`（エイリアス名 ``Pipeline``）です。名前付きステップ、パラメータの取得／設定、ランタイムコンテキスト（``set_context``）など、scikit-learn に倣った操作でフローを記述できます。ステップ実装のベースや反復・最適化用のミキサンは下記 toctree を参照してください。
+量子・古典をまたぐ処理の骨格は :class:`~qudas.pipeline.QdPipeline`（エイリアス名 ``Pipeline``）です。
 
-.. autoclass:: qudas.pipeline.Pipeline
+**サポートする主な操作**
+
+* ``fit`` / ``optimize`` / ``predict``
+* ``get_results`` / ``get_models``
+* ``set_context`` / ``get_context`` （および互換の global_params 系）
+
+**未サポート**
+
+* 公開メソッドとしての ``transform`` / ``fit_transform``
+* ``set_params`` の step ネスト指定（例: step 名とパラメータ名の結合形式）
+
+ステップ実装のベースや反復・最適化用のミキサンは下記 toctree を参照してください。
+
+.. autoclass:: qudas.pipeline.QdPipeline
    :members:
    :undoc-members:
    :show-inheritance:

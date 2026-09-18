@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, Any, Optional
 
@@ -196,7 +197,12 @@ class QdGateExecutor(QdExecutorBase):
     @staticmethod
     def _run_naive(device: str = "naive"):
         """依存ライブラリが無い環境向けの簡易実装。"""
-
+        warnings.warn(
+            f"QdGateExecutor falling back to naive result (device={device!r}). "
+            "This path will require an explicit opt-in in a future release.",
+            UserWarning,
+            stacklevel=2,
+        )
         # とりあえず半々のビット列が得られたと仮定
         return {"counts": {"00": 512, "11": 512}, "device": device}
 

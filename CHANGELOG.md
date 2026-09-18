@@ -1,8 +1,32 @@
 # Changelog
 
-## 今後のバージョン（0.2.5 以降）の予定
+## 今後のバージョン（0.2.6 以降）の予定
 ### Planned for Future Release
-- 新しい機能や修正内容を記載していきます。
+- `QuDataInput` / `QuDataOutput` の削除（目標 v0.3）
+- Executor naive fallback のデフォルト raise / 明示 opt-in（目標 v0.3）
+- 変換用 extras と実行用 extras の分離検討
+
+---
+
+## [0.2.6] - 2026-09-18
+### Added
+- `QuData` facade 向け契約テスト（`tests/qudata/test_qudata_facade.py`）
+- Sphinx whatsnew（0.2.3 / 0.2.4 / 0.2.5 / 0.2.6）と `docs/v0.2.6` スナップショット
+
+### Changed
+- **QuData 責務の明確化:** 変換専用 Public 入口として維持。実装の正は `QdAnnealingIR` / `QdAnnealingOutput`。実行は Executor 別経路
+- `QuData.input(mode="gate")` を `NotImplementedError` に変更（回路は `qudas.gate` を使用）
+- Pipeline の公式サポート API を現行実装に合わせて文書化（未サポートを明示）
+- packaging: `find_packages` 化、`__version__` は開発ツリーで `VERSION` 優先
+- README / Sphinx / DEVELOPER.md を上記方針に合わせて更新
+
+### Deprecated
+- `QuDataInput` / `QuDataOutput`（`DeprecationWarning`。移行先は `QuData` または annealing 側クラス。削除は v0.3 目標）
+
+### Fixed
+- `qudas.core` の新名（`QdInputBase` 等）が `__all__` と一致しない問題を修正
+- Executor の naive fallback 時に警告を出すよう変更（黙った成功を回避）
+- CI の存在しない `requirements.txt` 参照を削除
 
 ---
 

@@ -1,6 +1,10 @@
-QuDataOutput
+QuDataOutput（Deprecated）
 =================================
-量子デバイスへの出力データを変換するクラスです。
+
+.. deprecated:: 0.2.6
+
+   :class:`~qudas.qudata.QuDataOutput` は非推奨です。新規コードでは ``QuData.output()`` または
+   :class:`~qudas.annealing.QdAnnealingOutput` を使用してください。v0.3 で削除予定です。
 
 .. autoclass:: qudas.qudata.QuDataOutput
    :members:

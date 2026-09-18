@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Core" href="core/index.html" /><link rel="prev" title="Welcome to Qudas’s documentation!" href="index.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
-        <title>Quickstart - Qudas 0.2.2 documentation</title>
+        <title>Quickstart - Qudas 0.2.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qudas 0.2.2 documentation</div></a>
+      <a href="index.html"><div class="brand">Qudas 0.2.6 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -149,7 +149,7 @@
 >
    
   <span class="sidebar-brand-text"
-    >Qudas 0.2.2 documentation</span
+    >Qudas 0.2.6 documentation</span
   > 
 </a><form
   class="sidebar-search-container"
@@ -176,10 +176,10 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="qudata/index.html">QuData</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of QuData</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="qudata/base.html">QuDataBase</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qudata/input.html">QuDataInput</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qudata/output.html">QuDataOutput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qudata/main.html">QuData クラス</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qudata/base.html">QuDataBase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qudata/input.html">QuDataInput（Deprecated）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qudata/output.html">QuDataOutput（Deprecated）</a></li>
 </ul>
 </li>
 </ul>
@@ -198,11 +198,11 @@
 <p class="caption" role="heading"><span class="caption-text">アニーリング方式（オプション）</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="annealing/index.html">Annealing</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Annealing</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="annealing/ir.html">QdAnnealingIR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="annealing/input.html">QdAnnealingInput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="annealing/output.html">QdAnnealingOutput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="annealing/executor.html">QdAnnealingExecutor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="annealing/block.html">QdAnnealingBlock</a></li>
-<li class="toctree-l2"><a class="reference internal" href="annealing/ir.html">QdAnnealingIR</a></li>
 </ul>
 </li>
 </ul>
@@ -217,6 +217,10 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">リリースノート</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_6.html">Qudas 0.2.6 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_5.html">Qudas 0.2.5 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_4.html">Qudas 0.2.4 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_3.html">Qudas 0.2.3 の変更点</a></li>
 <li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_2.html">Qudas 0.2.2 の変更点</a></li>
 <li class="toctree-l1"><a class="reference internal" href="whatsnew_0_2_1.html">Qudas 0.2.1 の新機能・変更点</a></li>
 </ul>
@@ -256,16 +260,17 @@
         <article role="main">
           <section id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading">#</a></h1>
-<p>Qudas は、<a class="reference internal" href="index.html"><span class="doc">Welcome to Qudas’s documentation!</span></a> で示したとおり <strong>パイプライン</strong> と <strong>QuData（形式変換）</strong> と <strong>ゲート／アニーリング用スタック（任意）</strong> を組み合わせて使います。ここではインストールと代表的なコード例だけをまとめます。</p>
+<p>Qudas は、<a class="reference internal" href="index.html"><span class="doc">Welcome to Qudas’s documentation!</span></a> で示したとおり <strong>パイプライン</strong>・<strong>形式変換（QuData）</strong>・<strong>ゲート／アニーリング実行（任意）</strong> を組み合わせて使います。ここではインストールと代表的なコード例だけをまとめます。</p>
 <section id="id1">
 <h2>インストール<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
 <p>コアのみ、または用途に応じた extra を指定します。</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>qudas<span class="w">                </span><span class="c1"># コア（numpy + matplotlib）</span>
-pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;qudas[annealing]&quot;</span><span class="w">   </span><span class="c1"># QuData 変換まわり一式</span>
-pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;qudas[gate]&quot;</span><span class="w">        </span><span class="c1"># Qiskit ベースのゲート実行</span>
-pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;qudas[all]&quot;</span><span class="w">         </span><span class="c1"># gate + annealing</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>qudas<span class="w">                 </span><span class="c1"># コア（numpy + matplotlib）</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;qudas[annealing]&quot;</span><span class="w">    </span><span class="c1"># 変換 + アニーリング実行一式</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;qudas[gate]&quot;</span><span class="w">         </span><span class="c1"># Qiskit ベースのゲート実行</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;qudas[all]&quot;</span><span class="w">          </span><span class="c1"># gate + annealing</span>
 </pre></div>
 </div>
+<p>変換だけ使いたい場合も、現状は変換用 SDK が <code class="docutils literal notranslate"><span class="pre">annealing</span></code> extra に含まれます（実行用依存との分離は今後検討）。</p>
 <section id="fmqa">
 <h3>ブラックボックス最適化（FMQA）のパイプライン作成例<a class="headerlink" href="#fmqa" title="Permalink to this heading">#</a></h3>
 <p>以下のコードは、FMQAのパイプライン作成例です。</p>
@@ -328,9 +333,9 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot
 <p>詳しくは <code class="docutils literal notranslate"><span class="pre">examples/fmqa/main.py</span></code> を参照。</p>
 </section>
 </section>
-<section id="qudatainput">
-<h2>データ変換例（QuDataInput）<a class="headerlink" href="#qudatainput" title="Permalink to this heading">#</a></h2>
-<p>qudasライブラリでは、デバイスへの様々な入力形式のデータを変換する機能も備えています。以下にいくつかのデータ変換例を示します。</p>
+<section id="id2">
+<h2>データ変換例（入力・変換専用）<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">QuData.input()</span></code> は <code class="xref py py-class docutils literal notranslate"><span class="pre">QdAnnealingIR</span></code> を返します。Executor は不要です。</p>
 <section id="pyqubo-amplify">
 <h3>pyqubo から Amplify への変換<a class="headerlink" href="#pyqubo-amplify" title="Permalink to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyqubo</span> <span class="kn">import</span> <span class="n">Binary</span>
@@ -340,9 +345,9 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot
 <span class="n">q0</span><span class="p">,</span> <span class="n">q1</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">&quot;q0&quot;</span><span class="p">),</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">&quot;q1&quot;</span><span class="p">)</span>
 <span class="n">prob</span> <span class="o">=</span> <span class="p">(</span><span class="n">q0</span> <span class="o">+</span> <span class="n">q1</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
 
-<span class="c1"># QuData に Pyqubo の問題を渡す</span>
+<span class="c1"># QuData に Pyqubo の問題を渡す（実体は QdAnnealingIR）</span>
 <span class="n">qudata</span> <span class="o">=</span> <span class="n">QuData</span><span class="o">.</span><span class="n">input</span><span class="p">()</span><span class="o">.</span><span class="n">from_pyqubo</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">qudata</span><span class="o">.</span><span class="n">prob</span><span class="p">)</span>  <span class="c1"># 出力: {(&#39;q0&#39;, &#39;q0&#39;): 1.0, (&#39;q0&#39;, &#39;q1&#39;): 2.0, (&#39;q1&#39;, &#39;q1&#39;): 1.0}</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qudata</span><span class="o">.</span><span class="n">qubo</span><span class="p">)</span>  <span class="c1"># または qudata.prob</span>
 
 <span class="c1"># Amplify 形式に変換</span>
 <span class="n">amplify_prob</span> <span class="o">=</span> <span class="n">qudata</span><span class="o">.</span><span class="n">to_amplify</span><span class="p">()</span>
@@ -364,7 +369,7 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot
 
 <span class="c1"># QuData に配列を渡す</span>
 <span class="n">qudata</span> <span class="o">=</span> <span class="n">QuData</span><span class="o">.</span><span class="n">input</span><span class="p">()</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">qudata</span><span class="o">.</span><span class="n">prob</span><span class="p">)</span>  <span class="c1"># 出力: {(&#39;q_0&#39;, &#39;q_0&#39;): 1, (&#39;q_0&#39;, &#39;q_1&#39;): 1, (&#39;q_1&#39;, &#39;q_1&#39;): 2, (&#39;q_2&#39;, &#39;q_2&#39;): -1}</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qudata</span><span class="o">.</span><span class="n">qubo</span><span class="p">)</span>
 
 <span class="c1"># BQM 形式に変換</span>
 <span class="n">bqm_prob</span> <span class="o">=</span> <span class="n">qudata</span><span class="o">.</span><span class="n">to_dimod_bqm</span><span class="p">()</span>
@@ -374,15 +379,14 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot
 </section>
 <section id="csv-pulp">
 <h3>CSV から PuLP への変換<a class="headerlink" href="#csv-pulp" title="Permalink to this heading">#</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pulp</span>
-<span class="kn">from</span> <span class="nn">qudas</span> <span class="kn">import</span> <span class="n">QuData</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qudas</span> <span class="kn">import</span> <span class="n">QuData</span>
 
 <span class="c1"># CSVファイルのパス</span>
 <span class="n">csv_file_path</span> <span class="o">=</span> <span class="s1">&#39;./data/qudata.csv&#39;</span>
 
 <span class="c1"># QuData に CSV を渡す</span>
 <span class="n">qudata</span> <span class="o">=</span> <span class="n">QuData</span><span class="o">.</span><span class="n">input</span><span class="p">()</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">csv_file_path</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">qudata</span><span class="o">.</span><span class="n">prob</span><span class="p">)</span>  <span class="c1"># 出力: {(&#39;q_0&#39;, &#39;q_0&#39;): 1.0, (&#39;q_0&#39;, &#39;q_2&#39;): 2.0, ...}</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qudata</span><span class="o">.</span><span class="n">qubo</span><span class="p">)</span>
 
 <span class="c1"># PuLP 形式に変換</span>
 <span class="n">pulp_prob</span> <span class="o">=</span> <span class="n">qudata</span><span class="o">.</span><span class="n">to_pulp</span><span class="p">()</span>
@@ -391,67 +395,63 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot
 </div>
 </section>
 </section>
-<section id="qudataoutput">
-<h2>データ変換例（QuDataOutput）<a class="headerlink" href="#qudataoutput" title="Permalink to this heading">#</a></h2>
-<p>qudasライブラリでは、デバイスからの様々な出力形式のデータを変換する機能も備えています。以下にいくつかのデータ変換例を示します。</p>
-<section id="pulp-amplify">
-<h3>PuLP から Amplify への変換<a class="headerlink" href="#pulp-amplify" title="Permalink to this heading">#</a></h3>
+<section id="id3">
+<h2>データ変換例（出力・変換専用）<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">QuData.output()</span></code> は <code class="xref py py-class docutils literal notranslate"><span class="pre">QdAnnealingOutput</span></code> を返します。
+出力側に <code class="docutils literal notranslate"><span class="pre">.qubo</span></code> / <code class="docutils literal notranslate"><span class="pre">to_amplify()</span></code> はありません（入力変換は <code class="docutils literal notranslate"><span class="pre">QuData.input()</span></code> を使います）。</p>
+<section id="pulp">
+<h3>PuLP 結果の取り込み<a class="headerlink" href="#pulp" title="Permalink to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pulp</span>
 <span class="kn">from</span> <span class="nn">qudas</span> <span class="kn">import</span> <span class="n">QuData</span>
 
-<span class="c1"># PuLP問題を定義して解く</span>
-<span class="n">prob</span> <span class="o">=</span> <span class="n">pulp</span><span class="o">.</span><span class="n">LpProblem</span><span class="p">(</span><span class="s2">&quot;Test Problem&quot;</span><span class="p">,</span> <span class="n">pulp</span><span class="o">.</span><span class="n">LpMinimize</span><span class="p">)</span>
+<span class="n">prob</span> <span class="o">=</span> <span class="n">pulp</span><span class="o">.</span><span class="n">LpProblem</span><span class="p">(</span><span class="s2">&quot;Test_Problem&quot;</span><span class="p">,</span> <span class="n">pulp</span><span class="o">.</span><span class="n">LpMinimize</span><span class="p">)</span>
 <span class="n">x</span> <span class="o">=</span> <span class="n">pulp</span><span class="o">.</span><span class="n">LpVariable</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">lowBound</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">upBound</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cat</span><span class="o">=</span><span class="s1">&#39;Binary&#39;</span><span class="p">)</span>
 <span class="n">y</span> <span class="o">=</span> <span class="n">pulp</span><span class="o">.</span><span class="n">LpVariable</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">lowBound</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">upBound</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cat</span><span class="o">=</span><span class="s1">&#39;Binary&#39;</span><span class="p">)</span>
-<span class="n">prob</span> <span class="o">+=</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span> <span class="o">-</span> <span class="n">y</span>
+<span class="n">prob</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span>
 <span class="n">prob</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
 
-<span class="c1"># QuDataOutputのインスタンスを生成し、from_pulpメソッドで問題を変換</span>
-<span class="n">qudata</span> <span class="o">=</span> <span class="n">QuData</span><span class="o">.</span><span class="n">output</span><span class="p">()</span><span class="o">.</span><span class="n">from_pulp</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">qudata</span><span class="o">.</span><span class="n">prob</span><span class="p">)</span>  <span class="c1"># 出力: {&#39;x&#39;: 2.0, &#39;y&#39;: -1.0}</span>
-
-<span class="c1"># Amplify形式に変換</span>
-<span class="n">amplify_prob</span> <span class="o">=</span> <span class="n">qudata</span><span class="o">.</span><span class="n">to_amplify</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">amplify_prob</span><span class="p">)</span>  <span class="c1"># 出力: Amplifyの目標関数形式</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">QuData</span><span class="o">.</span><span class="n">output</span><span class="p">()</span><span class="o">.</span><span class="n">from_pulp</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;block0&quot;</span><span class="p">][</span><span class="s2">&quot;solution&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;block0&quot;</span><span class="p">][</span><span class="s2">&quot;energy&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;block0&quot;</span><span class="p">][</span><span class="s2">&quot;device&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>
-<section id="scipy-dimod">
-<h3>SciPy から Dimod への変換<a class="headerlink" href="#scipy-dimod" title="Permalink to this heading">#</a></h3>
+<section id="scipy-dimod-sampleset">
+<h3>SciPy 結果から dimod SampleSet へ<a class="headerlink" href="#scipy-dimod-sampleset" title="Permalink to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">sympy</span> <span class="kn">import</span> <span class="n">symbols</span><span class="p">,</span> <span class="n">lambdify</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span><span class="p">,</span> <span class="n">Bounds</span>
 <span class="kn">from</span> <span class="nn">qudas</span> <span class="kn">import</span> <span class="n">QuData</span>
 
-<span class="c1"># シンボリック変数の定義</span>
 <span class="n">q0</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">q2</span> <span class="o">=</span> <span class="n">symbols</span><span class="p">(</span><span class="s1">&#39;q0 q1 q2&#39;</span><span class="p">)</span>
-
-<span class="c1"># 目的関数を定義</span>
 <span class="n">objective_function</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">q0</span> <span class="o">-</span> <span class="n">q1</span> <span class="o">-</span> <span class="n">q2</span>
-
-<span class="c1"># シンボリック関数を数値化して評価できる形式に変換</span>
 <span class="n">f</span> <span class="o">=</span> <span class="n">lambdify</span><span class="p">([</span><span class="n">q0</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">],</span> <span class="n">objective_function</span><span class="p">,</span> <span class="s1">&#39;numpy&#39;</span><span class="p">)</span>
-
-<span class="c1"># 初期解 (すべて0.5に設定)</span>
 <span class="n">q</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
-
-<span class="c1"># バイナリ変数の範囲を定義 (0 &lt;= x &lt;= 1)</span>
 <span class="n">bounds</span> <span class="o">=</span> <span class="n">Bounds</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-
-<span class="c1"># SciPyで制約付き最適化を実行</span>
 <span class="n">res</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">q</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">q</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;SLSQP&#39;</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">)</span>
 
-<span class="c1"># QuDataOutputのインスタンスを生成し、from_scipyメソッドをテスト</span>
-<span class="n">qudata</span> <span class="o">=</span> <span class="n">QuData</span><span class="o">.</span><span class="n">output</span><span class="p">()</span><span class="o">.</span><span class="n">from_scipy</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">qudata</span><span class="o">.</span><span class="n">prob</span><span class="p">)</span>  <span class="c1"># 出力: {&#39;q0&#39;: 2, &#39;q1&#39;: -1, &#39;q2&#39;: -1}</span>
-
-<span class="c1"># Dimod形式に変換</span>
-<span class="n">dimod_prob</span> <span class="o">=</span> <span class="n">qudata</span><span class="o">.</span><span class="n">to_dimod_bqm</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">dimod_prob</span><span class="p">)</span>  <span class="c1"># 出力: DimodのBQM形式</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">QuData</span><span class="o">.</span><span class="n">output</span><span class="p">()</span><span class="o">.</span><span class="n">from_scipy</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;block0&quot;</span><span class="p">][</span><span class="s2">&quot;solution&quot;</span><span class="p">])</span>
+<span class="n">dimod_samples</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">to_dimod</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dimod_samples</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>詳しくは <code class="docutils literal notranslate"><span class="pre">tests/qudata/test_input.py</span></code> および <code class="docutils literal notranslate"><span class="pre">tests/qudata/test_output.py</span></code> を参照。</p>
+<p>詳しくは <code class="docutils literal notranslate"><span class="pre">tests/qudata/test_qudata_facade.py</span></code> および <a class="reference internal" href="annealing/ir.html"><span class="doc">QdAnnealingIR</span></a> / <a class="reference internal" href="annealing/output.html"><span class="doc">QdAnnealingOutput</span></a> を参照。</p>
 </section>
+</section>
+<section id="id4">
+<h2>アニーリング実行例<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h2>
+<p>変換とは別経路です。<code class="docutils literal notranslate"><span class="pre">QdAnnealingExecutor</span></code> を使います。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qudas.annealing</span> <span class="kn">import</span> <span class="n">QdAnnealingInput</span><span class="p">,</span> <span class="n">QdAnnealingBlock</span><span class="p">,</span> <span class="n">QdAnnealingExecutor</span>
+
+<span class="n">qubo</span> <span class="o">=</span> <span class="p">{(</span><span class="s1">&#39;q0&#39;</span><span class="p">,</span> <span class="s1">&#39;q1&#39;</span><span class="p">):</span> <span class="mf">1.0</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;q1&#39;</span><span class="p">,</span> <span class="s1">&#39;q1&#39;</span><span class="p">):</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">}</span>
+<span class="n">block</span> <span class="o">=</span> <span class="n">QdAnnealingBlock</span><span class="p">(</span><span class="n">qubo</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;block0&#39;</span><span class="p">)</span>
+<span class="n">qd_input</span> <span class="o">=</span> <span class="n">QdAnnealingInput</span><span class="p">([</span><span class="n">block</span><span class="p">])</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">QdAnnealingExecutor</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">qd_input</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;block0&quot;</span><span class="p">][</span><span class="s2">&quot;solution&quot;</span><span class="p">],</span> <span class="n">output</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;block0&quot;</span><span class="p">][</span><span class="s2">&quot;energy&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
 </section>
 </section>
 
@@ -484,7 +484,7 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2024 - 2025, DEVEL Co., Ltd.
+                Copyright &#169; 2024 - 2026, DEVEL Co., Ltd.
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -515,17 +515,18 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot
 <li><a class="reference internal" href="#fmqa">ブラックボックス最適化（FMQA）のパイプライン作成例</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#qudatainput">データ変換例（QuDataInput）</a><ul>
+<li><a class="reference internal" href="#id2">データ変換例（入力・変換専用）</a><ul>
 <li><a class="reference internal" href="#pyqubo-amplify">pyqubo から Amplify への変換</a></li>
 <li><a class="reference internal" href="#bqm">配列から BQM への変換</a></li>
 <li><a class="reference internal" href="#csv-pulp">CSV から PuLP への変換</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#qudataoutput">データ変換例（QuDataOutput）</a><ul>
-<li><a class="reference internal" href="#pulp-amplify">PuLP から Amplify への変換</a></li>
-<li><a class="reference internal" href="#scipy-dimod">SciPy から Dimod への変換</a></li>
+<li><a class="reference internal" href="#id3">データ変換例（出力・変換専用）</a><ul>
+<li><a class="reference internal" href="#pulp">PuLP 結果の取り込み</a></li>
+<li><a class="reference internal" href="#scipy-dimod-sampleset">SciPy 結果から dimod SampleSet へ</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#id4">アニーリング実行例</a></li>
 </ul>
 </li>
 </ul>
@@ -537,7 +538,7 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=227644f7"></script>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=de075e50"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>

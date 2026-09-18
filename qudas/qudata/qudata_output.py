@@ -1,9 +1,15 @@
 from .qudata_base import QuDataBase
 from typing import Dict, Any
+import warnings
 import numpy as np
 
 
 class QuDataOutput(QuDataBase):
+    """レガシー結果変換クラス（Deprecated）。
+
+    新規コードでは ``QuData.output()`` または ``QdAnnealingOutput`` を使用すること。
+    """
+
     def __init__(self, result: Dict[str, Any] = None, result_type: str = None):
         """
         初期データとして出力データを受け取るクラス。
@@ -12,6 +18,12 @@ class QuDataOutput(QuDataBase):
             result (dict, optional): 計算結果データ。デフォルトはNone。
             result_type (str, optional): 結果の形式。デフォルトはNone。
         """
+        warnings.warn(
+            "QuDataOutput is deprecated since 0.2.6; use QuData.output() or QdAnnealingOutput instead. "
+            "Scheduled for removal in v0.3.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         super().__init__(result)
         self.result = self.data  # dataをresultとして扱う
         self.result_type = result_type

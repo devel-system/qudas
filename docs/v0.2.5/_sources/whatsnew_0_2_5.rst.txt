@@ -1,0 +1,24 @@
+.. _whatsnew-0-2-5:
+
+Qudas 0.2.5 の変更点
+================================
+
+リリース日: 2026-08-27（詳細はリポジトリ内 ``CHANGELOG.md`` の 0.2.5 節を参照）
+
+修正
+----
+
+- 量子ゲート Executor（``QdGateExecutor``）の qiskit 実行時、測定ゲートありの回路で ``measure_all()`` による二重測定が起きる問題を修正。
+
+ドキュメント・API 明確化（本ドキュメントビルド時点）
+----------------------------------------------------
+
+アーキテクチャ整理に伴い、Sphinx / README を次の方針に合わせて更新しています。
+
+- **形式変換:** ``QuData`` を変換専用 Public 入口、実装の正を ``QdAnnealingIR`` / ``QdAnnealingOutput`` として明示
+- **実行:** Gate / Annealing の Executor 経路は変換と分離
+- **Deprecated:** ``QuDataInput`` / ``QuDataOutput`` （v0.3 削除予定）
+- **Pipeline:** サポート API を現行実装に合わせて記載（未サポートの sklearn 風 API を明記）
+- **バージョン:** 開発ツリーは ``VERSION``、インストール環境はパッケージメタデータを参照
+
+関連: :doc:`whatsnew_0_2_4`, :doc:`whatsnew_0_2_3`

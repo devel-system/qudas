@@ -15,13 +15,18 @@ StepTuple = Tuple[str, QdBaseStep]
 
 class QdPipeline(QdBaseEstimator):
     """
-    scikit-learn 風の Pipeline 実装。
+    名前付きステップ列のオーケストレータ（sklearn に近い一部 API を提供）。
 
-    - steps: List[Tuple[str, QdBaseStep]]
-    - named_steps: dict アクセス
-    - set_params(step__param=value) でステップのハイパーパラメータを一括設定
-    - fit / transform / fit_transform / predict / optimize を提供
-    - 実行時コンテキスト (context) は QdBaseEstimator の set_context で注入
+    公式にサポートする操作:
+
+    - steps / named_steps
+    - fit / optimize / predict / get_results / get_models
+    - set_context / get_context（および互換の global_params 系）
+
+    未サポート（実装しない）:
+
+    - 公開メソッドとしての transform / fit_transform
+    - set_params(step__param=...) 形式のネスト解決
     """
 
     def __init__(

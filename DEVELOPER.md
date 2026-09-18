@@ -7,9 +7,20 @@
 ## 1. ドキュメント生成 (Sphinx)
 
 ```bash
+pip install -e ".[dev]"
 cd sphinx_docs
 make clean && make html
 # → build/html/index.html をブラウザで開く
+```
+
+公開用に `docs/latest/` へ反映する場合の例:
+
+```bash
+rm -rf docs/latest
+cp -R sphinx_docs/build/html docs/latest
+# 必要なら固定スナップショットも作成:
+# rm -rf docs/v0.2.6 && cp -R sphinx_docs/build/html docs/v0.2.6
+# docs/index.html の版リンクを更新
 ```
 
 ---
@@ -32,21 +43,18 @@ black .
 flake8 .
 ```
 
-- Black: 自動整形
-- Flake8: 静的解析 (PEP8 + α)
+- Black: `pyproject.toml` の `[tool.black]`（CI では `black --check .`）
+- Flake8: `dev` extra に含まれます。リポジトリに専用設定ファイルは現時点でありません
 
-コミット前に以下を実行してコードスタイルを統一してください。
-
-```bash
-pre-commit run --all-files
-```
+CI（`.github/workflows/python-ci.yml`）では **pytest** と **black --check** を実行します。  
+`pre-commit` 設定（`.pre-commit-config.yaml`）は現時点でリポジトリに含まれていません。導入する場合は別途追加してください。
 
 ---
 
 ## 4. パッケージ更新
 
 ```bash
-pip install .[dev] -U
+pip install -e ".[dev]" -U
 ```
 
 ---
@@ -55,7 +63,7 @@ pip install .[dev] -U
 
 1. `develop` ブランチを最新に pull し、新しい topic ブランチを切る。
 2. 実装・テストを行い `pytest` が通ることを確認。
-3. `pre-commit run --all-files` を実行しフォーマットを適用。
+3. `black .`（必要なら `flake8 .`）でスタイルを確認。
 4. Pull Request を作成し、レビュワーへアサイン。
 5. CI が Green になったらマージ。
 

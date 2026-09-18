@@ -1,34 +1,22 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../..", "qudas"))
-sys.path.insert(
-    0, os.path.join(os.path.dirname(__file__), "../..", "examples")
-)  # examplesのコードを追加
+# リポジトリルートを path に追加（パッケージ qudas を import するため）
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+sys.path.insert(0, _REPO_ROOT)
+sys.path.insert(0, os.path.join(_REPO_ROOT, "examples"))
 
-# VERSIONファイルのパスを絶対パスで取得
-VERSION_FILE_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), '../..', 'VERSION'
-)
+VERSION_FILE_PATH = os.path.join(_REPO_ROOT, "VERSION")
 
-# VERSIONファイルからバージョンを読み込む
 try:
-    with open(VERSION_FILE_PATH) as version_file:
+    with open(VERSION_FILE_PATH, encoding="utf-8") as version_file:
         __version__ = version_file.read().strip()
 except FileNotFoundError:
-    __version__ = '0.0.1'  # デフォルトバージョンを設定
+    __version__ = "0.0.0+unknown"
 
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
-
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-
-project = 'Qudas'
-copyright = '2024 - 2025, DEVEL Co., Ltd.'
-author = 'KeiichiroHiga'
+project = "Qudas"
+copyright = "2024 - 2026, DEVEL Co., Ltd."
+author = "KeiichiroHiga"
 release = __version__
 
 # -- General configuration ---------------------------------------------------

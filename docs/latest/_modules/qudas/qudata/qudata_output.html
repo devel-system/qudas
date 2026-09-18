@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
-        <title>qudas.qudata.qudata_output - Qudas 0.2.1 documentation</title>
+        <title>qudas.qudata.qudata_output - Qudas 0.2.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qudas 0.2.1 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">Qudas 0.2.6 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -148,7 +148,7 @@
 >
    
   <span class="sidebar-brand-text"
-    >Qudas 0.2.1 documentation</span
+    >Qudas 0.2.6 documentation</span
   > 
 </a><form
   class="sidebar-search-container"
@@ -175,10 +175,10 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../qudata/index.html">QuData</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of QuData</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../qudata/base.html">QuDataBase</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../qudata/input.html">QuDataInput</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../qudata/output.html">QuDataOutput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../qudata/main.html">QuData クラス</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../qudata/base.html">QuDataBase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../qudata/input.html">QuDataInput（Deprecated）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../qudata/output.html">QuDataOutput（Deprecated）</a></li>
 </ul>
 </li>
 </ul>
@@ -197,11 +197,11 @@
 <p class="caption" role="heading"><span class="caption-text">アニーリング方式（オプション）</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../annealing/index.html">Annealing</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Annealing</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../annealing/ir.html">QdAnnealingIR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../annealing/input.html">QdAnnealingInput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../annealing/output.html">QdAnnealingOutput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../annealing/executor.html">QdAnnealingExecutor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../annealing/block.html">QdAnnealingBlock</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../annealing/ir.html">QdAnnealingIR</a></li>
 </ul>
 </li>
 </ul>
@@ -216,6 +216,11 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">リリースノート</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../whatsnew_0_2_6.html">Qudas 0.2.6 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../whatsnew_0_2_5.html">Qudas 0.2.5 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../whatsnew_0_2_4.html">Qudas 0.2.4 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../whatsnew_0_2_3.html">Qudas 0.2.3 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../whatsnew_0_2_2.html">Qudas 0.2.2 の変更点</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../whatsnew_0_2_1.html">Qudas 0.2.1 の新機能・変更点</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">参照</span></p>
@@ -254,10 +259,16 @@
           <h1>Source code for qudas.qudata.qudata_output</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">.qudata_base</span> <span class="kn">import</span> <span class="n">QuDataBase</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
 <div class="viewcode-block" id="QuDataOutput"><a class="viewcode-back" href="../../../qudata/output.html#qudas.qudata.QuDataOutput">[docs]</a><span class="k">class</span> <span class="nc">QuDataOutput</span><span class="p">(</span><span class="n">QuDataBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;レガシー結果変換クラス（Deprecated）。</span>
+
+<span class="sd">    新規コードでは ``QuData.output()`` または ``QdAnnealingOutput`` を使用すること。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="QuDataOutput.__init__"><a class="viewcode-back" href="../../../qudata/output.html#qudas.qudata.QuDataOutput.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">result_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        初期データとして出力データを受け取るクラス。</span>
@@ -266,6 +277,12 @@
 <span class="sd">            result (dict, optional): 計算結果データ。デフォルトはNone。</span>
 <span class="sd">            result_type (str, optional): 結果の形式。デフォルトはNone。</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;QuDataOutput is deprecated since 0.2.6; use QuData.output() or QdAnnealingOutput instead. &quot;</span>
+            <span class="s2">&quot;Scheduled for removal in v0.3.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>  <span class="c1"># dataをresultとして扱う</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result_type</span> <span class="o">=</span> <span class="n">result_type</span></div>
@@ -285,8 +302,25 @@
 
     <span class="c1"># Amplifyの計算結果を受け取る</span>
 <div class="viewcode-block" id="QuDataOutput.from_amplify"><a class="viewcode-back" href="../../../qudata/output.html#qudas.qudata.QuDataOutput.from_amplify">[docs]</a>    <span class="k">def</span> <span class="nf">from_amplify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;QuDataOutput&quot;</span><span class="p">:</span>
-        <span class="n">variables</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">best</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;variables&#39;</span><span class="p">:</span> <span class="n">variables</span><span class="p">,</span> <span class="s1">&#39;objective&#39;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">best</span><span class="o">.</span><span class="n">objective</span><span class="p">}</span>
+        <span class="c1"># Amplify v1: result.best.objective / v0: result.best.energy または solutions[0]</span>
+        <span class="n">best</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;best&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">best</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">solutions</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;solutions&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">solutions</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Amplify result has no accessible solutions&quot;</span><span class="p">)</span>
+            <span class="n">best</span> <span class="o">=</span> <span class="n">solutions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">best</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">best</span><span class="p">,</span> <span class="s2">&quot;objective&quot;</span><span class="p">):</span>
+            <span class="n">objective</span> <span class="o">=</span> <span class="n">best</span><span class="o">.</span><span class="n">objective</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">best</span><span class="p">,</span> <span class="s2">&quot;energy&quot;</span><span class="p">):</span>
+            <span class="n">objective</span> <span class="o">=</span> <span class="n">best</span><span class="o">.</span><span class="n">energy</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;Amplify solution has neither &#39;objective&#39; nor &#39;energy&#39; attribute&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;variables&#39;</span><span class="p">:</span> <span class="n">variables</span><span class="p">,</span> <span class="s1">&#39;objective&#39;</span><span class="p">:</span> <span class="n">objective</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result_type</span> <span class="o">=</span> <span class="s1">&#39;amplify&#39;</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
@@ -378,7 +412,7 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2024 - 2025, DEVEL Co., Ltd.
+                Copyright &#169; 2024 - 2026, DEVEL Co., Ltd.
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -398,7 +432,7 @@
       
     </aside>
   </div>
-</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=158ece9d"></script>
+</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=de075e50"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

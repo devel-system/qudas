@@ -1,10 +1,14 @@
 QuData クラス
 =================================
 
-``QuData.input()`` / ``QuData.output()`` から各 ``from_*`` / ``to_*`` を呼び出し、最適化・QUBO 系の表現を相互に変換します。全体像は :doc:`index` の図（QuData ハブ）を参照してください。
+``QuData.input()`` は :class:`~qudas.annealing.QdAnnealingIR` を、``QuData.output()`` は :class:`~qudas.annealing.QdAnnealingOutput` を返します。
+変換メソッド（``from_*`` / ``to_*``）の詳細は annealing 側の API を参照してください。
+
+.. warning::
+
+   ``QuData.input(mode="gate")`` はサポートしていません。回路は :doc:`../gate/index` を使用してください。
 
 .. autoclass:: qudas.qudata.QuData
    :members:
-   :special-members:
    :undoc-members:
    :show-inheritance:

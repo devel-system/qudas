@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, Any, Tuple, Optional, List
 
@@ -194,6 +195,12 @@ class QdAnnealingExecutor(QdExecutorBase):
     # ------------------------------------------------------------------
     @staticmethod
     def _run_naive_with_stats(qubo: Dict[Tuple[str, str], float], device="naive", energies: Optional[List[float]] = None, **kwargs):
+        warnings.warn(
+            f"QdAnnealingExecutor falling back to naive result (device={device!r}). "
+            "This path will require an explicit opt-in in a future release.",
+            UserWarning,
+            stacklevel=2,
+        )
         vars_set = set()
         for key in qubo.keys():
             vars_set.update(key)

@@ -3,9 +3,9 @@
 
 Qudasは、**量子計算と古典最適化をまたいだワークフロー**を組み立てるための Python ライブラリです。役割は大きく次の三つに分かれます。
 
-1. **パイプライン（`QdPipeline`）** — 名前付きステップ、`get_params` / `set_params`、`set_context` によるランタイム注入など、scikit-learn に近い操作で古典側の処理列を記述し、量子／アニーリング Executor への委譲や外側の反復・最適化ループと組み合わせられます。
-2. **QuData** — 最適化・QUBO まわりの表現（NumPy、pandas、CSV／JSON、PyQUBO、Amplify、dimod、PuLP など）を `QuData.input()` / `QuData.output()` と `from_*`／`to_*` で行き来させる**形式変換のハブ**です。量子回路そのものの変換は担当せず、回路はゲート用スタック（Qiskit 連携）で扱います。
-3. **ゲート／アニーリング（オプション）** — `qudas[gate]` と `qudas[annealing]` で追加される、それぞれ回路実行用・アニーリングジョブ用の入出力・IR・Executor 層です（QuData のファイル／ソルバ変換 API とは別レイヤーですが、QUBO 表現まわりで併用しやすい構成です）。
+1. **パイプライン（`QdPipeline`）** — 名前付きステップ、`set_context` によるランタイム注入など、古典側の処理列を記述し、量子／アニーリング Executor への委譲や外側の反復・最適化ループと組み合わせられます（サポート API は `fit` / `optimize` / `predict` など。詳細は 1-6）。
+2. **形式変換（`QuData`）** — 最適化・QUBO まわりの表現を `QuData.input()` / `QuData.output()` で行き来させる**変換専用の Public 入口**です。実装の正は `QdAnnealingIR` / `QdAnnealingOutput` で、**Executor による実行は不要**です。量子回路そのものの変換は担当せず、回路はゲート用スタック（Qiskit 連携）で扱います。
+3. **ゲート／アニーリング実行（オプション）** — `qudas[gate]` と `qudas[annealing]` で追加される、回路実行・アニーリングジョブ用の Input / IR / Executor / Output 層です。変換 API とは別経路です。
 
 Sphinx による API ドキュメントはリポジトリ内の [`sphinx_docs/source/`](sphinx_docs/source/) をソースとし、ビルド手順は [`DEVELOPER.md`](DEVELOPER.md) を参照してください。公開用にビルドした静的 HTML は [`docs/latest/`](docs/latest/) に置く運用が可能です。
 
@@ -27,24 +27,26 @@ pip install "qudas[annealing]"  # zsh 等では角括弧をクォート推奨
 pip install "qudas[gate]"
 pip install "qudas[all]"
 # or
-pip install git+https://github.com/devel-system/qudas.git@v0.2.2  # 開発版
+pip install git+https://github.com/devel-system/qudas.git@v0.2.6  # 開発版
 ```
 
 **オプション**（zsh などでは角括弧をクォートしてください。上記コードブロック参照）
-- `pip install qudas` … コアのみ（numpy + matplotlib）
-- `pip install qudas[gate]` … 量子ゲート（Qiskit）
-- `pip install qudas[annealing]` … アニーリング・データ変換一式（dimod, Amplify, PyQUBO, PuLP, pandas, networkx, sympy, scipy）
+- `pip install qudas` … コアのみ（numpy + matplotlib）。`import qudas` はサブモジュールを eager load します（SDK は遅延 import）
+- `pip install qudas[gate]` … 量子ゲート実行（Qiskit）
+- `pip install qudas[annealing]` … データ変換 + アニーリング実行（dimod, Amplify, PyQUBO, PuLP, pandas, networkx, sympy, scipy）
 - `pip install qudas[all]` … 上記 gate + annealing の全パッケージ
+
+変換だけ使う場合も、現状は形式変換用 SDK が `annealing` extra に含まれます（実行用 Amplify との分離は今後検討）。
 
 ### 1-2. ライブラリの全体像（構成図）
 
-v0.2.2 時点でドキュメントと揃えた概念図です（GitHub 上の README では下記パスの画像が表示されます）。
+v0.2.6 時点の概念図です（GitHub 上の README では下記パスの画像が表示されます）。
 
 **QdPipeline** … ランタイムコンテキスト、古典ステップ列、Executor への委譲、最適化ループのフィードバックなどの関係。
 
 ![QdPipeline の概念（ランタイム・古典ステップ・量子／アニーリング Executor・最適化ループ）](sphinx_docs/source/img/fmqa_pipeline.png)
 
-**QuData とゲート／アニーリング** … 中央の QuData が最適化・QUBO 系データの相互変換ハブ、左がゲートスタック（QuData の行列ハブを経由しない）、右がアニーリング用パイプライン。
+**変換と実行** … `QuData` / `QdAnnealingIR` が QUBO 系の相互変換、左がゲート実行スタック、右がアニーリング実行。変換のみの利用に Executor は不要です。
 
 ![QuData を中心としたゲート・アニーリングとデータの流れ](sphinx_docs/source/img/data_abstract.png)
 
@@ -76,8 +78,9 @@ print((q1 ** 2).prob)            # => {('q0','q1'):1.0, ('q0','q2','q1'):-2.0}
 | NumPy 配列 | dimod-BQM | `QuData.input().from_array(arr).to_dimod_bqm()` |
 | CSV | PuLP | `QuData.input().from_csv('qudata.csv').to_pulp()` |
 
-### データ形式の変換（QuDataInput）
-デバイスへの様々な入力形式のデータを `QuData` オブジェクトを介して変換することができます。
+### データ形式の変換（入力・変換専用）
+
+デバイスへの様々な入力形式を `QuData.input()`（実体は `QdAnnealingIR`）経由で変換できます。**実行（Executor）は不要**です。
 
 #### pyqubo から Amplify への変換
 ```python
@@ -135,62 +138,46 @@ pulp_prob = qudata.to_pulp()
 print(pulp_prob)
 ```
 
-### データ形式の変換（QuDataOutput）
-デバイスからの様々な出力形式のデータを `QuData` オブジェクトを介して変換することができます。
+### データ形式の変換（出力・変換専用）
 
-#### PuLP から Amplify への変換
+ソルバ結果などを `QuData.output()`（実体は `QdAnnealingOutput`）へ取り込み、必要なら別形式へ出せます。  
+出力側に `.qubo` / `to_amplify()` はありません（入力変換は `QuData.input()` を使います）。
+
+#### PuLP 結果の取り込み
 ```python
 import pulp
 from qudas import QuData
 
-# PuLP問題を定義して解く
-prob = pulp.LpProblem("Test Problem", pulp.LpMinimize)
+prob = pulp.LpProblem("Test_Problem", pulp.LpMinimize)
 x = pulp.LpVariable('x', lowBound=0, upBound=1, cat='Binary')
 y = pulp.LpVariable('y', lowBound=0, upBound=1, cat='Binary')
-prob += 2*x - y
+prob += 2 * x - y
 prob.solve()
 
-# QuDataOutputのインスタンスを生成し、from_pulpメソッドで問題を変換
-qudata = QuData.output().from_pulp(prob)
-print(qudata.qubo)  # 出力: {'x': 2.0, 'y': -1.0}
-
-# Amplify形式に変換
-amplify_prob = qudata.to_amplify()
-print(amplify_prob)  # 出力: Amplifyの目標関数形式
+out = QuData.output().from_pulp(prob)
+print(out.results["block0"]["solution"])  # 変数値
+print(out.results["block0"]["energy"])    # 目的関数値
+print(out.results["block0"]["device"])    # 'pulp'
 ```
 
-#### SciPy から Dimod への変換
+#### SciPy 結果から dimod SampleSet へ
 ```python
 import numpy as np
 from sympy import symbols, lambdify
 from scipy.optimize import minimize, Bounds
 from qudas import QuData
 
-# シンボリック変数の定義
 q0, q1, q2 = symbols('q0 q1 q2')
-
-# 目的関数を定義
 objective_function = 2 * q0 - q1 - q2
-
-# シンボリック関数を数値化して評価できる形式に変換
 f = lambdify([q0, q1, q2], objective_function, 'numpy')
-
-# 初期解 (すべて0.5に設定)
 q = [0.5, 0.5, 0.5]
-
-# バイナリ変数の範囲を定義 (0 <= x <= 1)
 bounds = Bounds([0, 0, 0], [1, 1, 1])
-
-# SciPyで制約付き最適化を実行
 res = minimize(lambda q: f(q[0], q[1], q[2]), q, method='SLSQP', bounds=bounds)
 
-# QuDataOutputのインスタンスを生成し、from_scipyメソッドをテスト
-qudata = QuData.output().from_scipy(res)
-print(qudata.qubo)  # 出力: {'q0': 2, 'q1': -1, 'q2': -1}
-
-# Dimod形式に変換
-dimod_prob = qudata.to_dimod_bqm()
-print(dimod_prob)  # 出力: DimodのBQM形式
+out = QuData.output().from_scipy(res)
+print(out.results["block0"]["solution"])
+dimod_samples = out.to_dimod()  # dimod.SampleSet
+print(dimod_samples)
 ```
 
 ---
@@ -316,7 +303,12 @@ print(solution, energy, device)
 
 ### 1-6. パイプライン（`QdPipeline` / `Pipeline`）
 
-古典・量子ステップを名前付きでつなぐパイプラインは `qudas.pipeline` の `QdPipeline`（互換別名 `Pipeline`）を利用します。具体例は [examples/fmqa/main.py](examples/fmqa/main.py)、[examples/vqe/run_vqe.py](examples/vqe/run_vqe.py)、[examples/qsvm-gate/main.py](examples/qsvm-gate/main.py) および [tests/test_pipeline.py](tests/test_pipeline.py) を参照してください。実行結果への統計情報（`qudas.core.statistics`）は v0.2.1 で追加され、本版でも利用できます。
+古典・量子ステップを名前付きでつなぐパイプラインは `qudas.pipeline` の `QdPipeline`（互換別名 `Pipeline`）を利用します。
+
+**サポートする主な操作:** `fit` / `optimize` / `predict` / `get_results` / `get_models` / `set_context`  
+**未サポート:** 公開 `transform` / `fit_transform`、および `set_params(step__param=...)` 形式のネスト解決
+
+具体例は [examples/fmqa/main.py](examples/fmqa/main.py)、[examples/vqe/run_vqe.py](examples/vqe/run_vqe.py)、[examples/qsvm-gate/main.py](examples/qsvm-gate/main.py) および [tests/test_pipeline.py](tests/test_pipeline.py) を参照してください。実行結果への統計情報（`qudas.core.statistics`）は v0.2.1 で追加され、本版でも利用できます。
 
 ---
 

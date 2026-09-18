@@ -8,21 +8,23 @@ Welcome to Qudas's documentation!
 
 **Qudas** は、量子計算と古典最適化をまたいだワークフローを組み立てるための Python ライブラリです。役割は大きく次の三つに分かれます。
 
-1. **パイプライン（:class:`~qudas.pipeline.QdPipeline`）**  
-   scikit-learn に近い慣習（名前付きステップ、``get_params`` / ``set_params``、ランタイムへの ``set_context``）で、前処理・符号化・古典側モデル・後処理といった **古典 CPU 上のステップ列** を記述します。ステップが量子／アニーリング実行へ問題を委譲し、結果（カウント・エネルギーなど）を後段へ返す流れを想定した構成です。外側の反復（``IteratorMixin`` 系）や、ハイパーパラメータ探索（``OptimizerMixin`` / ``OptimizerStep`` 系）から準備段へ戻る経路も置けます。
+1. **パイプライン** （:class:`~qudas.pipeline.QdPipeline`）
+   名前付きステップと ``set_context`` によるランタイム注入で、前処理・古典モデル・後処理などの **古典ステップ列** を記述します。ステップが量子／アニーリング Executor へ問題を委譲し、結果を後段へ返す流れを想定しています。外側の反復（``IteratorMixin``）や最適化（``OptimizerMixin`` / ``OptimizerStep``）から準備段へ戻る経路も置けます。
+   **サポートする主な操作:** ``fit`` / ``optimize`` / ``predict`` / ``get_results`` / ``get_models`` / context 系。
+   **未サポート:** 公開メソッドとしての ``transform`` / ``fit_transform``、および ``set_params`` の step ネスト指定。
 
-2. **QuData（形式変換ハブ）**  
-   最適化・QUBO まわりで使う表現（NumPy、pandas、CSV／JSON、PyQUBO、Amplify、SymPy、NetworkX、dimod BQM、PuLP など）の間を、``QuData.input()`` と ``QuData.output()``、および ``from_*``／``to_*`` で行き来させます。量子回路そのものを QuData が変換するわけではありません（回路は下記ゲートスタック側で扱います）。
+2. **形式変換** （:class:`~qudas.qudata.QuData`）
+   最適化・QUBO まわりの表現を ``QuData.input()`` / ``QuData.output()`` で行き来させる **変換専用の Public 入口** です。実装の正は :class:`~qudas.annealing.QdAnnealingIR` / :class:`~qudas.annealing.QdAnnealingOutput` であり、Executor による実行は不要です。量子回路そのものの変換は行いません（回路はゲートスタック側）。
 
-3. **ゲート方式・アニーリング方式（オプションの追加パッケージ）**  
-   ``qudas[gate]`` ではゲート用の Input / Block・IR / Executor / Output（主に Qiskit 連携）。``qudas[annealing]`` ではアニーリング用の同様のパイプライン層と、QUBO 辞書ベースの IR です。いずれも **QuData のファイル／ソルバ変換 API とは別レイヤー** ですが、ドメインとしてはアニーリング周りで併用しやすい構成になっています。
+3. **ゲート方式・アニーリング方式（オプション）**  
+   ``qudas[gate]`` ではゲート用 Input / Block・IR / Executor / Output（主に Qiskit）。``qudas[annealing]`` ではアニーリング実行用の同様の層に加え、QUBO 変換の canonical 実装（``QdAnnealingIR``）を提供します。変換 API と実行 API は別経路です。
 
 インストールの目安:
 
-* ``pip install qudas`` … コア（NumPy + matplotlib）
-* ``pip install qudas[annealing]`` … QuData 変換に使うライブラリ一式（dimod、Amplify、PyQUBO など）
-* ``pip install qudas[gate]`` … Qiskit ベースのゲート実行
-* ``pip install qudas[all]`` … 上記をまとめて
+* ``pip install qudas`` … コア（NumPy + matplotlib）。``import qudas`` はサブモジュールを eager load します（SDK は遅延 import）
+* ``pip install "qudas[annealing]"`` … データ変換 + アニーリング実行用ライブラリ一式
+* ``pip install "qudas[gate]"`` … Qiskit ベースのゲート実行
+* ``pip install "qudas[all]"`` … 上記をまとめて
 
 詳しい手順とコード例は :doc:`quickstart` を参照してください。
 
@@ -35,14 +37,14 @@ Welcome to Qudas's documentation!
 
    **QdPipeline** のイメージ。左のランタイムコンテキスト（パラメータ、乱数、ロガー、共有成果物）を ``set_context`` で受け取り、古典ステップの列のなかで量子／アニーリング Executor への委譲や、最適化ループからのフィードバックを表現します。
 
-QuData とゲート／アニーリングの関係
-------------------------------------
+変換と実行の関係
+----------------
 
 .. figure:: ./img/data_abstract.png
    :align: center
    :width: 95%
 
-   **QuData** を中心としたデータの流れ（v0.2.2 時点の整理）。緑のハブが最適化・QUBO 側の相互変換、青・紫はそれぞれゲート用・アニーリング用のワークフロー（IR／実行）で、ゲートスタックは QuData の行列ハブを経由しません。
+   **変換と実行** （現行整理）。``QuData`` / ``QdAnnealingIR`` が QUBO 系の相互変換、青・紫はゲート／アニーリングの実行スタックです。変換のみの利用に Executor は不要です。
 
 .. toctree::
    :maxdepth: 2
@@ -79,6 +81,10 @@ QuData とゲート／アニーリングの関係
    :maxdepth: 2
    :caption: リリースノート
 
+   whatsnew_0_2_6
+   whatsnew_0_2_5
+   whatsnew_0_2_4
+   whatsnew_0_2_3
    whatsnew_0_2_2
    whatsnew_0_2_1
 

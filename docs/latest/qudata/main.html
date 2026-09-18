@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Gate" href="../gate/index.html" /><link rel="prev" title="QuDataOutput" href="output.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="QuDataBase" href="base.html" /><link rel="prev" title="QuData" href="index.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
-        <title>QuData クラス - Qudas 0.2.2 documentation</title>
+        <title>QuData クラス - Qudas 0.2.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qudas 0.2.2 documentation</div></a>
+      <a href="../index.html"><div class="brand">Qudas 0.2.6 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -149,7 +149,7 @@
 >
    
   <span class="sidebar-brand-text"
-    >Qudas 0.2.2 documentation</span
+    >Qudas 0.2.6 documentation</span
   > 
 </a><form
   class="sidebar-search-container"
@@ -176,10 +176,10 @@
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">QuData</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of QuData</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="base.html">QuDataBase</a></li>
-<li class="toctree-l2"><a class="reference internal" href="input.html">QuDataInput</a></li>
-<li class="toctree-l2"><a class="reference internal" href="output.html">QuDataOutput</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">QuData クラス</a></li>
+<li class="toctree-l2"><a class="reference internal" href="base.html">QuDataBase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input.html">QuDataInput（Deprecated）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output.html">QuDataOutput（Deprecated）</a></li>
 </ul>
 </li>
 </ul>
@@ -198,11 +198,11 @@
 <p class="caption" role="heading"><span class="caption-text">アニーリング方式（オプション）</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../annealing/index.html">Annealing</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Annealing</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../annealing/ir.html">QdAnnealingIR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../annealing/input.html">QdAnnealingInput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../annealing/output.html">QdAnnealingOutput</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../annealing/executor.html">QdAnnealingExecutor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../annealing/block.html">QdAnnealingBlock</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../annealing/ir.html">QdAnnealingIR</a></li>
 </ul>
 </li>
 </ul>
@@ -217,6 +217,10 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">リリースノート</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_6.html">Qudas 0.2.6 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_5.html">Qudas 0.2.5 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_4.html">Qudas 0.2.4 の変更点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_3.html">Qudas 0.2.3 の変更点</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_2.html">Qudas 0.2.2 の変更点</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../whatsnew_0_2_1.html">Qudas 0.2.1 の新機能・変更点</a></li>
 </ul>
@@ -256,39 +260,40 @@
         <article role="main">
           <section id="qudata">
 <h1>QuData クラス<a class="headerlink" href="#qudata" title="Permalink to this heading">#</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">QuData.input()</span></code> / <code class="docutils literal notranslate"><span class="pre">QuData.output()</span></code> から各 <code class="docutils literal notranslate"><span class="pre">from_*</span></code> / <code class="docutils literal notranslate"><span class="pre">to_*</span></code> を呼び出し、最適化・QUBO 系の表現を相互に変換します。全体像は <a class="reference internal" href="index.html"><span class="doc">QuData</span></a> の図（QuData ハブ）を参照してください。</p>
+<p><code class="docutils literal notranslate"><span class="pre">QuData.input()</span></code> は <code class="xref py py-class docutils literal notranslate"><span class="pre">QdAnnealingIR</span></code> を、<code class="docutils literal notranslate"><span class="pre">QuData.output()</span></code> は <code class="xref py py-class docutils literal notranslate"><span class="pre">QdAnnealingOutput</span></code> を返します。
+変換メソッド（<code class="docutils literal notranslate"><span class="pre">from_*</span></code> / <code class="docutils literal notranslate"><span class="pre">to_*</span></code>）の詳細は annealing 側の API を参照してください。</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">QuData.input(mode=&quot;gate&quot;)</span></code> はサポートしていません。回路は <a class="reference internal" href="../gate/index.html"><span class="doc">Gate</span></a> を使用してください。</p>
+</div>
 <dl class="py class">
 <dt class="sig sig-object py" id="qudas.qudata.QuData">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qudas.qudata.</span></span><span class="sig-name descname"><span class="pre">QuData</span></span><a class="reference internal" href="../_modules/qudas/qudata/qudata.html#QuData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qudas.qudata.QuData" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>gate/annealing 共通フロントエンド</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="qudas.qudata.QuData.__dict__">
-<span class="sig-name descname"><span class="pre">__dict__</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">mappingproxy({'__module__':</span> <span class="pre">'qudas.qudata.qudata',</span> <span class="pre">'__doc__':</span> <span class="pre">'gate/annealing</span> <span class="pre">共通フロントエンド',</span> <span class="pre">'input':</span> <span class="pre">&lt;classmethod</span> <span class="pre">object&gt;,</span> <span class="pre">'output':</span> <span class="pre">&lt;classmethod</span> <span class="pre">object&gt;,</span> <span class="pre">'__dict__':</span> <span class="pre">&lt;attribute</span> <span class="pre">'__dict__'</span> <span class="pre">of</span> <span class="pre">'QuData'</span> <span class="pre">objects&gt;,</span> <span class="pre">'__weakref__':</span> <span class="pre">&lt;attribute</span> <span class="pre">'__weakref__'</span> <span class="pre">of</span> <span class="pre">'QuData'</span> <span class="pre">objects&gt;,</span> <span class="pre">'__annotations__':</span> <span class="pre">{}})</span></em><a class="headerlink" href="#qudas.qudata.QuData.__dict__" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="qudas.qudata.QuData.__module__">
-<span class="sig-name descname"><span class="pre">__module__</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'qudas.qudata.qudata'</span></em><a class="headerlink" href="#qudas.qudata.QuData.__module__" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="qudas.qudata.QuData.__weakref__">
-<span class="sig-name descname"><span class="pre">__weakref__</span></span><a class="headerlink" href="#qudas.qudata.QuData.__weakref__" title="Permalink to this definition">#</a></dt>
-<dd><p>list of weak references to the object (if defined)</p>
-</dd></dl>
-
+<p>変換専用ユーザ向け Public 入口。</p>
+<p>実装の正は annealing 側（<code class="docutils literal notranslate"><span class="pre">QdAnnealingIR</span></code> / <code class="docutils literal notranslate"><span class="pre">QdAnnealingOutput</span></code>）。
+本クラスはそれらへの facade であり、Executor による実行は行わない。
+回路・実行は <code class="docutils literal notranslate"><span class="pre">qudas.gate</span></code> / <code class="docutils literal notranslate"><span class="pre">qudas.annealing</span></code> の各 API を使う。</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="qudas.qudata.QuData.input">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prob</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'annealing'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../annealing/ir.html#qudas.annealing.ir.QdAnnealingIR" title="qudas.annealing.ir.QdAnnealingIR"><span class="pre">QdAnnealingIR</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../gate/ir.html#qudas.gate.gate_ir.QdGateIR" title="qudas.gate.gate_ir.QdGateIR"><span class="pre">QdGateIR</span></a></span></span><a class="reference internal" href="../_modules/qudas/qudata/qudata.html#QuData.input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qudas.qudata.QuData.input" title="Permalink to this definition">#</a></dt>
-<dd><p>新IR (QdAnnealingIR) を返却するラッパー。旧API互換のために残してある。</p>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prob</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'annealing'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../annealing/ir.html#qudas.annealing.ir.QdAnnealingIR" title="qudas.annealing.ir.QdAnnealingIR"><span class="pre">QdAnnealingIR</span></a></span></span><a class="reference internal" href="../_modules/qudas/qudata/qudata.html#QuData.input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qudas.qudata.QuData.input" title="Permalink to this definition">#</a></dt>
+<dd><p>QUBO 変換用 IR（<code class="docutils literal notranslate"><span class="pre">QdAnnealingIR</span></code>）を返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prob</strong> – 初期 QUBO dict（省略可）。</p></li>
+<li><p><strong>mode</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;annealing&quot;</span></code> のみサポート。ゲート回路は <code class="docutils literal notranslate"><span class="pre">qudas.gate</span></code> を使用すること。</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qudas.qudata.QuData.output">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'annealing'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../annealing/output.html#qudas.annealing.output.QdAnnealingOutput" title="qudas.annealing.output.QdAnnealingOutput"><span class="pre">QdAnnealingOutput</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../gate/output.html#qudas.gate.output.QdGateOutput" title="qudas.gate.output.QdGateOutput"><span class="pre">QdGateOutput</span></a></span></span><a class="reference internal" href="../_modules/qudas/qudata/qudata.html#QuData.output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qudas.qudata.QuData.output" title="Permalink to this definition">#</a></dt>
-<dd><p>新しい出力クラス (QuDataAnnealingOutput) を返却する。</p>
-<p>旧 API の <cite>result</cite>/<cite>result_type</cite> でも呼び出せるように互換を維持する。</p>
+<dd><p>出力 facade。既定は <code class="docutils literal notranslate"><span class="pre">QdAnnealingOutput</span></code>。</p>
+<p>旧 API の <code class="docutils literal notranslate"><span class="pre">result</span></code> / <code class="docutils literal notranslate"><span class="pre">result_type</span></code> でも呼び出せるように互換を維持する。
+<code class="docutils literal notranslate"><span class="pre">result_type</span></code> は現行 AnnealingOutput では未使用（互換のため受け取る）。</p>
 </dd></dl>
 
 </dd></dl>
@@ -300,23 +305,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../gate/index.html">
+          <a class="next-page" href="base.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Gate</div>
+                <div class="title">QuDataBase</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="output.html">
+          <a class="prev-page" href="index.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">QuDataOutput</div>
+                <div class="title">QuData</div>
                 
               </div>
             </a>
@@ -324,7 +329,7 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2024 - 2025, DEVEL Co., Ltd.
+                Copyright &#169; 2024 - 2026, DEVEL Co., Ltd.
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -352,9 +357,6 @@
             <ul>
 <li><a class="reference internal" href="#">QuData クラス</a><ul>
 <li><a class="reference internal" href="#qudas.qudata.QuData"><code class="docutils literal notranslate"><span class="pre">QuData</span></code></a><ul>
-<li><a class="reference internal" href="#qudas.qudata.QuData.__dict__"><code class="docutils literal notranslate"><span class="pre">QuData.__dict__</span></code></a></li>
-<li><a class="reference internal" href="#qudas.qudata.QuData.__module__"><code class="docutils literal notranslate"><span class="pre">QuData.__module__</span></code></a></li>
-<li><a class="reference internal" href="#qudas.qudata.QuData.__weakref__"><code class="docutils literal notranslate"><span class="pre">QuData.__weakref__</span></code></a></li>
 <li><a class="reference internal" href="#qudas.qudata.QuData.input"><code class="docutils literal notranslate"><span class="pre">QuData.input()</span></code></a></li>
 <li><a class="reference internal" href="#qudas.qudata.QuData.output"><code class="docutils literal notranslate"><span class="pre">QuData.output()</span></code></a></li>
 </ul>
@@ -370,7 +372,7 @@
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=227644f7"></script>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=de075e50"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

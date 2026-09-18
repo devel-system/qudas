@@ -1,0 +1,13 @@
+Gate
+=============================
+量子ゲート方式を扱うための入出力・実行クラス群を提供します。全体配置は :doc:`../index` の「QuData とゲート／アニーリングの関係」図の左（ゲートスタック）を参照してください。主な外部形式は Qiskit の ``QuantumCircuit`` で、変換は ``gate.ir`` や Executor 周辺で行います。
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Contents:
+
+   input
+   output
+   executor
+   block
+   ir

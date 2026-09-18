@@ -1,12 +1,7 @@
-.. Qudas documentation master file, created by
-   sphinx-quickstart on Thu Mar 14 05:33:12 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Quickstart
 =================================
 
-Qudas は、:doc:`index` で示したとおり **パイプライン** と **QuData（形式変換）** と **ゲート／アニーリング用スタック（任意）** を組み合わせて使います。ここではインストールと代表的なコード例だけをまとめます。
+Qudas は、:doc:`index` で示したとおり **パイプライン**・**形式変換（QuData）**・**ゲート／アニーリング実行（任意）** を組み合わせて使います。ここではインストールと代表的なコード例だけをまとめます。
 
 インストール
 ~~~~~~~~~~~~
@@ -15,10 +10,12 @@ Qudas は、:doc:`index` で示したとおり **パイプライン** と **QuDa
 
 .. code-block:: bash
 
-   pip install qudas                # コア（numpy + matplotlib）
-   pip install "qudas[annealing]"   # QuData 変換まわり一式
-   pip install "qudas[gate]"        # Qiskit ベースのゲート実行
-   pip install "qudas[all]"         # gate + annealing
+   pip install qudas                 # コア（numpy + matplotlib）
+   pip install "qudas[annealing]"    # 変換 + アニーリング実行一式
+   pip install "qudas[gate]"         # Qiskit ベースのゲート実行
+   pip install "qudas[all]"          # gate + annealing
+
+変換だけ使いたい場合も、現状は変換用 SDK が ``annealing`` extra に含まれます（実行用依存との分離は今後検討）。
 
 ブラックボックス最適化（FMQA）のパイプライン作成例
 ----------------------------------------------------
@@ -34,10 +31,10 @@ Qudas は、:doc:`index` で示したとおり **パイプライン** と **QuDa
 
 詳しくは ``examples/fmqa/main.py`` を参照。
 
-データ変換例（QuDataInput）
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+データ変換例（入力・変換専用）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-qudasライブラリでは、デバイスへの様々な入力形式のデータを変換する機能も備えています。以下にいくつかのデータ変換例を示します。
+``QuData.input()`` は :class:`~qudas.annealing.QdAnnealingIR` を返します。Executor は不要です。
 
 pyqubo から Amplify への変換
 ---------------------------------
@@ -51,9 +48,9 @@ pyqubo から Amplify への変換
    q0, q1 = Binary("q0"), Binary("q1")
    prob = (q0 + q1) ** 2
 
-   # QuData に Pyqubo の問題を渡す
+   # QuData に Pyqubo の問題を渡す（実体は QdAnnealingIR）
    qudata = QuData.input().from_pyqubo(prob)
-   print(qudata.prob)  # 出力: {('q0', 'q0'): 1.0, ('q0', 'q1'): 2.0, ('q1', 'q1'): 1.0}
+   print(qudata.qubo)  # または qudata.prob
 
    # Amplify 形式に変換
    amplify_prob = qudata.to_amplify()
@@ -76,7 +73,7 @@ pyqubo から Amplify への変換
 
    # QuData に配列を渡す
    qudata = QuData.input().from_array(prob)
-   print(qudata.prob)  # 出力: {('q_0', 'q_0'): 1, ('q_0', 'q_1'): 1, ('q_1', 'q_1'): 2, ('q_2', 'q_2'): -1}
+   print(qudata.qubo)
 
    # BQM 形式に変換
    bqm_prob = qudata.to_dimod_bqm()
@@ -87,7 +84,6 @@ CSV から PuLP への変換
 
 .. code-block:: python
 
-   import pulp
    from qudas import QuData
 
    # CSVファイルのパス
@@ -95,18 +91,19 @@ CSV から PuLP への変換
 
    # QuData に CSV を渡す
    qudata = QuData.input().from_csv(csv_file_path)
-   print(qudata.prob)  # 出力: {('q_0', 'q_0'): 1.0, ('q_0', 'q_2'): 2.0, ...}
+   print(qudata.qubo)
 
    # PuLP 形式に変換
    pulp_prob = qudata.to_pulp()
    print(pulp_prob)
 
-データ変換例（QuDataOutput）
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+データ変換例（出力・変換専用）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-qudasライブラリでは、デバイスからの様々な出力形式のデータを変換する機能も備えています。以下にいくつかのデータ変換例を示します。
+``QuData.output()`` は :class:`~qudas.annealing.QdAnnealingOutput` を返します。  
+出力側に ``.qubo`` / ``to_amplify()`` はありません（入力変換は ``QuData.input()`` を使います）。
 
-PuLP から Amplify への変換
+PuLP 結果の取り込み
 ---------------------------------
 
 .. code-block:: python
@@ -114,22 +111,18 @@ PuLP から Amplify への変換
    import pulp
    from qudas import QuData
 
-   # PuLP問題を定義して解く
-   prob = pulp.LpProblem("Test Problem", pulp.LpMinimize)
+   prob = pulp.LpProblem("Test_Problem", pulp.LpMinimize)
    x = pulp.LpVariable('x', lowBound=0, upBound=1, cat='Binary')
    y = pulp.LpVariable('y', lowBound=0, upBound=1, cat='Binary')
-   prob += 2*x - y
+   prob += 2 * x - y
    prob.solve()
 
-   # QuDataOutputのインスタンスを生成し、from_pulpメソッドで問題を変換
-   qudata = QuData.output().from_pulp(prob)
-   print(qudata.prob)  # 出力: {'x': 2.0, 'y': -1.0}
+   out = QuData.output().from_pulp(prob)
+   print(out.results["block0"]["solution"])
+   print(out.results["block0"]["energy"])
+   print(out.results["block0"]["device"])
 
-   # Amplify形式に変換
-   amplify_prob = qudata.to_amplify()
-   print(amplify_prob)  # 出力: Amplifyの目標関数形式
-
-SciPy から Dimod への変換
+SciPy 結果から dimod SampleSet へ
 ---------------------------------
 
 .. code-block:: python
@@ -139,30 +132,31 @@ SciPy から Dimod への変換
    from scipy.optimize import minimize, Bounds
    from qudas import QuData
 
-   # シンボリック変数の定義
    q0, q1, q2 = symbols('q0 q1 q2')
-
-   # 目的関数を定義
    objective_function = 2 * q0 - q1 - q2
-
-   # シンボリック関数を数値化して評価できる形式に変換
    f = lambdify([q0, q1, q2], objective_function, 'numpy')
-
-   # 初期解 (すべて0.5に設定)
    q = [0.5, 0.5, 0.5]
-
-   # バイナリ変数の範囲を定義 (0 <= x <= 1)
    bounds = Bounds([0, 0, 0], [1, 1, 1])
-
-   # SciPyで制約付き最適化を実行
    res = minimize(lambda q: f(q[0], q[1], q[2]), q, method='SLSQP', bounds=bounds)
 
-   # QuDataOutputのインスタンスを生成し、from_scipyメソッドをテスト
-   qudata = QuData.output().from_scipy(res)
-   print(qudata.prob)  # 出力: {'q0': 2, 'q1': -1, 'q2': -1}
+   out = QuData.output().from_scipy(res)
+   print(out.results["block0"]["solution"])
+   dimod_samples = out.to_dimod()
+   print(dimod_samples)
 
-   # Dimod形式に変換
-   dimod_prob = qudata.to_dimod_bqm()
-   print(dimod_prob)  # 出力: DimodのBQM形式
+詳しくは ``tests/qudata/test_qudata_facade.py`` および :doc:`annealing/ir` / :doc:`annealing/output` を参照。
 
-詳しくは ``tests/qudata/test_input.py`` および ``tests/qudata/test_output.py`` を参照。
+アニーリング実行例
+~~~~~~~~~~~~~~~~~~
+
+変換とは別経路です。``QdAnnealingExecutor`` を使います。
+
+.. code-block:: python
+
+   from qudas.annealing import QdAnnealingInput, QdAnnealingBlock, QdAnnealingExecutor
+
+   qubo = {('q0', 'q1'): 1.0, ('q1', 'q1'): -1.0}
+   block = QdAnnealingBlock(qubo, label='block0')
+   qd_input = QdAnnealingInput([block])
+   output = QdAnnealingExecutor(provider='default').run(qd_input)
+   print(output.results["block0"]["solution"], output.results["block0"]["energy"])

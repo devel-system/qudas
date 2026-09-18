@@ -1,11 +1,15 @@
 from .qudata_base import QuDataBase
 import csv
 import json
+import warnings
 import numpy as np
 
 
 class QuDataInput(QuDataBase):
-    """量子データ"""
+    """レガシー QUBO 変換クラス（Deprecated）。
+
+    新規コードでは ``QuData.input()`` または ``QdAnnealingIR`` を使用すること。
+    """
 
     def __init__(self, prob: dict = None) -> None:
         """
@@ -14,6 +18,12 @@ class QuDataInput(QuDataBase):
         Args:
             prob (dict, optional): 最適化問題データ。デフォルトはNone。
         """
+        warnings.warn(
+            "QuDataInput is deprecated since 0.2.6; use QuData.input() or QdAnnealingIR instead. "
+            "Scheduled for removal in v0.3.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         super().__init__(prob)
         self.prob = self.data  # dataをprobとして扱う
 
