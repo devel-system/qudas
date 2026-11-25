@@ -1,0 +1,121 @@
+{
+  "amplify": {
+    "name": "amplify_comparison",
+    "evidence": "measured",
+    "notes": [
+      "amplify import ok; paid AE solver not required for this benchmark"
+    ],
+    "cases": [
+      {
+        "problem": "maxcut",
+        "qudas_define_loc": 19,
+        "qubo_terms": 6,
+        "objective": 2.0,
+        "model_time_s": 0.00010754099999998878,
+        "feasible": true
+      },
+      {
+        "problem": "knapsack",
+        "qudas_define_loc": 27,
+        "objective": 5.0,
+        "model_time_s": 0.00037600000000004297,
+        "feasible": true,
+        "constraint_style": "penalty_slack_in_qubo + linear_le metadata"
+      },
+      {
+        "problem": "tsp",
+        "qudas_define_loc": 25,
+        "objective": 3.0,
+        "model_time_s": 0.00017254100000002603,
+        "n_variables": 9,
+        "feasible": true
+      },
+      {
+        "problem": "maxcut_amplify_model",
+        "evidence": "implementation_check",
+        "amplify_model_type": "Model",
+        "note": "Objective formulated manually; solver not invoked"
+      }
+    ],
+    "amplify_available": true
+  },
+  "hybrid": {
+    "name": "dwave_hybrid_comparison",
+    "evidence": "measured+docs_check",
+    "qudas": {
+      "parallel_logical": true,
+      "branch": true,
+      "loop_with_cap": true,
+      "save_reload": true,
+      "run_time_s": 8.304100000000592e-05,
+      "distributed_scheduler": false
+    },
+    "dwave_hybrid_docs": {
+      "ParallelBranches": true,
+      "Loop": true,
+      "RacingBranches": true,
+      "model_json_portability": false,
+      "source": "https://hybrid.readthedocs.io/en/latest/reference/flow.html",
+      "evidence": "docs_check"
+    },
+    "verdict": {
+      "execution_composition": "dwave-hybrid stronger (docs_check)",
+      "portable_model_json": "qudas stronger (measured)",
+      "cross_domain_gate_annealing": "qudas stronger (implementation_check)"
+    }
+  },
+  "sklearn_prefect": {
+    "name": "sklearn_prefect_covalent",
+    "evidence": "docs_check+implementation_check",
+    "sklearn": {
+      "api": "sequential fit/predict",
+      "quantum_semantics": false,
+      "serialization": "pickle/joblib",
+      "source": "https://scikit-learn.org/stable/modules/compose.html"
+    },
+    "prefect": {
+      "api": "flow/task mapping, distributed runners",
+      "quantum_semantics": false,
+      "serialization": "cloudpickle/JSONSerializer",
+      "reimplement_in_qudas": false
+    },
+    "qudas": {
+      "api": "QdPipeline fit/optimize/predict + QdPipelineModel JSON",
+      "quantum_semantics": true,
+      "serialization": "JSON Envelope + ComponentRegistry",
+      "sklearn_full_compat": false
+    }
+  },
+  "onnx": {
+    "name": "onnx_comparison",
+    "evidence": "docs_check+implementation_check",
+    "onnx": {
+      "schema": "protobuf ModelProto",
+      "operator_versioning": "opset_import",
+      "runtime_validation": "strong ecosystem",
+      "source": "https://onnx.ai/onnx/repo-docs/IR.html"
+    },
+    "qudas": {
+      "schema_version": "1.0.0",
+      "node_type_id": true,
+      "op_version_metadata": true,
+      "serialization": "JSON Envelope",
+      "full_onnx_compat": false,
+      "sample_keys": [
+        "context",
+        "control_flow",
+        "dependencies",
+        "edges",
+        "execution_requirements",
+        "input_schema",
+        "metadata",
+        "name",
+        "nodes",
+        "output_schema",
+        "parameters",
+        "version"
+      ]
+    },
+    "verdict": "Reference ONNX concepts; do not reimplement protobuf/opset ecosystem"
+  }
+}
