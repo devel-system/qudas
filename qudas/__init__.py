@@ -47,11 +47,15 @@ from .annealing import (
     QdAnnealingBlock,
 )
 from .qudata import QuData
-from .pipeline import QdPipeline
+from .pipeline import QdPipeline, QdPipelineModel
+
+# 新機能サブパッケージは import 可能にするが、トップレベルは既存 Stable を維持。
+# 高レベル API は qudas.api / qudas.problem / qudas.algorithm から利用。
 
 __all__ = [
     "QuData",
     "QdPipeline",
+    "QdPipelineModel",
     "QdGateInput",
     "QdGateOutput",
     "QdGateExecutor",
