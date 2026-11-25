@@ -159,5 +159,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# benchmarks
-benchmarks/
+# local scratch benchmarks (docs/benchmarks は追跡する)
+/benchmarks/
+
+# cursor local (tracked docs under .cursor/docs remain versioned)
+.cursor/*
+!.cursor/docs/
+!.cursor/docs/**

@@ -383,6 +383,72 @@
 
 ---
 
+## F. Interoperability / Advanced Pipeline（2026-11-25, Additive）
+
+競合比較: `docs/competitive-comparison.md`。既存ツールの再実装を避け、Hub 固有価値に集中する。
+
+### DEC-023
+
+**Title:** Conversion Graph と Capability の統合  
+
+**Status:** Accepted  
+
+**Context:** Capability 一覧と ArtifactConverterRegistry が並存。形式間の多段変換経路探索が無い。  
+
+**Decision:**
+1. `ConversionGraph` を `qudas.model.graph` に追加し、形式ノード＋変換エッジ（kind / converter / notes）を管理する。
+2. 既存 `exchange.capabilities` は Graph の宣言的ビューとして維持・同期する（二重の独立 Registry を増やさない）。
+3. `ArtifactConverterRegistry` は Pipeline Artifact 専用のまま残す（Domain 形式変換とは責務分離）。
+4. 経路全体の kind は構成エッジの最弱（unsupported > approximate > problem_level > lossless）で決める。Approximate を含む経路を Lossless としない。
+5. Gate↔Annealing の任意相互変換は引き続き unsupported（DEC-021）。
+
+**Consequences:** `find_path` / `can_convert` / `convert` / ConversionReport を提供。未登録は拒否。
+
+### DEC-024
+
+**Title:** Advanced Pipeline Runtime（Branch / Join / Sub / Parallel）  
+
+**Status:** Accepted（DEC-020 を拡張。破壊なし）  
+
+**Context:** DEC-020 では branch/join/parallel はスキーマのみだった。  
+
+**Decision:**
+1. `QdPipeline` Stable 契約は不変。高度制御は `qudas.pipeline.runtime.AdvancedPipelineRuntime` が `QdPipelineModel` を解釈して実行する。
+2. 優先実装: Branch → Join → Sub-Pipeline → 論理 Parallel（同一プロセス、ThreadPool 任意）→ 安全付き Loop（max_iter 必須）。
+3. 分散 Scheduler / クラウド実行は非目標（Prefect 等へ委譲）。
+4. 永続化は従来どおり JSON + ComponentRegistry。認証情報・実行時状態は埋め込まない。
+5. Sub-Pipeline は `type_id=qudas.subpipeline` または node metadata の埋め込み Model 参照。
+
+**Consequences:** `QdPipelineModel.validate` の schema-only エラーを撤廃し、未対応 kind のみ拒否。既存 sequential/loop は互換維持。
+
+### DEC-025
+
+**Title:** Problem Library 拡張（TSP）と共通契約の維持  
+
+**Status:** Accepted  
+
+**Decision:**
+1. `TSPProblem` を BinaryOptimizationProblem 上に Additive 追加（one-hot + 距離目的）。
+2. Variables / Objective / Constraints / Conversion / Decode / Evaluate / Feasibility は既存基底を再利用。
+3. Amplify との問題数競争はしない。1 問題を複数 Algorithm で再利用できることを優先。
+4. Classical Exact は小規模のみ。Annealing / Heuristic は既存 runner を拡張。
+
+**Consequences:** `compatible_problems` に tsp を追加可能な Algorithm は Binary 互換 runner。
+
+### DEC-026
+
+**Title:** OpenQASM3 / QIR の段階対応  
+
+**Status:** Accepted  
+
+**Decision:**
+1. OpenQASM2 は現状維持（Qiskit）。
+2. OpenQASM3 は外部パーサ（Qiskit `qasm3` 等）経由で Basic Gates / Parameterized / Measure を部分対応。Classical Control / Dynamic は Capability=false。
+3. QIR は Adapter Contract + 技術制約の文書化のみ。独自 LLVM は作らない。
+4. 意味保存検証（ユニタリ位相込み、測定確率、QUBO/Ising）を `qudas.exchange.verify` に置く。
+
+---
+
 ## E. Superseded / Deprecated decisions
 
 （旧 DEC ファイルなし。CHANGELOG の旧 `AnnealingExecutor` 削除予定は別履歴。）

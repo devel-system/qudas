@@ -102,10 +102,11 @@ core は新規モジュールを知らない
 
 ---
 
-## 4. 未対応として明示するもの
+## 4. 未対応として明示するもの（2026-11-25 更新）
 
-- OpenQASM 3 完全: Qiskit 経由の現実的範囲のみ
-- QIR: Capability + Adapter スタブ（実装なし）
+- OpenQASM 3 完全: basic/param/measure は部分対応。classical control / dynamic は未対応
+- QIR: Adapter Contract のみ（独自 LLVM なし）。実装は `feature/qir-adapter` 候補
 - Gate→Annealing 任意変換: unsupported
-- 分岐・合流・並列の実行エンジン: スキーマ表現のみ（逐次+明示ループは実行可）
-- TSP / Graph Coloring / Portfolio / Scheduling: 設計メモのみ（Knapsack で再利用性検証）
+- 分散 Parallel / クラウド Scheduler: 非目標（論理 Parallel のみ）
+- Graph Coloring / Portfolio / Scheduling: 未実装（TSP で再利用性を追加検証済み）
+- 論文プログラムの完全自動移植: 非目標（Package / Import による再利用実証）
