@@ -9,9 +9,11 @@ Qudasは、**量子・アニーリング・古典計算を横断して、実問�
 2. **Pipeline Model（`QdPipelineModel`）** — Pipeline 全体を永続化・交換可能な **計算モデル仕様**（Node/Edge/Parameters）。`QdPipeline.models`（学習格納）とは別概念です。
 3. **形式変換（`QuData`）** — QUBO まわりの変換専用 Public 入口。実装の正は `QdAnnealingIR`。回路はゲート用スタックで扱います。
 4. **ゲート／アニーリング実行（オプション）** — `qudas[gate]` / `qudas[annealing]` の Input / IR / Executor / Output。
-5. **Problem / Algorithm Library** — MaxCut 等の実問題と、Classical / Annealing / QAOA などの Algorithm Package。
+5. **Problem / Algorithm Library** — MaxCut / Knapsack / TSP 等の実問題と、Classical / Annealing / QAOA などの Algorithm Package。
+6. **Conversion Graph / Model Exchange** — SDK 間の変換経路・意味保存検証・JSON Envelope。
+7. **Advanced Pipeline Runtime** — Branch / Join / Sub-Pipeline / 論理 Parallel（分散 Scheduler は非目標）。
 
-Sphinx API ドキュメントは [`sphinx_docs/source/`](sphinx_docs/source/)、ガイドは [`docs/guides/`](docs/guides/) を参照してください。
+Sphinx API ドキュメントは [`sphinx_docs/source/`](sphinx_docs/source/)、ガイドは [`docs/guides/`](docs/guides/)、競合比較は [`docs/competitive-comparison.md`](docs/competitive-comparison.md) を参照してください。
 
 本 README は
 

@@ -5,27 +5,33 @@
 - `QuDataInput` / `QuDataOutput` の削除（目標 v0.3）
 - Executor naive fallback のデフォルト raise / 明示 opt-in（目標 v0.3）
 - 変換用 extras と実行用 extras の分離検討
-- OpenQASM 3 / QIR の本格 Adapter
-- TSP 等の追加 Problem、分岐・合流の実行エンジン
+- QIR Adapter 実装（Contract は先行）
+- OpenQASM3 classical control / dynamic circuits
+- Graph Coloring 等の追加 Problem（必要時）
 
 ---
 
 ## [Unreleased] - next-gen architecture (Additive)
 ### Added
 - **Pipeline Model** (`QdPipelineModel`): Node/Edge/Parameters/ControlFlow の JSON 永続化・検証・`materialize()`→`QdPipeline`
+- **Advanced Pipeline Runtime**: Branch / Join / Sub-Pipeline / 論理 Parallel / 安全 Loop
+- **Conversion Graph** (`qudas.model.graph`): 経路探索・最弱 kind・Capability 同期
+- **意味保存検証** (`qudas.exchange.verify`): ユニタリ（位相込み）/ 測定確率 / QUBO / Ising / Pipeline 型
 - **Model Envelope** (`qudas.model`): schema_version / ConversionReport（lossless/approximate/problem_level/unsupported）
-- **Problem Library**: `MaxCutProblem`, `KnapsackProblem`, `BinaryOptimizationProblem`
+- **Problem Library**: `MaxCutProblem`, `KnapsackProblem`, `TSPProblem`, `BinaryOptimizationProblem`
 - **Algorithm Library / Package**: classical.exact / annealing.dimod_exact / qaoa.qiskit（サンプル）
 - **共通 Result** (`QdExperimentResult`) と比較 (`compare_results`)
-- **Exchange**: Qiskit/OpenQASM2 Import、Capability Check、Gate↔Annealing の明示的拒否
+- **Exchange**: Qiskit/OpenQASM2/OpenQASM3（部分）Import、Capability Check、QIR Contract、Gate↔Annealing 拒否
 - **QPLAT Contract** (`qudas.qplat.QplatContract`): 宣言的 JSON インターフェース（QPLAT 本体非依存）
 - 高レベル API `qudas.api.solve` / `compare` / `catalog`
+- 競合比較: `docs/competitive-comparison.md`、ベンチマーク: `docs/benchmarks/`
 - ガイド: `docs/guides/*.md`、サンプル `examples/maxcut_compare.py`
 
 ### Notes
 - 既存 Stable API（`QdPipeline` / `QuData` / Gate・Annealing）は維持
 - `QdPipeline.models`（学習格納）と `QdPipelineModel`（仕様）は別概念
 - QAOA 実装は論文の完全再現ではない（Adapt 実証用）
+- 分散 Scheduler / 独自 QASM・QIR コンパイラは非目標
 
 ---
 

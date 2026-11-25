@@ -1,42 +1,36 @@
-# Problem Library Guide
+# Problem Library
 
-## 共通インターフェース
+## 方針
 
-`OptimizationProblem` / `BinaryOptimizationProblem` が基盤です。
+Amplify 等と問題クラス数で競争しない。共通契約の上で **1 問題を複数 Algorithm で再利用**する。
 
-- 入力検証 / 目的関数評価 / 制約評価
-- `to_model("qubo"|"ising"|"annealing_ir"|"dimod_bqm")`
-- `decode` / `reevaluate`
+## 共通契約（`OptimizationProblem`）
 
-## MaxCut
+Variables / Domain / Objective / Constraints / Conversion / Decode / Evaluate / Feasibility
+
+実装の正は `BinaryOptimizationProblem` + Domain IR（`QdAnnealingIR`）。QuData は変換 facade（DEC-011）。
+
+## 実装済み
+
+| Problem | 状態 |
+|---------|------|
+| MaxCut | 実装 |
+| Knapsack | 実装（スラック付きペナルティ） |
+| TSP | 実装（one-hot、小規模 brute force） |
+
+## 複数 Algorithm
 
 ```python
-from qudas.problem import MaxCutProblem
 from qudas.api import solve, compare
+from qudas.problem import MaxCutProblem, TSPProblem
 
-problem = MaxCutProblem.from_edge_list([(0, 1), (1, 2), (2, 0)])
-# または MaxCutProblem.from_networkx(G)
+p = MaxCutProblem.from_edge_list([(0, 1), (1, 2), (0, 2)])
+compare(p, algorithms=["classical.exact", "annealing.dimod_exact"])
 
-# カット最大化。QUBO は H = -C(x) を最小化
-print(problem.classical_brute_force())
-print(solve(problem, "annealing.dimod_exact").problem_objective)
+tsp = TSPProblem(distances=[[0, 1, 1], [1, 0, 1], [1, 1, 0]])
+solve(tsp, "classical.exact")
 ```
 
-符号・定数:
+## 候補（未実装）
 
-- 問題 sense = **maximize**（カット重み）
-- QUBO energy = **-cut**（定数項なし）
-- 変数名 = `x{node}`（ノード順はコンストラクタの `nodes`）
-
-## Knapsack（共通設計の再利用検証）
-
-`BinaryOptimizationProblem` + 容量制約（スラック二値展開 + ペナルティ）。
-
-## 未実装問題の追加方法
-
-TSP / Graph Coloring / Portfolio / Scheduling は未実装です。追加手順:
-
-1. `BinaryOptimizationProblem` を継承（または制約付きで拡張）
-2. `to_model("qubo")` と `evaluate` / `decode` を実装
-3. `@register_problem("id")` で登録
-4. 互換 Algorithm の `compatible_problems` を更新
+Graph Coloring / Portfolio / Scheduling — 必要性が明確なときのみ追加。

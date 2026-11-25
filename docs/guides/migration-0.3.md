@@ -24,6 +24,15 @@ from qudas import QdPipelineModel
 | `QdPipeline.models` | 学習・実行オブジェクトの格納（既存） |
 | `QdPipelineModel` | 永続化可能な Pipeline **仕様**（新規） |
 
+## 追加された主な API（Additive）
+
+- `qudas.model.ConversionGraph` / `qudas.exchange.convert`
+- `qudas.pipeline.AdvancedPipelineRuntime`
+- `qudas.problem.TSPProblem`
+- `qudas.exchange.verify_*` / `get_qir_contract`
+
 ## 破壊的変更
 
-なし（本ブランチ時点）。OpenQASM3 / QIR 完全対応や Gate↔Annealing 直変換は意図的に未提供です。
+なし（本ブランチ時点）。OpenQASM3 の classical control、QIR 実装、Gate↔Annealing 直変換、分散 Parallel は意図的に未提供です。
+
+`QdPipelineModel.validate()` の `branch`/`join`/`parallel` に対する schema-only エラーは撤廃され、実行可能になりました（Additive）。
