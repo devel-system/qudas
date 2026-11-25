@@ -1,5 +1,6 @@
 """レガシー実験用 FMQA パイプライン（元 test/fmqa.py）。examples/fmqa/main.py とは別物。"""
 
+import os
 import numpy as np
 from typing import Callable, Any, Tuple
 import torch
@@ -104,8 +105,12 @@ def anneal(torch_model: TorchFM) -> np.ndarray:
 
     # ソルバーの設定
     client = FixstarsClient()
-    # ローカル環境等で実行する場合はコメントを外して Amplify AEのアクセストークンを入力してください
-    client.token = "AE/p2lAwBrQpyGlHPKuMgpwbfQiO0OXXg6B"
+    token = os.getenv("AMPLIFY_TOKEN")
+    if not token:
+        raise RuntimeError(
+            "AMPLIFY_TOKEN is not set. Export your Amplify AE token before running."
+        )
+    client.token = token
     # 最適化の実行時間を 2 秒に設定
     client.parameters.timeout = timedelta(milliseconds=2000)
 
