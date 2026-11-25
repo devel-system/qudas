@@ -1,13 +1,17 @@
 
 # Qudas (Quantum Data Transformation Library)
 
-Qudasは、**量子計算と古典最適化をまたいだワークフロー**を組み立てるための Python ライブラリです。役割は大きく次の三つに分かれます。
+Qudasは、**量子・アニーリング・古典計算を横断して、実問題・アルゴリズム・Pipeline を保存・交換・実行・再利用する**ための Python ライブラリです。
 
-1. **パイプライン（`QdPipeline`）** — 名前付きステップ、`set_context` によるランタイム注入など、古典側の処理列を記述し、量子／アニーリング Executor への委譲や外側の反復・最適化ループと組み合わせられます（サポート API は `fit` / `optimize` / `predict` など。詳細は 1-6）。
-2. **形式変換（`QuData`）** — 最適化・QUBO まわりの表現を `QuData.input()` / `QuData.output()` で行き来させる**変換専用の Public 入口**です。実装の正は `QdAnnealingIR` / `QdAnnealingOutput` で、**Executor による実行は不要**です。量子回路そのものの変換は担当せず、回路はゲート用スタック（Qiskit 連携）で扱います。
-3. **ゲート／アニーリング実行（オプション）** — `qudas[gate]` と `qudas[annealing]` で追加される、回路実行・アニーリングジョブ用の Input / IR / Executor / Output 層です。変換 API とは別経路です。
+主な柱:
 
-Sphinx による API ドキュメントはリポジトリ内の [`sphinx_docs/source/`](sphinx_docs/source/) をソースとし、ビルド手順は [`DEVELOPER.md`](DEVELOPER.md) を参照してください。公開用にビルドした静的 HTML は [`docs/latest/`](docs/latest/) に置く運用が可能です。
+1. **パイプライン（`QdPipeline`）** — 実行時オーケストレータ（`fit` / `optimize` / `predict`、`models` / `results` 共有）。詳細は 1-6。
+2. **Pipeline Model（`QdPipelineModel`）** — Pipeline 全体を永続化・交換可能な **計算モデル仕様**（Node/Edge/Parameters）。`QdPipeline.models`（学習格納）とは別概念です。
+3. **形式変換（`QuData`）** — QUBO まわりの変換専用 Public 入口。実装の正は `QdAnnealingIR`。回路はゲート用スタックで扱います。
+4. **ゲート／アニーリング実行（オプション）** — `qudas[gate]` / `qudas[annealing]` の Input / IR / Executor / Output。
+5. **Problem / Algorithm Library** — MaxCut 等の実問題と、Classical / Annealing / QAOA などの Algorithm Package。
+
+Sphinx API ドキュメントは [`sphinx_docs/source/`](sphinx_docs/source/)、ガイドは [`docs/guides/`](docs/guides/) を参照してください。
 
 本 README は
 
@@ -60,7 +64,26 @@ v0.2.6 時点の概念図です（GitHub 上の README では下記パスの画�
 ![QuData を中心としたゲート・アニーリングとデータの流れ](sphinx_docs/source/img/data_abstract.png)
 
 ### 1-3. クイックスタート
-以下では代表的なユースケースを抜粋します。詳細は [examples/](examples/) も参照してください。
+以下では代表的なユースケースを抜粋します。詳細は [examples/](examples/) および [docs/guides/](docs/guides/) も参照してください。
+
+#### 1-3-0. Problem → Algorithm → 比較（新機能）
+```python
+from qudas.problem import MaxCutProblem
+from qudas.api import solve, compare
+from qudas.algorithm import AlgorithmPackage, get_algorithm
+
+problem = MaxCutProblem.from_edge_list([(0, 1), (1, 2), (2, 0)])
+print(solve(problem, "classical.exact").problem_objective)
+print(solve(problem, "annealing.dimod_exact").problem_objective)
+
+# Pipeline Model / Algorithm Package の保存と再利用
+pkg = AlgorithmPackage.from_spec(get_algorithm("annealing.dimod_exact"))
+pkg.save("annealing.json")
+other = MaxCutProblem.from_edge_list([(0, 1), (1, 2)])
+print(AlgorithmPackage.load("annealing.json").run(other).problem_objective)
+```
+
+比較サンプル: [`examples/maxcut_compare.py`](examples/maxcut_compare.py)
 
 #### 1-3-1. QuData の生成
 ```python

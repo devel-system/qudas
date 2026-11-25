@@ -5,6 +5,27 @@
 - `QuDataInput` / `QuDataOutput` の削除（目標 v0.3）
 - Executor naive fallback のデフォルト raise / 明示 opt-in（目標 v0.3）
 - 変換用 extras と実行用 extras の分離検討
+- OpenQASM 3 / QIR の本格 Adapter
+- TSP 等の追加 Problem、分岐・合流の実行エンジン
+
+---
+
+## [Unreleased] - next-gen architecture (Additive)
+### Added
+- **Pipeline Model** (`QdPipelineModel`): Node/Edge/Parameters/ControlFlow の JSON 永続化・検証・`materialize()`→`QdPipeline`
+- **Model Envelope** (`qudas.model`): schema_version / ConversionReport（lossless/approximate/problem_level/unsupported）
+- **Problem Library**: `MaxCutProblem`, `KnapsackProblem`, `BinaryOptimizationProblem`
+- **Algorithm Library / Package**: classical.exact / annealing.dimod_exact / qaoa.qiskit（サンプル）
+- **共通 Result** (`QdExperimentResult`) と比較 (`compare_results`)
+- **Exchange**: Qiskit/OpenQASM2 Import、Capability Check、Gate↔Annealing の明示的拒否
+- **QPLAT Contract** (`qudas.qplat.QplatContract`): 宣言的 JSON インターフェース（QPLAT 本体非依存）
+- 高レベル API `qudas.api.solve` / `compare` / `catalog`
+- ガイド: `docs/guides/*.md`、サンプル `examples/maxcut_compare.py`
+
+### Notes
+- 既存 Stable API（`QdPipeline` / `QuData` / Gate・Annealing）は維持
+- `QdPipeline.models`（学習格納）と `QdPipelineModel`（仕様）は別概念
+- QAOA 実装は論文の完全再現ではない（Adapt 実証用）
 
 ---
 
