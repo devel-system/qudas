@@ -43,12 +43,14 @@ class TestPipelineModel(unittest.TestCase):
         with self.assertRaises(ValueError):
             QdPipelineModel.from_json(json.dumps({"schema_version": "1.0.0"}))
 
-    def test_branch_control_flow_not_executable(self):
+    def test_parallel_control_flow_is_valid(self):
         model = QdPipelineModel()
         model.add_node("a", "qudas.passthrough")
         model.control_flow.kind = "parallel"
         errors = model.validate()
-        self.assertTrue(any("schema-only" in e for e in errors))
+        self.assertFalse(any("schema-only" in e for e in errors))
+        self.assertFalse(any("Unknown control_flow" in e for e in errors))
+        self.assertTrue(model.needs_advanced_runtime())
 
     def test_materialize_and_run(self):
         problem = MaxCutProblem.from_edge_list([(0, 1), (1, 2), (2, 0)])

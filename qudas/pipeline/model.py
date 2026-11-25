@@ -77,8 +77,8 @@ class ControlFlowSpec:
 
     kind:
       - sequential: ノード順次（edges のトポロジまたは nodes の順序）
-      - loop: 明示的な反復（iterations / loop_over）
-      - branch / join / parallel: 表現のみ（実行は未対応 → validate で警告）
+      - loop: 明示的な反復（iterations / details.max_iterations）
+      - branch / join / parallel / graph: AdvancedPipelineRuntime が実行
     """
 
     kind: str = "sequential"
@@ -119,6 +119,9 @@ class QdPipelineModel:
     metadata: Dict[str, Any] = field(default_factory=dict)
     version: str = SCHEMA_VERSION
     name: str = "pipeline"
+    # ONNX 参考の交換メタ（認証情報は入れない）
+    dependencies: List[str] = field(default_factory=list)
+    execution_requirements: Dict[str, Any] = field(default_factory=dict)
 
     # ---- 構築 ---------------------------------------------------------
     def add_node(
@@ -180,17 +183,38 @@ class QdPipelineModel:
             if e.target not in id_set:
                 errors.append(f"Edge target missing: {e.target}")
         for n in self.nodes:
+            # Sub-pipeline はレジストリ外の特殊 type_id
+            if n.type_id == "qudas.subpipeline":
+                if "model" not in (n.parameters or {}) and "pipeline_model" not in (
+                    n.parameters or {}
+                ):
+                    errors.append(
+                        f"Sub-pipeline node {n.id} requires parameters.model"
+                    )
+                continue
             if not registry.has(n.type_id):
                 errors.append(f"Unregistered type_id: {n.type_id} (node={n.id})")
+            # 演算メタ（任意）
+            op_ver = (n.metadata or {}).get("op_version")
+            if op_ver is not None and not isinstance(op_ver, str):
+                errors.append(f"node {n.id}: metadata.op_version must be str")
         kind = self.control_flow.kind
-        if kind in ("branch", "join", "parallel"):
-            errors.append(
-                f"Control flow kind={kind!r} is schema-only; "
-                "runtime execution is not implemented"
-            )
+        allowed_kinds = {
+            "sequential",
+            "loop",
+            "branch",
+            "join",
+            "parallel",
+            "graph",
+        }
+        if kind not in allowed_kinds:
+            errors.append(f"Unknown control_flow.kind={kind!r}")
         if self.control_flow.iterations < 1:
             errors.append("control_flow.iterations must be >= 1")
-        # サイクル検出（edges がある場合）
+        max_iter = (self.control_flow.details or {}).get("max_iterations")
+        if max_iter is not None and int(max_iter) < 1:
+            errors.append("control_flow.details.max_iterations must be >= 1")
+        # サイクル検出（edges がある場合）。loop は制御で反復するためグラフ閉路は禁止のまま。
         if self.edges:
             adj: Dict[str, List[str]] = {i: [] for i in id_set}
             for e in self.edges:
@@ -215,6 +239,10 @@ class QdPipelineModel:
                 if dfs(i):
                     errors.append("Pipeline graph contains a cycle")
                     break
+        # 秘密情報の混入チェック
+        for banned in ("token", "api_key", "password", "secret"):
+            if banned in (self.parameters or {}) or banned in (self.context or {}):
+                errors.append(f"Refusing to store secret field in model: {banned}")
         return errors
 
     # ---- シリアライズ -------------------------------------------------
@@ -230,6 +258,8 @@ class QdPipelineModel:
             "input_schema": self.input_schema,
             "output_schema": self.output_schema,
             "metadata": self.metadata,
+            "dependencies": list(self.dependencies),
+            "execution_requirements": dict(self.execution_requirements),
         }
 
     @classmethod
@@ -253,6 +283,8 @@ class QdPipelineModel:
             metadata=dict(data.get("metadata") or {}),
             version=str(data.get("version", SCHEMA_VERSION)),
             name=str(data.get("name", "pipeline")),
+            dependencies=list(data.get("dependencies") or []),
+            execution_requirements=dict(data.get("execution_requirements") or {}),
         )
 
     def to_envelope(self) -> QdModelEnvelope:
@@ -312,18 +344,44 @@ class QdPipelineModel:
             raise ValueError("Cannot order nodes (cycle or disconnected edges)")
         return order
 
+    def needs_advanced_runtime(self) -> bool:
+        kind = self.control_flow.kind
+        if kind in ("branch", "join", "parallel", "graph"):
+            return True
+        if any(n.type_id == "qudas.subpipeline" for n in self.nodes):
+            return True
+        if any((n.metadata or {}).get("role") in ("branch", "join", "subpipeline") for n in self.nodes):
+            return True
+        return False
+
     def materialize(
         self, registry: Optional[ComponentRegistry] = None
     ) -> "Any":
-        """登録済みコンポーネントから実行用 QdPipeline を生成する。"""
-        from .pipeline import QdPipeline
+        """登録済みコンポーネントから実行用 QdPipeline を生成する。
 
+        Advanced 制御フローの場合は AdvancedPipelineRuntime を返す。
+        """
         registry = registry or default_registry
         errors = self.validate(registry)
-        # branch/join/parallel は実行不能として raise
-        hard = [e for e in errors if "schema-only" in e or "Unregistered" in e or "cycle" in e or "no nodes" in e]
+        hard = [
+            e
+            for e in errors
+            if "Unregistered" in e
+            or "cycle" in e
+            or "no nodes" in e
+            or "Unknown control_flow" in e
+            or "Refusing" in e
+            or "Sub-pipeline" in e
+        ]
         if hard:
             raise ValueError("Invalid pipeline model: " + "; ".join(hard))
+
+        if self.needs_advanced_runtime():
+            from .runtime import AdvancedPipelineRuntime
+
+            return AdvancedPipelineRuntime(self, registry=registry)
+
+        from .pipeline import QdPipeline
 
         node_map = {n.id: n for n in self.nodes}
         steps = []
@@ -354,9 +412,25 @@ class QdPipelineModel:
         y: Any = None,
         mode: str = "optimize",
         registry: Optional[ComponentRegistry] = None,
+        *,
+        parallel_workers: int = 0,
     ) -> Any:
         """materialize して fit/optimize/predict を実行。"""
+        if self.needs_advanced_runtime() or self.control_flow.kind == "loop" and (
+            self.control_flow.details or {}
+        ).get("terminate_when"):
+            from .runtime import AdvancedPipelineRuntime
+
+            rt = AdvancedPipelineRuntime(
+                self,
+                registry=registry or default_registry,
+                parallel_workers=parallel_workers,
+            )
+            return rt.run(X, y, mode=mode)
+
         pipe = self.materialize(registry=registry)
+        if hasattr(pipe, "run") and pipe.__class__.__name__ == "AdvancedPipelineRuntime":
+            return pipe.run(X, y, mode=mode)
         if mode == "fit":
             return pipe.fit(X, y)
         if mode == "optimize":
