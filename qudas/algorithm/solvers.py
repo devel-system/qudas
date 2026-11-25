@@ -23,7 +23,7 @@ CLASSICAL_EXACT = register_algorithm(
         version="0.1.0",
         description="Brute-force enumeration for small binary problems (n<=20).",
         parameters={},
-        compatible_problems=["maxcut", "knapsack"],
+        compatible_problems=["maxcut", "knapsack", "tsp"],
         required_dependencies=[],
         backend_requirements=["classical"],
         pipeline_model=_sequential_pipeline(
@@ -40,7 +40,7 @@ ANNEALING_DIMOD = register_algorithm(
         version="0.1.0",
         description="QUBO solve using dimod.ExactSolver through QdAnnealingExecutor.",
         parameters={},
-        compatible_problems=["maxcut", "knapsack", "binary_optimization"],
+        compatible_problems=["maxcut", "knapsack", "tsp", "binary_optimization"],
         required_dependencies=["dimod"],
         backend_requirements=["annealing", "dimod"],
         pipeline_model=_sequential_pipeline(

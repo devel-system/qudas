@@ -29,6 +29,7 @@ def list_problems() -> List[Dict[str, str]]:
     # 遅延 import でレジストリを埋める
     from . import maxcut as _maxcut  # noqa: F401
     from . import knapsack as _knapsack  # noqa: F401
+    from . import tsp as _tsp  # noqa: F401
 
     return [
         {"problem_id": pid, "class": cls.__name__}

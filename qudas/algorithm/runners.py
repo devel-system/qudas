@@ -42,18 +42,23 @@ def _ensure_compatible(problem: Any, compatible: list) -> None:
 
 @register_runner("classical.exact")
 def run_classical_exact(problem, params, package=None) -> QdExperimentResult:
-    _ensure_compatible(problem, ["maxcut", "knapsack", "binary_optimization"])
+    _ensure_compatible(problem, ["maxcut", "knapsack", "tsp", "binary_optimization"])
     timer = Timer()
     if not hasattr(problem, "classical_brute_force"):
         raise TypeError("problem does not support classical_brute_force")
     out = problem.classical_brute_force()
     sol = out["solution"]
     obj = out.get("objective", problem.evaluate(sol))
+    cons = (
+        problem.evaluate_constraints(sol)
+        if hasattr(problem, "evaluate_constraints")
+        else {"feasible": out.get("feasible", True)}
+    )
     return QdExperimentResult(
         solution=sol,
         objective_value=obj,
         problem_objective=obj,
-        feasibility=out.get("feasible", True),
+        feasibility=cons.get("feasible", out.get("feasible", True)),
         timing=TimingBreakdown(total_s=timer.elapsed(), classical_optimize_s=timer.elapsed()),
         backend="classical",
         algorithm="classical.exact",
@@ -66,7 +71,7 @@ def run_classical_exact(problem, params, package=None) -> QdExperimentResult:
 
 @register_runner("annealing.dimod_exact")
 def run_annealing_dimod(problem, params, package=None) -> QdExperimentResult:
-    _ensure_compatible(problem, ["maxcut", "knapsack", "binary_optimization", "*"])
+    _ensure_compatible(problem, ["maxcut", "knapsack", "tsp", "binary_optimization", "*"])
     timer = Timer()
     try:
         from qudas.annealing import QdAnnealingIR, QdAnnealingInput, QdAnnealingBlock, QdAnnealingExecutor
