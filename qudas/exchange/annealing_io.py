@@ -6,18 +6,21 @@ from typing import Any
 
 from qudas.model.conversion import ConversionError, ConversionReport
 from qudas.model.schema import ConversionKind
-from .capabilities import check_conversion
+from .capabilities import check_conversion, convert as graph_convert, ensure_graph_initialized
 
 
 def port_annealing(source_obj: Any, source_format: str, target_format: str):
     """QUBO / Ising / dimod / amplify 等の変換。"""
+    ensure_graph_initialized()
     src, tgt = source_format.lower(), target_format.lower()
 
     # Gate↔Annealing の直変換を拒否
-    if src in ("gate", "qiskit", "openqasm2", "qd_algorithm_ir") and tgt in (
+    if src in ("gate", "qiskit", "openqasm2", "openqasm3", "qd_algorithm_ir") and tgt in (
         "qubo",
         "ising",
         "annealing",
+        "annealing_ir",
+        "dimod_bqm",
     ):
         report = ConversionReport.unsupported(
             src,
@@ -27,6 +30,22 @@ def port_annealing(source_obj: Any, source_format: str, target_format: str):
             constraints=["use problem_level"],
         )
         raise ConversionError(report.message, report)
+
+    # Graph に callable がある経路は優先
+    try:
+        report_pre = check_conversion(src, tgt)
+        if report_pre.success and src in (
+            "qubo",
+            "ising",
+            "dimod_bqm",
+            "annealing_ir",
+            "networkx",
+            "pyqubo",
+            "problem",
+        ):
+            return graph_convert(source_obj, src, tgt)
+    except ConversionError:
+        pass
 
     report = check_conversion(src, tgt)
     if report.kind == ConversionKind.UNSUPPORTED or not report.success:
